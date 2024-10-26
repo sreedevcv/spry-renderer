@@ -22,8 +22,8 @@ public:
 
 protected:
     virtual void onUpdate(float deltaTime) = 0;
-    virtual void onMouseMove(double x_pos_in, double y_pos_in);
-    virtual void onMouseScroll(double x_offset, double y_offset);
+    virtual void onMouseMove(double xPosIn, double yPosIn);
+    virtual void onMouseScroll(double xOffset, double yOffset);
     virtual void onScreenSizeChange(int width, int height);
 
 private:

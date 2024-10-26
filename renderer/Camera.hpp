@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Window.hpp"
 #include <glm/mat4x4.hpp>
 #include <glm/vec3.hpp>
 #include <glm/gtc/matrix_transform.hpp>
@@ -39,7 +40,6 @@ public:
         float firstMouse = true;
         float lastX;
         float lastY;
-        // bool captured = false;
     } mouseData;
 
     glm::mat4 getViewMatrix();
@@ -51,6 +51,9 @@ public:
 
     void setScreenSize(const int width, const int height);
     void setPosition(glm::vec3&& position);
+
+    void defaultInputProcess(Window& window, float delta);
+    void defaultMousePan(double xPosIn, double yPosIn);
 
 private:
     int mWidth;

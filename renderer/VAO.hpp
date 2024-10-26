@@ -15,7 +15,7 @@ public:
     void loadData(std::span<float> vertices, std::span<uint32_t> indices, std::span<uint32_t> format);
     void loadData(std::span<float> vertices, std::span<uint32_t> format);
     void draw(GLenum mode = GL_TRIANGLES);
-    void deleteBuffers();
+    void unload();
 
     VAO(VAO& mesh);
     VAO(VAO&& mesh);

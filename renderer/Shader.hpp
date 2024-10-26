@@ -4,8 +4,6 @@
 #include <glad/glad.h>
 
 #include <glm/mat4x4.hpp>
-#include <vector>
-
 
 namespace spry {
 
@@ -23,7 +21,7 @@ private:
 class Shader {
 public:
     Shader();
-    ~Shader();
+    ~Shader() = default;
     Shader& bind(const char* path, GLenum type);
     Shader& compile();
 
@@ -35,6 +33,7 @@ public:
     void setUniformVec(const char* name, const glm::vec4& value);
     void setUniformVec(const char* name, const glm::vec3& value);
     void setUniformInt(const char* name, const int value) const;
+    void unload();
 
 private:
     uint32_t mID;

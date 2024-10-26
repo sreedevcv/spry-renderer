@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "Camera.hpp"
-#include "Line.hpp"
+#include "DefaultScene.hpp"
 #include "Window.hpp"
 #include "VAO.hpp"
 #include "Shader.hpp"
@@ -20,6 +20,7 @@ public:
         , mWidth { width }
         , spry::Window(width, height, "Test", true)
         , camera { mWidth, mHeight }
+        , defaultScene(camera)
     {
         glEnable(GL_CULL_FACE);
         setMouseCapture(true);
@@ -42,23 +43,20 @@ public:
         std::vector<uint32_t> format = { 3, 3 };
         vao.loadData(std::span { points }, std::span { indices }, std::span { format });
 
-        xAxis.setEndPoints(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1000.0f, 0.0f, 0.0f));
-        yAxis.setEndPoints(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1000.0f, 0.0f));
-        zAxis.setEndPoints(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1000.0f));
-
         tetrahedronShader
             .bind(RES_PATH "shaders/Tetrahedron.vert.glsl", GL_VERTEX_SHADER)
             .bind(RES_PATH "shaders/Tetrahedron.frag.glsl", GL_FRAGMENT_SHADER)
             .compile();
-        lineShader
-            .bind(RES_PATH "shaders/Line.vert.glsl", GL_VERTEX_SHADER)
-            .bind(RES_PATH "shaders/Line.frag.glsl", GL_FRAGMENT_SHADER)
-            .compile();
+
+        defaultScene.load();
     }
 
     ~TestWindow()
     {
-        vao.deleteBuffers();
+        vao.unload();
+        lineShader.unload();
+        tetrahedronShader.unload();
+        defaultScene.unload();
     }
 
 private:
@@ -68,9 +66,7 @@ private:
     spry::Shader lineShader;
     spry::VAO vao;
     spry::Camera camera;
-    spry::Line xAxis;
-    spry::Line yAxis;
-    spry::Line zAxis;
+    spry::DefaultScene defaultScene;
 
     void onUpdate(float deltaTime) override
     {
@@ -79,14 +75,11 @@ private:
         glClearColor(0.4f, 0.5f, 0.5f, 1.0f);
         glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
+        defaultScene.update(deltaTime);
+
         glm::mat4 model = glm::mat4(1.0f);
         glm::mat4 view = camera.getViewMatrix();
         glm::mat4 proj = camera.getProjectionMatrix();
-
-        lineShader.use();
-        lineShader.setUniformMatrix("projection", proj);
-        lineShader.setUniformMatrix("view", view);
-        drawAxes();
 
         tetrahedronShader.use();
         tetrahedronShader.setUniformMatrix("projection", proj);
@@ -102,65 +95,22 @@ private:
         if (isKeyPressed(GLFW_KEY_ESCAPE)) {
             closeWindow();
         }
-        if (isKeyPressed(GLFW_KEY_W)) {
-            camera.processMovement(spry::Camera::movement::FORWARD, deltaTime);
-        }
-        if (isKeyPressed(GLFW_KEY_S)) {
-            camera.processMovement(spry::Camera::movement::BACKWARD, deltaTime);
-        }
-        if (isKeyPressed(GLFW_KEY_A)) {
-            camera.processMovement(spry::Camera::movement::LEFT, deltaTime);
-        }
-        if (isKeyPressed(GLFW_KEY_D)) {
-            camera.processMovement(spry::Camera::movement::RIGHT, deltaTime);
-        }
-        if (isKeyPressed(GLFW_KEY_SPACE)) {
-            camera.processMovement(spry::Camera::movement::UP, deltaTime);
-        }
-        if (isKeyPressed(GLFW_KEY_LEFT_SHIFT)) {
-            camera.processMovement(spry::Camera::movement::DOWN, deltaTime);
-        }
         if (isKeyPressed(GLFW_KEY_ENTER)) {
             std::println("Position {} {} {}", camera.mPosition.x, camera.mPosition.y, camera.mPosition.z);
             std::println("LookAt {} {} {}", camera.mFront.x, camera.mFront.y, camera.mFront.z);
         }
+
+        camera.defaultInputProcess(*this, deltaTime);
     }
 
-    void onMouseMove(double x_pos_in, double y_pos_in) override
+    void onMouseMove(double xPosIn, double yPosIn) override
     {
-        float x_pos = static_cast<float>(x_pos_in);
-        float y_pos = static_cast<float>(y_pos_in);
-
-        if (camera.mouseData.firstMouse) {
-            camera.mouseData.lastX = x_pos;
-            camera.mouseData.lastY = y_pos;
-            camera.mouseData.firstMouse = false;
-        }
-
-        float x_offset = x_pos - camera.mouseData.lastX;
-        float y_offset = camera.mouseData.lastY - y_pos;
-
-        camera.mouseData.lastX = x_pos;
-        camera.mouseData.lastY = y_pos;
-
-        camera.processMouseMovement(x_offset, y_offset, true);
+        camera.defaultMousePan(xPosIn, yPosIn);
     }
 
-    void onMouseScroll(double x_offset, double y_offset) override
+    void onMouseScroll(double xOffset, double yOffset) override
     {
-        camera.processMouseScroll(static_cast<float>(y_offset));
-    }
-
-    void drawAxes()
-    {
-        auto line_model = glm::mat4(1.0f);
-        lineShader.setUniformMatrix("model", line_model);
-        lineShader.setUniformVec("lineColor", glm::vec3(1.0f, 0.0f, 0.0f));
-        xAxis.draw();
-        lineShader.setUniformVec("lineColor", glm::vec3(0.0f, 1.0f, 0.0f));
-        yAxis.draw();
-        lineShader.setUniformVec("lineColor", glm::vec3(0.0f, 0.0f, 1.0f));
-        zAxis.draw();
+        camera.processMouseScroll(static_cast<float>(yOffset));
     }
 };
 

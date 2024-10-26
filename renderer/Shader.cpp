@@ -41,7 +41,7 @@ spry::Shader::Shader()
     mID = glCreateProgram();
 }
 
-spry::Shader::~Shader()
+void spry::Shader::unload()
 {
     glDeleteProgram(mID);
 }

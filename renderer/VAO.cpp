@@ -4,7 +4,7 @@
 void spry::VAO::loadData(std::span<float> vertices, std::span<uint32_t> indices, std::span<uint32_t> format)
 {
     if (mDataLoaded) {
-        deleteBuffers();
+        unload();
     }
 
     mVertexCount = indices.size();
@@ -39,7 +39,7 @@ void spry::VAO::loadData(std::span<float> vertices, std::span<uint32_t> indices,
 void spry::VAO::loadData(std::span<float> vertices, std::span<uint32_t> format)
 {
     if (mDataLoaded) {
-        deleteBuffers();
+        unload();
     }
 
     mDataLoaded = true;
@@ -79,7 +79,7 @@ void spry::VAO::draw(GLenum mode)
     glBindVertexArray(0);
 }
 
-void spry::VAO::deleteBuffers()
+void spry::VAO::unload()
 {
     glDeleteVertexArrays(1, &mVAO);
     glDeleteBuffers(1, &mVBO);

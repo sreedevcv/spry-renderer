@@ -31,6 +31,8 @@ add_library(
     Shader.cpp
     Camera.cpp
     Line.cpp
+    Scene.cpp
+    DefaultScene.cpp
 )
 
 target_link_libraries(

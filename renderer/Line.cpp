@@ -1,4 +1,5 @@
 #include "Line.hpp"
+#include "VAO.hpp"
 
 #include <vector>
 
@@ -37,4 +38,9 @@ void spry::Line::loadMesh()
 
     std::vector<uint32_t> format = { 3 };
     mVAO.loadData(std::span { vertices }, std::span { format });
+}
+
+void spry::Line::unload()
+{
+    mVAO.unload();
 }

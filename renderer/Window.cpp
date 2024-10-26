@@ -142,11 +142,11 @@ GLFWwindow* spry::Window::get_window()
     return m_window;
 }
 
-void spry::Window::onMouseMove(double x_pos_in, double y_pos_in)
+void spry::Window::onMouseMove(double xPosIn, double yPosIn)
 {
 }
 
-void spry::Window::onMouseScroll(double x_offset, double y_offset)
+void spry::Window::onMouseScroll(double xOffset, double yOffset)
 {
 }
 

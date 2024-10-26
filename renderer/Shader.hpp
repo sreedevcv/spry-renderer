@@ -38,7 +38,6 @@ public:
 
 private:
     uint32_t mID;
-    std::vector<uint32_t> sids;
 };
 
 }

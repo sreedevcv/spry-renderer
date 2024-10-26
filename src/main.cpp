@@ -34,9 +34,9 @@ public:
         std::vector<uint32_t> format = { 3 };
         vao.loadData(std::span { points }, std::span { indices }, std::span { format });
 
-        shader = spry::Shader()
-            .bind(RES_PATH"shaders/Tetrahedron.vert.glsl", GL_VERTEX_SHADER)
-            .bind(RES_PATH"shaders/Tetrahedron.frag.glsl", GL_FRAGMENT_SHADER)
+        shader
+            .bind(RES_PATH "shaders/Tetrahedron.vert.glsl", GL_VERTEX_SHADER)
+            .bind(RES_PATH "shaders/Tetrahedron.frag.glsl", GL_FRAGMENT_SHADER)
             .compile();
     }
 
@@ -55,17 +55,17 @@ private:
         glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
         glm::mat4 model = glm::mat4(1.0f);
-        glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-        glm::mat4 proj = glm::perspective(glm::radians(60.0f), 600.0f/400.0f, 100.0f, 1.0f);
+        model = glm::rotate(model, (float)getGlobalTime(), glm::vec3(0.0f, 1.0f, 0.0f));
+        glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 0.0f, 1.5f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+        glm::mat4 proj = glm::perspective(glm::radians(100.0f), 600.0f / 400.0f, 0.5f, 100.0f);
 
+        shader.use();
         shader.set_uniform_matrix("projection", proj);
         shader.set_uniform_matrix("view", view);
         shader.set_uniform_matrix("model", model);
 
-        shader.use();
         vao.draw();
     }
-
 };
 
 int main()

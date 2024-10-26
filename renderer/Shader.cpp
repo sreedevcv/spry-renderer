@@ -33,7 +33,7 @@ spry::SingleShader::SingleShader(const char* shaderpath, GLenum shaderType)
 
 spry::SingleShader::~SingleShader()
 {
-    // glDeleteShader(mID);
+    glDeleteShader(mID);
 }
 
 spry::Shader::Shader()
@@ -50,7 +50,6 @@ spry::Shader& spry::Shader::bind(const char* path, GLenum type)
 {
     SingleShader shader(path, type);
     glAttachShader(mID, shader.mID);
-    // sids.
     return *this;
 }
 

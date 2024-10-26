@@ -24,7 +24,7 @@ spry::Window::Window(int width, int height, const char* title, bool debug_mode)
     m_window = glfwCreateWindow(m_width, m_height, title, nullptr, nullptr);
 
     if (m_window == nullptr) {
-        std::println("Failed to load window");
+        std::println("Failed to load window of size {} {}", width, height);
         glfwTerminate();
         std::exit(-1);
     }

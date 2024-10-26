@@ -29,6 +29,8 @@ add_library(
     Window.cpp
     VAO.cpp
     Shader.cpp
+    Camera.cpp
+    Line.cpp
 )
 
 target_link_libraries(

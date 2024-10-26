@@ -28,13 +28,13 @@ public:
     Shader& compile();
 
     void use();
-    void set_uniform_float(const char* name, const float value);
-    void set_uniform_matrix(const char* name, const glm::mat4& value);
-    void set_uniform_vec(const char* name, const glm::vec4&& value);
-    void set_uniform_vec(const char* name, const glm::vec3&& value);
-    void set_uniform_vec(const char* name, const glm::vec4& value);
-    void set_uniform_vec(const char* name, const glm::vec3& value);
-    void set_uniform_int(const char* name, const int value) const;
+    void setUniformFloat(const char* name, const float value);
+    void setUniformMatrix(const char* name, const glm::mat4& value);
+    void setUniformVec(const char* name, const glm::vec4&& value);
+    void setUniformVec(const char* name, const glm::vec3&& value);
+    void setUniformVec(const char* name, const glm::vec4& value);
+    void setUniformVec(const char* name, const glm::vec3& value);
+    void setUniformInt(const char* name, const int value) const;
 
 private:
     uint32_t mID;

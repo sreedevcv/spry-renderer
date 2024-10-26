@@ -25,15 +25,15 @@ public:
     Shader& bind(const char* path, GLenum type);
     Shader& compile();
 
-    void use();
-    void setUniformFloat(const char* name, const float value);
-    void setUniformMatrix(const char* name, const glm::mat4& value);
-    void setUniformVec(const char* name, const glm::vec4&& value);
-    void setUniformVec(const char* name, const glm::vec3&& value);
-    void setUniformVec(const char* name, const glm::vec4& value);
-    void setUniformVec(const char* name, const glm::vec3& value);
+    void use() const;
+    void setUniformFloat(const char* name, const float value) const;
+    void setUniformMatrix(const char* name, const glm::mat4& value) const;
+    void setUniformVec(const char* name, const glm::vec4&& value) const;
+    void setUniformVec(const char* name, const glm::vec3&& value) const;
+    void setUniformVec(const char* name, const glm::vec4& value) const;
+    void setUniformVec(const char* name, const glm::vec3& value) const;
     void setUniformInt(const char* name, const int value) const;
-    void unload();
+    void unload() const;
 
 private:
     uint32_t mID;

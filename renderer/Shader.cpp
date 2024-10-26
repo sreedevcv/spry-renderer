@@ -41,7 +41,7 @@ spry::Shader::Shader()
     mID = glCreateProgram();
 }
 
-void spry::Shader::unload()
+void spry::Shader::unload() const
 {
     glDeleteProgram(mID);
 }
@@ -69,36 +69,36 @@ spry::Shader& spry::Shader::compile()
     return *this;
 }
 
-void spry::Shader::use()
+void spry::Shader::use() const
 {
     glUseProgram(mID);
 }
 
-void spry::Shader::setUniformFloat(const char* name, const float value)
+void spry::Shader::setUniformFloat(const char* name, const float value) const
 {
     int loc = glGetUniformLocation(mID, name);
     glUniform1f(loc, value);
 }
 
-void spry::Shader::setUniformMatrix(const char* name, const glm::mat4& value)
+void spry::Shader::setUniformMatrix(const char* name, const glm::mat4& value) const
 {
     int loc = glGetUniformLocation(mID, name);
     glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(value));
 }
 
-void spry::Shader::setUniformVec(const char* name, const glm::vec3&& value)
+void spry::Shader::setUniformVec(const char* name, const glm::vec3&& value) const
 {
     int loc = glGetUniformLocation(mID, name);
     glUniform3fv(loc, 1, glm::value_ptr(value));
 }
 
-void spry::Shader::setUniformVec(const char* name, const glm::vec4&& value)
+void spry::Shader::setUniformVec(const char* name, const glm::vec4&& value) const
 {
     int loc = glGetUniformLocation(mID, name);
     glUniform4fv(loc, 1, glm::value_ptr(value));
 }
 
-void spry::Shader::setUniformVec(const char* name, const glm::vec3& value)
+void spry::Shader::setUniformVec(const char* name, const glm::vec3& value) const
 {
     int loc = glGetUniformLocation(mID, name);
     glUniform3fv(loc, 1, glm::value_ptr(value));
@@ -110,7 +110,7 @@ void spry::Shader::setUniformInt(const char* name, const int value) const
     glUniform1i(loc, value);
 }
 
-void spry::Shader::setUniformVec(const char* name, const glm::vec4& value)
+void spry::Shader::setUniformVec(const char* name, const glm::vec4& value) const
 {
     int loc = glGetUniformLocation(mID, name);
     glUniform4fv(loc, 1, glm::value_ptr(value));

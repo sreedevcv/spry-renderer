@@ -21,8 +21,8 @@ public:
     ~Line() = default;
 
     void setEndPoints(glm::vec3 start, glm::vec3 end);
-    void draw();
-    void unload();
+    void draw() const;
+    void unload() const;
 };
 
 }

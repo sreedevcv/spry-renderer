@@ -42,8 +42,8 @@ public:
         float lastY;
     } mouseData;
 
-    glm::mat4 getViewMatrix();
-    glm::mat4 getProjectionMatrix();
+    glm::mat4 getViewMatrix() const;
+    glm::mat4 getProjectionMatrix() const;
 
     void processMovement(movement m, float delta_time);
     void processMouseMovement(float x_offset, float y_offset, bool constrain_pitch = true);
@@ -52,7 +52,7 @@ public:
     void setScreenSize(const int width, const int height);
     void setPosition(glm::vec3&& position);
 
-    void defaultInputProcess(Window& window, float delta);
+    void defaultInputProcess(const Window& window, float delta);
     void defaultMousePan(double xPosIn, double yPosIn);
 
 private:

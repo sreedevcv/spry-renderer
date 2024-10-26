@@ -1,6 +1,6 @@
 #include "DefaultScene.hpp"
 
-spry::DefaultScene::DefaultScene(Camera& camera)
+spry::DefaultScene::DefaultScene(const Camera& camera)
     : mCamera(camera)
 {
 }

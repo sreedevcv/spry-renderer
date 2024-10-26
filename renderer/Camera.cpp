@@ -10,12 +10,12 @@ spry::Camera::Camera(int screenWidth, int screenHeight)
     updateCameraVectors();
 }
 
-glm::mat4 spry::Camera::getViewMatrix()
+glm::mat4 spry::Camera::getViewMatrix() const
 {
     return glm::lookAt(mPosition, (mPosition + mFront), mUp);
 }
 
-glm::mat4 spry::Camera::getProjectionMatrix()
+glm::mat4 spry::Camera::getProjectionMatrix() const
 {
     return glm::perspective(glm::radians(mZoom), aspectRatio, mNearPoint, mFarPoint);
 }
@@ -101,7 +101,7 @@ void spry::Camera::processMouseScroll(float y_offset)
     }
 }
 
-void spry::Camera::defaultInputProcess(Window& window, float delta)
+void spry::Camera::defaultInputProcess(const Window& window, float delta)
 {
     if (window.isKeyPressed(GLFW_KEY_W)) {
         processMovement(spry::Camera::movement::FORWARD, delta);

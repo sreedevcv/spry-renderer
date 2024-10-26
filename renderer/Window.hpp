@@ -10,15 +10,15 @@ public:
     Window(int width, int height, const char* title, bool debug_mode = false);
     virtual ~Window();
 
-    bool isKeyPressed(int key);
-    bool isKeyReleased(int key);
-    double getGlobalTime();
-    void setMouseCapture(bool capture);
-    void setWireFrameMode(bool value);
+    bool isKeyPressed(int key) const;
+    bool isKeyReleased(int key) const;
+    double getGlobalTime() const;
+    void setMouseCapture(bool capture) const;
+    void setWireFrameMode(bool value) const;
 
     void start();
-    void closeWindow();
-    GLFWwindow* get_window();
+    void closeWindow() const;
+    GLFWwindow* get_window() const;
 
 protected:
     virtual void onUpdate(float deltaTime) = 0;

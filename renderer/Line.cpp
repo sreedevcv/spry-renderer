@@ -1,5 +1,4 @@
 #include "Line.hpp"
-#include "VAO.hpp"
 
 #include <vector>
 
@@ -24,7 +23,7 @@ void spry::Line::setEndPoints(glm::vec3 start, glm::vec3 end)
     loadMesh();
 }
 
-void spry::Line::draw()
+void spry::Line::draw() const
 {
     mVAO.draw(GL_LINES);
 }
@@ -40,7 +39,7 @@ void spry::Line::loadMesh()
     mVAO.loadData(std::span { vertices }, std::span { format });
 }
 
-void spry::Line::unload()
+void spry::Line::unload() const
 {
     mVAO.unload();
 }

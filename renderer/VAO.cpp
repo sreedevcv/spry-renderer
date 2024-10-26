@@ -68,7 +68,7 @@ void spry::VAO::loadData(std::span<float> vertices, std::span<uint32_t> format)
     glBindVertexArray(0);
 }
 
-void spry::VAO::draw(GLenum mode)
+void spry::VAO::draw(GLenum mode) const
 {
     glBindVertexArray(mVAO);
     if (mWithIndexArray) {
@@ -79,7 +79,7 @@ void spry::VAO::draw(GLenum mode)
     glBindVertexArray(0);
 }
 
-void spry::VAO::unload()
+void spry::VAO::unload() const
 {
     glDeleteVertexArrays(1, &mVAO);
     glDeleteBuffers(1, &mVBO);

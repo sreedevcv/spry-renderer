@@ -93,7 +93,7 @@ void spry::Window::start()
     }
 }
 
-bool spry::Window::isKeyPressed(int key)
+bool spry::Window::isKeyPressed(int key) const
 {
     if (glfwGetKey(m_window, key) == GLFW_PRESS) {
         return true;
@@ -101,7 +101,7 @@ bool spry::Window::isKeyPressed(int key)
     return false;
 }
 
-bool spry::Window::isKeyReleased(int key)
+bool spry::Window::isKeyReleased(int key) const
 {
     if (glfwGetKey(m_window, key) == GLFW_RELEASE) {
         return true;
@@ -109,7 +109,7 @@ bool spry::Window::isKeyReleased(int key)
     return false;
 }
 
-void spry::Window::setMouseCapture(bool capture)
+void spry::Window::setMouseCapture(bool capture) const
 {
     if (capture) {
         glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -118,12 +118,12 @@ void spry::Window::setMouseCapture(bool capture)
     }
 }
 
-double spry::Window::getGlobalTime()
+double spry::Window::getGlobalTime() const
 {
     return glfwGetTime();
 }
 
-void spry::Window::setWireFrameMode(bool value)
+void spry::Window::setWireFrameMode(bool value) const
 {
     if (value) {
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -132,12 +132,12 @@ void spry::Window::setWireFrameMode(bool value)
     }
 }
 
-void spry::Window::closeWindow()
+void spry::Window::closeWindow() const
 {
     glfwSetWindowShouldClose(m_window, true);
 }
 
-GLFWwindow* spry::Window::get_window()
+GLFWwindow* spry::Window::get_window() const
 {
     return m_window;
 }

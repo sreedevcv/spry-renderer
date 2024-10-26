@@ -11,7 +11,7 @@ namespace spry {
 
 class DefaultScene : public Scene {
 public:
-    DefaultScene(Camera& camera);
+    DefaultScene(const Camera& camera);
     virtual ~DefaultScene() = default;
 
     void load() override;
@@ -26,7 +26,7 @@ private:
     spry::Shader mShader;
     glm::mat4 mModel;
 
-    Camera& mCamera;
+    const Camera& mCamera;
 };
 
 }

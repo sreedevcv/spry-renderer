@@ -5,6 +5,7 @@
 
 #include "Camera.hpp"
 #include "DefaultScene.hpp"
+#include "Texture.hpp"
 #include "Window.hpp"
 #include "VAO.hpp"
 #include "Shader.hpp"
@@ -22,80 +23,61 @@ public:
         , camera { mWidth, mHeight }
         , defaultScene(camera)
     {
-        // glEnable(GL_CULL_FACE);
-        // glCullFace(GL_BACK);
-        setWireFrameMode(true);
+        glEnable(GL_CULL_FACE);
+        glEnable(GL_DEPTH_TEST);
+        // setWireFrameMode(true);
         setMouseCapture(true);
         camera.mFront = glm::vec3(0.0f, 0.0f, 0.0f);
 
-        // std::vector<float> points = {
-        //     0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, //    top
-        //     0.0f, -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, //  front-bottom
-        //     -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, //  back-left
-        //     0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 1.0f, // back-right
-        // };
-
-        // std::vector<uint32_t> indices = {
-        //     0, 1, 3, //
-        //     0, 2, 1, //
-        //     0, 3, 2, //
-        //     1, 2, 3, //
-        // };
-
-        // std::vector<uint32_t> format = { 3, 3 };
 
         std::vector<float> points = {
-            -0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f, //
-            0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, //
-            0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, //
-            -0.5f, -0.5f, 0.5f, 0.0f, 1.0f, 1.0f, //
-            -0.5f, 0.5f, -0.5f, 1.0f, 1.0f, 0.0f, //
-            0.5f, 0.5f, -0.5f, 1.0f, 0.0f, 1.0f, //
-            0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, //
-            -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, //
-
+            0.5f, 0.5f, 0.0f, 1.0f, 1.0f, // top right
+            0.5f, -0.5f, 0.0f, 1.0f, 0.0f, // bottom right
+            -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, // bottom left
+            -0.5f, 0.5f, 0.0f, 0.0f, 1.0f // top left
         };
 
         std::vector<uint32_t> indices = {
-            1, 0, 2, //
-            1, 2, 3, //
-            0, 4, 2, //
-            2, 4, 6, //
-            4, 5, 6, //
-            5, 6, 7, //
-            5, 1, 3, //
-            5, 3, 7, //
-            0, 1, 5, //
-            0, 5, 4, //
-            6, 7 ,3, //
-            6, 3, 2, //
+            0, 1, 3, // first triangle
+            1, 2, 3 // second triangle
         };
-        std::vector<uint32_t> format = {3, 3};
+        std::vector<uint32_t> format = { 3, 2 };
 
         vao.load(std::span { points }, std::span { indices }, std::span { format });
 
-        tetrahedronShader
-            .bind(RES_PATH "shaders/Tetrahedron.vert.glsl", GL_VERTEX_SHADER)
-            .bind(RES_PATH "shaders/Tetrahedron.frag.glsl", GL_FRAGMENT_SHADER)
+        textureShader
+            .bind(RES_PATH "shaders/Textured.vert.glsl", GL_VERTEX_SHADER)
+            .bind(RES_PATH "shaders/Textured.frag.glsl", GL_FRAGMENT_SHADER)
             .compile();
 
         defaultScene.load();
+
+        uint8_t colors[] = {
+            255, 0, 0, 255, //
+            0, 255, 0, 255, //
+            0, 255, 0, 255, //
+            255, 0, 0, 255, //
+        };
+
+        simpleTexture.load(colors, 2, 2);
     }
 
     ~TestWindow()
     {
         vao.unload();
-        tetrahedronShader.unload();
+        textureShader.unload();
+        simpleTexture.unload();
         defaultScene.unload();
     }
 
 private:
     int mWidth;
     int mHeight;
-    spry::Shader tetrahedronShader;
     spry::VAO vao;
     spry::Camera camera;
     spry::DefaultScene defaultScene;
+    spry::Texture simpleTexture;
+    spry::Shader textureShader;
 
     void onUpdate(float deltaTime) override
     {
@@ -110,10 +92,12 @@ private:
         glm::mat4 view = camera.getViewMatrix();
         glm::mat4 proj = camera.getProjectionMatrix();
 
-        tetrahedronShader.use();
-        tetrahedronShader.setUniformMatrix("projection", proj);
-        tetrahedronShader.setUniformMatrix("view", view);
-        tetrahedronShader.setUniformMatrix("model", model);
+        simpleTexture.bind(0);
+
+        textureShader.use();
+        textureShader.setUniformMatrix("projection", proj);
+        textureShader.setUniformMatrix("view", view);
+        textureShader.setUniformMatrix("model", model);
         vao.draw();
 
         // closeWindow();

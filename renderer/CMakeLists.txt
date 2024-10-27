@@ -33,6 +33,7 @@ add_library(
     Line.cpp
     Scene.cpp
     DefaultScene.cpp
+    Texture.cpp
 )
 
 target_link_libraries(

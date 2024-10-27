@@ -36,7 +36,7 @@ void spry::Line::loadMesh()
     };
 
     std::vector<uint32_t> format = { 3 };
-    mVAO.loadData(std::span { vertices }, std::span { format });
+    mVAO.load(std::span { vertices }, std::span { format });
 }
 
 void spry::Line::unload() const

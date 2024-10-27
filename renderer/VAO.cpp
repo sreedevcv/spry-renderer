@@ -1,7 +1,7 @@
 #include "VAO.hpp"
 #include <cstdint>
 
-void spry::VAO::loadData(std::span<float> vertices, std::span<uint32_t> indices, std::span<uint32_t> format)
+void spry::VAO::load(std::span<float> vertices, std::span<uint32_t> indices, std::span<uint32_t> format)
 {
     if (mDataLoaded) {
         unload();
@@ -36,7 +36,7 @@ void spry::VAO::loadData(std::span<float> vertices, std::span<uint32_t> indices,
     glBindVertexArray(0);
 }
 
-void spry::VAO::loadData(std::span<float> vertices, std::span<uint32_t> format)
+void spry::VAO::load(std::span<float> vertices, std::span<uint32_t> format)
 {
     if (mDataLoaded) {
         unload();

@@ -12,8 +12,8 @@ public:
     VAO() = default;
     ~VAO() = default;
 
-    void loadData(std::span<float> vertices, std::span<uint32_t> indices, std::span<uint32_t> format);
-    void loadData(std::span<float> vertices, std::span<uint32_t> format);
+    void load(std::span<float> vertices, std::span<uint32_t> indices, std::span<uint32_t> format);
+    void load(std::span<float> vertices, std::span<uint32_t> format);
     void draw(GLenum mode = GL_TRIANGLES) const;
     void unload() const;
 

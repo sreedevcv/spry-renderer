@@ -22,26 +22,57 @@ public:
         , camera { mWidth, mHeight }
         , defaultScene(camera)
     {
-        glEnable(GL_CULL_FACE);
+        // glEnable(GL_CULL_FACE);
+        // glCullFace(GL_BACK);
+        setWireFrameMode(true);
         setMouseCapture(true);
         camera.mFront = glm::vec3(0.0f, 0.0f, 0.0f);
 
+        // std::vector<float> points = {
+        //     0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, //    top
+        //     0.0f, -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, //  front-bottom
+        //     -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, //  back-left
+        //     0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 1.0f, // back-right
+        // };
+
+        // std::vector<uint32_t> indices = {
+        //     0, 1, 3, //
+        //     0, 2, 1, //
+        //     0, 3, 2, //
+        //     1, 2, 3, //
+        // };
+
+        // std::vector<uint32_t> format = { 3, 3 };
+
         std::vector<float> points = {
-            0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f, //    top
-            0.0f, -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, //  front-bottom
-            -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, //  back-left
-            0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 1.0f, // back-right
+            -0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f, //
+            0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, //
+            0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, //
+            -0.5f, -0.5f, 0.5f, 0.0f, 1.0f, 1.0f, //
+            -0.5f, 0.5f, -0.5f, 1.0f, 1.0f, 0.0f, //
+            0.5f, 0.5f, -0.5f, 1.0f, 0.0f, 1.0f, //
+            0.5f, -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, //
+            -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, //
+
         };
 
         std::vector<uint32_t> indices = {
-            0, 1, 3, //
-            0, 2, 1, //
-            0, 3, 2, //
+            1, 0, 2, //
             1, 2, 3, //
+            0, 4, 2, //
+            2, 4, 6, //
+            4, 5, 6, //
+            5, 6, 7, //
+            5, 1, 3, //
+            5, 3, 7, //
+            0, 1, 5, //
+            0, 5, 4, //
+            6, 7 ,3, //
+            6, 3, 2, //
         };
+        std::vector<uint32_t> format = {3, 3};
 
-        std::vector<uint32_t> format = { 3, 3 };
-        vao.loadData(std::span { points }, std::span { indices }, std::span { format });
+        vao.load(std::span { points }, std::span { indices }, std::span { format });
 
         tetrahedronShader
             .bind(RES_PATH "shaders/Tetrahedron.vert.glsl", GL_VERTEX_SHADER)
@@ -54,7 +85,6 @@ public:
     ~TestWindow()
     {
         vao.unload();
-        lineShader.unload();
         tetrahedronShader.unload();
         defaultScene.unload();
     }
@@ -63,7 +93,6 @@ private:
     int mWidth;
     int mHeight;
     spry::Shader tetrahedronShader;
-    spry::Shader lineShader;
     spry::VAO vao;
     spry::Camera camera;
     spry::DefaultScene defaultScene;

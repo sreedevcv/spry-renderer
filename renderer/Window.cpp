@@ -1,7 +1,7 @@
 #include "Window.hpp"
-#include "Texture.hpp"
 
 #include <print>
+#include <spdlog/spdlog.h>
 
 void APIENTRY glDebugOutput(GLenum source,
     GLenum type,
@@ -15,6 +15,8 @@ spry::Window::Window(int width, int height, const char* title, bool debug_mode)
     : m_width(width)
     , m_height(height)
 {
+    spdlog::set_pattern("[%H:%M:%S.%e] [%^%l%$] [T %t] %v");
+
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 6);
@@ -25,7 +27,7 @@ spry::Window::Window(int width, int height, const char* title, bool debug_mode)
     m_window = glfwCreateWindow(m_width, m_height, title, nullptr, nullptr);
 
     if (m_window == nullptr) {
-        std::println("Failed to load window of size {} {}", width, height);
+        spdlog::error("Failed to load window of size {} {}", width, height);
         glfwTerminate();
         std::exit(-1);
     }
@@ -54,7 +56,7 @@ spry::Window::Window(int width, int height, const char* title, bool debug_mode)
     glfwSetFramebufferSizeCallback(m_window, framebuffer_size_callback);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
-        std::println("Failed to initialize GLAD");
+        spdlog::error("Failed to initialize GLAD");
         std::exit(-1);
     }
 
@@ -68,21 +70,19 @@ spry::Window::Window(int width, int height, const char* title, bool debug_mode)
         glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
     }
 
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    std::println("Window and OpenGL(4.6) inititalized");
+    spdlog::info("Window and OpenGL(4.6) inititalized");
 }
 
 spry::Window::~Window()
 {
     glfwDestroyWindow(m_window);
     glfwTerminate();
-    std::println("Window destroyed");
+    spdlog::info("Window destroyed");
 }
 
 void spry::Window::start()
 {
+    spdlog::info("Starting main loop");
     double prevTime = glfwGetTime();
 
     while (!glfwWindowShouldClose(m_window)) {
@@ -95,6 +95,8 @@ void spry::Window::start()
         glfwSwapBuffers(m_window);
         glfwPollEvents();
     }
+
+    spdlog::info("Exiting main loop");
 }
 
 bool spry::Window::isKeyPressed(int key) const
@@ -120,6 +122,7 @@ void spry::Window::setMouseCapture(bool capture) const
     } else {
         glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     }
+    spdlog::info("Mouse capture is {}", capture);
 }
 
 double spry::Window::getGlobalTime() const
@@ -134,6 +137,7 @@ void spry::Window::setWireFrameMode(bool value) const
     } else {
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }
+    spdlog::info("Wire frame mode is {}", value);
 }
 
 void spry::Window::closeWindow() const
@@ -170,75 +174,78 @@ void APIENTRY glDebugOutput(GLenum source,
     if (id == 131169 || id == 131185 || id == 131218 || id == 131204)
         return;
 
-    std::println("`````````````````````````````````````````````````````");
-    std::println("Debug message ({}): {}", id, message);
+    const char* srcMsg = "";
+    const char* typeMsg = "";
+    const char* severityMsg = "";
 
     switch (source) {
     case GL_DEBUG_SOURCE_API:
-        std::print("Source: API");
+        srcMsg = "Source: API";
         break;
     case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
-        std::print("Source: Window System");
+        srcMsg = "Source: Window System";
         break;
     case GL_DEBUG_SOURCE_SHADER_COMPILER:
-        std::print("Source: Shader Compiler");
+        srcMsg = "Source: Shader Compiler";
         break;
     case GL_DEBUG_SOURCE_THIRD_PARTY:
-        std::print("Source: Third Party");
+        srcMsg = "Source: Third Party";
         break;
     case GL_DEBUG_SOURCE_APPLICATION:
-        std::print("Source: Application");
+        srcMsg = "Source: Application";
         break;
     case GL_DEBUG_SOURCE_OTHER:
-        std::print("Source: Other");
+        srcMsg = "Source: Other";
         break;
     }
-    std::println();
 
     switch (type) {
     case GL_DEBUG_TYPE_ERROR:
-        std::print("Type: Error");
+        typeMsg = "Type: Error";
         break;
     case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
-        std::print("Type: Deprecated Behaviour");
+        typeMsg = "Type: Deprecated Behaviour";
         break;
     case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
-        std::print("Type: Undefined Behaviour");
+        typeMsg = "Type: Undefined Behaviour";
         break;
     case GL_DEBUG_TYPE_PORTABILITY:
-        std::print("Type: Portability");
+        typeMsg = "Type: Portability";
         break;
     case GL_DEBUG_TYPE_PERFORMANCE:
-        std::print("Type: Performance");
+        typeMsg = "Type: Performance";
         break;
     case GL_DEBUG_TYPE_MARKER:
-        std::print("Type: Marker");
+        typeMsg = "Type: Marker";
         break;
     case GL_DEBUG_TYPE_PUSH_GROUP:
-        std::print("Type: Push Group");
+        typeMsg = "Type: Push Group";
         break;
     case GL_DEBUG_TYPE_POP_GROUP:
-        std::print("Type: Pop Group");
+        typeMsg = "Type: Pop Group";
         break;
     case GL_DEBUG_TYPE_OTHER:
-        std::print("Type: Other");
+        typeMsg = "Type: Other";
         break;
     }
-    std::println();
 
     switch (severity) {
     case GL_DEBUG_SEVERITY_HIGH:
-        std::print("Severity: high");
+        severityMsg = "Severity: high";
         break;
     case GL_DEBUG_SEVERITY_MEDIUM:
-        std::print("Severity: medium");
+        severityMsg = "Severity: medium";
         break;
     case GL_DEBUG_SEVERITY_LOW:
-        std::print("Severity: low");
+        severityMsg = "Severity: low";
         break;
     case GL_DEBUG_SEVERITY_NOTIFICATION:
-        std::print("Severity: notification");
+        severityMsg = "Severity: notification";
         break;
     }
-    std::println("\n");
+    
+    spdlog::critical("OpenGL Debug message ({}): {}", id, message);
+    spdlog::critical("{}", srcMsg);
+    spdlog::critical("{}", typeMsg);
+    spdlog::critical("{}", severityMsg);
 }

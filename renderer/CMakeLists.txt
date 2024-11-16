@@ -1,5 +1,6 @@
 include(FetchContent)
 
+# GLFW
 FetchContent_Declare(
     glfw
     GIT_REPOSITORY https://github.com/glfw/glfw.git
@@ -22,6 +23,7 @@ set(GLM_BUILD_TESTS OFF)
 set(BUILD_SHARED_LIBS OFF)
 FetchContent_MakeAvailable(glm)
 
+# ASSIMP
 FetchContent_Declare(
     assimp
     GIT_REPOSITORY https://github.com/assimp/assimp
@@ -38,6 +40,7 @@ set(ASSIMP_BUILD_ALL_EXPORTERS_BY_DEFAULT OFF CACHE BOOL "" FORCE)
 
 FetchContent_MakeAvailable(assimp)
 
+# FreeType
 FetchContent_Declare(
     freetype
     GIT_REPOSITORY https://gitlab.freedesktop.org/freetype/freetype
@@ -45,6 +48,15 @@ FetchContent_Declare(
 )
 
 FetchContent_MakeAvailable(freetype)
+
+# SpdLog
+FetchContent_Declare(
+    spdlog
+    GIT_REPOSITORY https://github.com/gabime/spdlog.git
+    GIT_TAG v1.15.0
+)
+
+FetchContent_MakeAvailable(spdlog)
 
 add_library(
     renderer
@@ -70,6 +82,7 @@ target_link_libraries(
     glm::glm
     assimp
     freetype
+    spdlog
 )
 
 target_include_directories(renderer PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

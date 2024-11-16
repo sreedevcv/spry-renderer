@@ -4,6 +4,7 @@
 #include <assimp/scene.h> // Output data structure
 #include <assimp/postprocess.h> // Post processing flags
 #include <print>
+#include <spdlog/spdlog.h>
 
 void spry::Model::load(const char* path)
 {
@@ -18,7 +19,7 @@ void spry::Model::load(const char* path)
     );
 
     if  (scene == nullptr) {
-        std::println("Failed to load model: {}", path);
+        spdlog::error("Failed to load model: {}", path);
         return;
     }
 

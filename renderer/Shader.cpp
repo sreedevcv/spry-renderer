@@ -1,11 +1,11 @@
 #include "Shader.hpp"
 
-#include <algorithm>
 #include <fstream>
 #include <print>
 #include <sstream>
 #include <string>
 
+#include <spdlog/spdlog.h>
 #include <glm/gtc/type_ptr.hpp>
 
 spry::SingleShader::SingleShader(const char* shaderpath, GLenum shaderType)
@@ -28,13 +28,16 @@ spry::SingleShader::SingleShader(const char* shaderpath, GLenum shaderType)
 
     if (!success) {
         glGetShaderInfoLog(mID, 1024, nullptr, log);
-        std::println("[Error] In shader {} :: {}", shaderpath, log);
+        spdlog::error("Failed to compile shader {} :: {}", shaderpath, log);
+    } else {
+        spdlog::info("Compiled shader[{}]: {}", mID, mShaderPath);
     }
 }
 
 spry::SingleShader::~SingleShader()
 {
     glDeleteShader(mID);
+    spdlog::debug("Deleted shader[{}]", mID);
 }
 
 spry::Shader::Shader()
@@ -63,6 +66,7 @@ spry::Shader& spry::Shader::operator=(Shader&& shader)
 void spry::Shader::unload() const
 {
     glDeleteProgram(mID);
+    spdlog::debug("Deleted program[{}]", mID);
 }
 
 spry::Shader& spry::Shader::bind(const char* path, GLenum type)
@@ -82,13 +86,14 @@ void spry::Shader::compile()
 
     if (!success) {
         glGetProgramInfoLog(mID, 1024, nullptr, log);
-        std::println("[Error] In Linking :: {}", log);
+        spdlog::error("Failed to link program: {}", log);
     }
 }
 
 void spry::Shader::use() const
 {
     glUseProgram(mID);
+    spdlog::debug("Using program[{}]", mID);
 }
 
 void spry::Shader::setUniformFloat(const char* name, const float value) const

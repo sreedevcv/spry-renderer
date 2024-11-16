@@ -7,20 +7,21 @@
 #include <glad/glad.h>
 #include <freetype/freetype.h>
 #include <utility>
+#include <spdlog/spdlog.h>
 
 spry::Font::Font(const char* filePath, uint32_t fontSize)
 {
     FT_Library ft;
 
     if (FT_Init_FreeType(&ft)) {
-        std::println("Could not init freetype");
+        spdlog::error("Could not init freetype");
         return;
     }
 
     FT_Face face;
 
     if (FT_New_Face(ft, filePath, 0, &face)) {
-        std::println("Could not load {}", filePath);
+        spdlog::error("Could not load {}", filePath);
         return;
     }
 
@@ -33,7 +34,7 @@ spry::Font::Font(const char* filePath, uint32_t fontSize)
 
     for (unsigned char c = 0; c < 128; c++) {
         if (FT_Load_Char(face, c, FT_LOAD_RENDER)) {
-            std::println("Could not load {} char", c);
+            spdlog::error("Could not load {} char", c);
             continue;
         }
 
@@ -60,4 +61,6 @@ spry::Font::Font(const char* filePath, uint32_t fontSize)
 
     FT_Done_Face(face);
     FT_Done_FreeType(ft);
+
+    spdlog::info("Loaded font: {}", filePath);
 }

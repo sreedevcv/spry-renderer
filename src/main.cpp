@@ -11,7 +11,6 @@
 #include "Shader.hpp"
 #include "FontRenderer.hpp"
 
-// #include "FastNoiseLite.h"
 #include "glm/ext/matrix_clip_space.hpp"
 #include "glm/ext/matrix_float4x4.hpp"
 #include "glm/ext/matrix_transform.hpp"
@@ -27,8 +26,12 @@ public:
         , camera { mWidth, mHeight }
         , defaultScene(camera)
     {
-        glEnable(GL_CULL_FACE);
-        glEnable(GL_DEPTH_TEST);
+        // glEnable(GL_CULL_FACE);
+        // glEnable(GL_DEPTH_TEST);
+
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
         // setWireFrameMode(true);
         setMouseCapture(true);
         camera.mFront = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -58,13 +61,6 @@ public:
             .compile();
 
         defaultScene.load();
-
-        uint8_t colors[] = {
-            255, 0, 0, 255, //
-            0, 255, 0, 255, //
-            0, 255, 0, 255, //
-            255, 0, 0, 255, //
-        };
 
         simpleTexture
             .create()
@@ -115,13 +111,14 @@ private:
         textureShader.setUniformMatrix("model", model);
         vao.draw();
 
-        glm::mat4 ortho = glm::ortho(0.0f, static_cast<float>(mHeight), 0.0f, static_cast<float>(mWidth));
+        // glm::mat4 ortho = glm::ortho(0.0f, static_cast<float>(mHeight), 0.0f, static_cast<float>(mWidth));
+        glm::mat4 ortho = glm::ortho(0.0f, 800.0f, 0.0f, 600.0f);
         fontRenderer.draw(
             "Hello World!!!!",
-            50.0,
-            50.0,
-            10.0,
-            glm::vec4(1.0f, 1.0f, 1.0f, 1.0f),
+            500.0,
+            100.0,
+            1.0,
+            glm::vec4(0.5f, 0.8f, 0.9f, 1.0f),
             ortho);
 
         // closeWindow();
@@ -153,20 +150,8 @@ private:
 
 int main()
 {
-    std::println("Hello World!");
-
     TestWindow test(800, 600);
     test.start();
-
-    // FastNoiseLite noise;
-    // noise.SetNoiseType(FastNoiseLite::NoiseType_Value);
-    // float prev = 0;
-
-    // for (int i = 0; i < 20; i++) {
-    //     float current = noise.GetNoise(1.0f, (float)i * 10);
-    //     std::println("{} {}", 10 + current * 20, current - prev);
-    //     prev = current;
-    // }
 
     return 0;
 }

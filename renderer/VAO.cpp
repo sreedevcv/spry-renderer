@@ -1,5 +1,7 @@
 #include "VAO.hpp"
+
 #include <cstdint>
+#include <spdlog/spdlog.h>
 
 spry::VAO::VAO()
 {
@@ -38,8 +40,10 @@ void spry::VAO::draw(GLenum mode) const
 
 void spry::VAO::updateMesh(std::span<float> vertices) const
 {
+    glBindVertexArray(mVAO);
     glBindBuffer(GL_ARRAY_BUFFER, mVBO);
     glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size(), vertices.data());
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 
@@ -47,6 +51,8 @@ void spry::VAO::unload() const
 {
     glDeleteVertexArrays(1, &mVAO);
     glDeleteBuffers(1, &mVBO);
+    spdlog::debug("Deleted VAO[{}]", mVAO);
+    spdlog::debug("Deleted VBO[{}]", mVBO);
 }
 
 spry::VAO& spry::VAO::operator=(VAO&& mesh)

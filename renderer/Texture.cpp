@@ -1,8 +1,8 @@
 #include "Texture.hpp"
 
-#include <cstdint>
 #include <print>
 
+#include <spdlog/spdlog.h>
 #include <glad/glad.h>
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -61,6 +61,8 @@ void spry::Texture::load(void* data, int width, int height, GLenum dataFormat)
 
     mWidth = width;
     mHeight = height;
+
+    spdlog::debug("Loaded texture[{}]", mTexture);
 }
 
 void spry::Texture::bind(int tex_count) const
@@ -72,6 +74,7 @@ void spry::Texture::bind(int tex_count) const
 void spry::Texture::unload() const
 {
     glDeleteTextures(1, &mTexture);
+    spdlog::debug("Deleted texture[{}]", mTexture);
 }
 
 void spry::Texture::load(const char* filePath)
@@ -80,13 +83,18 @@ void spry::Texture::load(const char* filePath)
     int width, height, nrComponents;
     unsigned char* data = stbi_load(filePath, &width, &height, &nrComponents, 0);
     if (data) {
-        GLenum format;
-        if (nrComponents == 1)
+        GLenum format = GL_RGB;
+        if (nrComponents == 1) {
             format = GL_RED;
-        else if (nrComponents == 3)
+        }
+        else if (nrComponents == 3) {
             format = GL_RGB;
-        else if (nrComponents == 4)
+        }
+        else if (nrComponents == 4) {
             format = GL_RGBA;
+        } else {
+            spdlog::error("Unkonw number of components for pic {}", filePath);
+        }
         glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
         stbi_image_free(data);
@@ -94,8 +102,9 @@ void spry::Texture::load(const char* filePath)
         mWidth = width;
         mHeight = height;
 
+        spdlog::info("Loaded texture[{}] at: {}", mTexture, filePath);
     } else {
-        std::println("Texture failed to load at path: {}", filePath);
+        spdlog::debug("Failed to load Texture at path: {}", filePath);
         stbi_image_free(data);
     }
 }

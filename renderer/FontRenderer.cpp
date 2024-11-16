@@ -17,11 +17,12 @@ spry::FontRenderer::FontRenderer()
     mVao.load(vertices, std::span<uint32_t> { format }, GL_DYNAMIC_DRAW);
 }
 
-void spry::FontRenderer::draw(const std::string_view text, float x, float y, float scale, glm::vec4 color, glm::mat4& ortho)
+void spry::FontRenderer::draw(const std::string_view text, float x, float y, float scale, const glm::vec4& color, glm::mat4& ortho)
 {
     mShader.use();
     mShader.setUniformMatrix("projection", ortho);
-    mShader.setUniformVec("color", color);
+    mShader.setUniformVec("textColor", color);
+    glActiveTexture(GL_TEXTURE0);
 
     for (const char c : text) {
         const auto& character = mFont.mCharacters[c];
@@ -42,6 +43,7 @@ void spry::FontRenderer::draw(const std::string_view text, float x, float y, flo
 
         character.texture.bind(0);
         mVao.updateMesh(std::span<float> { vertices });
+        mVao.draw();
         x += (character.advance >> 6) * scale;
     }
 }

@@ -1,5 +1,7 @@
 #include "IndexedVAO.hpp"
 
+#include "spdlog/spdlog.h"
+
 spry::IndexedVAO::IndexedVAO()
 {
 }
@@ -34,6 +36,7 @@ void spry::IndexedVAO::load(std::span<float> vertices, std::span<uint32_t> indic
 
 void spry::IndexedVAO::updateMesh(std::span<float> vertices) const
 {
+    glBindVertexArray(mVAO);
     glBindBuffer(GL_ARRAY_BUFFER, mVBO);
     glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size(), vertices.data());
 }
@@ -50,6 +53,9 @@ void spry::IndexedVAO::unload() const
     glDeleteVertexArrays(1, &mVAO);
     glDeleteBuffers(1, &mVBO);
     glDeleteBuffers(1, &mEBO);
+    spdlog::debug("Deleted IndexedVAO[{}]", mVAO);
+    spdlog::debug("Deleted VBO[{}]", mVBO);
+    spdlog::debug("Deleted EBO[{}]", mEBO);
 }
 
 spry::IndexedVAO& spry::IndexedVAO::operator=(IndexedVAO&& mesh)

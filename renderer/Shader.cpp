@@ -1,5 +1,6 @@
 #include "Shader.hpp"
 
+#include <algorithm>
 #include <fstream>
 #include <print>
 #include <sstream>
@@ -41,6 +42,24 @@ spry::Shader::Shader()
     mID = glCreateProgram();
 }
 
+spry::Shader::Shader(Shader&& shader)
+{
+    if (this != &shader) {
+        mID = std::move(shader.mID);
+        shader.mID = 0;
+    }
+}
+
+spry::Shader& spry::Shader::operator=(Shader&& shader)
+{
+    if (this != &shader) {
+        mID = std::move(shader.mID);
+        shader.mID = 0;
+    }
+
+    return *this;
+}
+
 void spry::Shader::unload() const
 {
     glDeleteProgram(mID);
@@ -53,7 +72,7 @@ spry::Shader& spry::Shader::bind(const char* path, GLenum type)
     return *this;
 }
 
-spry::Shader& spry::Shader::compile()
+void spry::Shader::compile()
 {
     glLinkProgram(mID);
 
@@ -65,8 +84,6 @@ spry::Shader& spry::Shader::compile()
         glGetProgramInfoLog(mID, 1024, nullptr, log);
         std::println("[Error] In Linking :: {}", log);
     }
-
-    return *this;
 }
 
 void spry::Shader::use() const

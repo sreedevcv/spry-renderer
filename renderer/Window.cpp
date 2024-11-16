@@ -1,4 +1,5 @@
 #include "Window.hpp"
+#include "Texture.hpp"
 
 #include <print>
 
@@ -66,6 +67,9 @@ spry::Window::Window(int width, int height, const char* title, bool debug_mode)
         glDebugMessageCallback(glDebugOutput, nullptr);
         glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE);
     }
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     std::println("Window and OpenGL(4.6) inititalized");
 }

@@ -22,8 +22,15 @@ class Shader {
 public:
     Shader();
     ~Shader() = default;
+
+    Shader(Shader&& shader);
+    Shader& operator=(Shader&& shader);
+    Shader(const Shader& shader) = delete;
+    Shader& operator=(const Shader& shader) = delete;
+
+
     Shader& bind(const char* path, GLenum type);
-    Shader& compile();
+    void compile();
 
     void use() const;
     void setUniformFloat(const char* name, const float value) const;

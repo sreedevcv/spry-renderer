@@ -1,23 +1,26 @@
-#include "VAO.hpp"
-#include <cstdint>
+#include "IndexedVAO.hpp"
 
-spry::VAO::VAO()
+spry::IndexedVAO::IndexedVAO()
 {
-    glGenVertexArrays(1, &mVAO);
-    glGenBuffers(1, &mVBO);
 }
 
-void spry::VAO::load(std::span<float> vertices, std::span<uint32_t> format, GLenum drawtype)
+void spry::IndexedVAO::load(std::span<float> vertices, std::span<uint32_t> indices, std::span<uint32_t> format, GLenum drawtype)
 {
+    mVertexCount = indices.size();
+
+    glGenVertexArrays(1, &mVAO);
+    glGenBuffers(1, &mVBO);
+    glGenBuffers(1, &mEBO);
     glBindVertexArray(mVAO);
     glBindBuffer(GL_ARRAY_BUFFER, mVBO);
     glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), (void*)vertices.data(), drawtype);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, mEBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(uint32_t), (void*)indices.data(), GL_STATIC_DRAW);
 
     int stride = 0;
     for (int attribSize : format) {
         stride += attribSize;
     }
-    mVertexCount = (vertices.size() * sizeof(float)) / stride;
 
     long prevAttribSize = 0;
     for (auto i = 0ul; i < format.size(); i++) {
@@ -29,27 +32,27 @@ void spry::VAO::load(std::span<float> vertices, std::span<uint32_t> format, GLen
     glBindVertexArray(0);
 }
 
-void spry::VAO::draw(GLenum mode) const
-{
-    glBindVertexArray(mVAO);
-    glDrawArrays(mode, 0, mVertexCount);
-    glBindVertexArray(0);
-}
-
-void spry::VAO::updateMesh(std::span<float> vertices) const
+void spry::IndexedVAO::updateMesh(std::span<float> vertices) const
 {
     glBindBuffer(GL_ARRAY_BUFFER, mVBO);
     glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size(), vertices.data());
 }
 
+void spry::IndexedVAO::draw(GLenum mode) const
+{
+    glBindVertexArray(mVAO);
+    glDrawElements(mode, mVertexCount, GL_UNSIGNED_INT, 0);
+    glBindVertexArray(0);
+}
 
-void spry::VAO::unload() const
+void spry::IndexedVAO::unload() const
 {
     glDeleteVertexArrays(1, &mVAO);
     glDeleteBuffers(1, &mVBO);
+    glDeleteBuffers(1, &mEBO);
 }
 
-spry::VAO& spry::VAO::operator=(VAO&& mesh)
+spry::IndexedVAO& spry::IndexedVAO::operator=(IndexedVAO&& mesh)
 {
     // Since we don't own the vertex data, it is better that
     // we don't delete the the buffers to preserve RAII
@@ -57,23 +60,27 @@ spry::VAO& spry::VAO::operator=(VAO&& mesh)
 
     if (this != &mesh) {
         this->mVAO = std::move(mesh.mVAO);
+        this->mEBO = std::move(mesh.mEBO);
         this->mVBO = std::move(mesh.mVBO);
         this->mVertexCount = std::move(mesh.mVertexCount);
         mesh.mVAO = 0;
+        mesh.mEBO = 0;
         mesh.mVBO = 0;
         mesh.mVertexCount = 0;
     }
     return *this;
 }
 
-spry::VAO::VAO(VAO&& mesh)
+spry::IndexedVAO::IndexedVAO(IndexedVAO&& mesh)
 {
     if (this != &mesh) {
         this->mVAO = std::move(mesh.mVAO);
+        this->mEBO = std::move(mesh.mEBO);
         this->mVBO = std::move(mesh.mVBO);
         this->mVertexCount = std::move(mesh.mVertexCount);
 
         mesh.mVAO = 0;
+        mesh.mEBO = 0;
         mesh.mVBO = 0;
         mesh.mVertexCount = 0;
     }

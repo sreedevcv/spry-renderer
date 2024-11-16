@@ -22,6 +22,29 @@ set(GLM_BUILD_TESTS OFF)
 set(BUILD_SHARED_LIBS OFF)
 FetchContent_MakeAvailable(glm)
 
+FetchContent_Declare(
+    assimp
+    GIT_REPOSITORY https://github.com/assimp/assimp
+    GIT_TAG 01231d0e6001f555c81dcfcc6c581fa5797ccac9
+)
+
+
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE) 
+set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE) 
+set(ASSIMP_BUILD_SAMPLES OFF CACHE BOOL "" FORCE) 
+set(ASSIMP_INSTALL OFF CACHE BOOL "" FORCE) 
+set(ASSIMP_NO_EXPORT ON CACHE BOOL "" FORCE) 
+set(ASSIMP_BUILD_ALL_EXPORTERS_BY_DEFAULT OFF CACHE BOOL "" FORCE) 
+
+FetchContent_MakeAvailable(assimp)
+
+FetchContent_Declare(
+    freetype
+    GIT_REPOSITORY https://gitlab.freedesktop.org/freetype/freetype
+    GIT_TAG VER-2-13-3
+)
+
+FetchContent_MakeAvailable(freetype)
 
 add_library(
     renderer
@@ -34,12 +57,19 @@ add_library(
     Scene.cpp
     DefaultScene.cpp
     Texture.cpp
+    Font.cpp
+    FontRenderer.cpp
+    IndexedVAO.cpp
 )
+
+target_include_directories(renderer PRIVATE ${FREETYPE_INCLUDE_DIRS})
 
 target_link_libraries(
     renderer
     glfw
     glm::glm
+    assimp
+    freetype
 )
 
 target_include_directories(renderer PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

@@ -7,22 +7,26 @@
 namespace spry {
 
 class Line {
-private:
-    glm::vec3 mStart;
-    glm::vec3 mEnd;
-
-    VAO mVAO;
-
-    void loadMesh();
-
 public:
     Line();
-    Line(glm::vec3 start, glm::vec3 end );
+    Line(glm::vec3 start, glm::vec3 end);
     ~Line() = default;
+
+    Line(Line&& line);
+    Line& operator=(Line&& line);
+    Line(const Line& line) = delete;
+    Line& operator=(const Line& line) = delete;
 
     void setEndPoints(glm::vec3 start, glm::vec3 end);
     void draw() const;
     void unload() const;
+private:
+    glm::vec3 mStart;
+    glm::vec3 mEnd;
+    VAO mVAO;
+
+    void loadMesh();
+
 };
 
 }

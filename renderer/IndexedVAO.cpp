@@ -38,7 +38,7 @@ void spry::IndexedVAO::updateMesh(std::span<float> vertices) const
 {
     glBindVertexArray(mVAO);
     glBindBuffer(GL_ARRAY_BUFFER, mVBO);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size(), vertices.data());
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * vertices.size(), vertices.data());
 }
 
 void spry::IndexedVAO::draw(GLenum mode) const

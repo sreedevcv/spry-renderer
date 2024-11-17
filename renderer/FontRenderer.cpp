@@ -1,11 +1,13 @@
 #include "FontRenderer.hpp"
 #include "Shader.hpp"
+#include "VAO.hpp"
+#include "spdlog/spdlog.h"
 #include <array>
 #include <cstdint>
 #include <span>
 
 spry::FontRenderer::FontRenderer()
-    : mFont(RES_PATH "fonts/Lato-Regular.ttf", 30)
+    : mFont(RES_PATH "fonts/arial.ttf", 20)
 {
     mShader
         .bind(RES_PATH "shaders/Font.vert", GL_VERTEX_SHADER)
@@ -14,10 +16,10 @@ spry::FontRenderer::FontRenderer()
 
     std::array<uint32_t, 1> format = { 4 };
     std::array<float, 24> vertices {};
-    mVao.load(vertices, std::span<uint32_t> { format }, GL_DYNAMIC_DRAW);
+    mVao.load(vertices, std::span<uint32_t> { format }, 24, GL_DYNAMIC_DRAW);
 }
 
-void spry::FontRenderer::draw(const std::string_view text, float x, float y, float scale, const glm::vec4& color, glm::mat4& ortho)
+void spry::FontRenderer::draw(const std::string_view text, float x, float y, float scale, const glm::vec4& color, const glm::mat4& ortho)
 {
     mShader.use();
     mShader.setUniformMatrix("projection", ortho);
@@ -28,22 +30,30 @@ void spry::FontRenderer::draw(const std::string_view text, float x, float y, flo
         const auto& character = mFont.mCharacters[c];
         const float xPos = x + character.bearing.x * scale;
         const float yPos = y - (character.size.y - character.bearing.y) * scale;
-        const float width = character.size.x * scale;
-        const float height = character.size.y * scale;
+        const float w = character.size.x * scale;
+        const float h = character.size.y * scale;
 
         std::array<float, 24> vertices = {
-            xPos, yPos + height, 0.0f, 0.0f, //
+            xPos, yPos + h, 0.0f, 0.0f, //
             xPos, yPos, 0.0f, 1.0f, //
-            xPos + width, yPos, 1.0f, 1.0f, //
+            xPos + w, yPos, 1.0f, 1.0f, //
 
-            xPos, yPos + height, 0.0f, 0.0f, //
-            xPos + width, yPos, 1.0f, 1.0f, //
-            xPos + width, yPos + height, 1.0f, 0.0f, //
+            xPos, yPos + h, 0.0f, 0.0f, //
+            xPos + w, yPos, 1.0f, 1.0f, //
+            xPos + w, yPos + h, 1.0f, 0.0f, //
         };
 
+        // spdlog::info("{} {} {} {}", xPos, yPos + h, 0.0f, 0.0f);
+        // spdlog::info("{} {} {} {}", xPos, yPos, 0.0f, 1.0f);
+        // spdlog::info("{} {} {} {}", xPos + w, yPos + h, 1.0f, 0.0f);
+        // spdlog::info("{} {} {} {}", xPos + w, yPos, 1.0f, 1.0f);
+        // spdlog::warn("");
+
         character.texture.bind(0);
-        mVao.updateMesh(std::span<float> { vertices });
-        mVao.draw();
+        mVao.updateMesh(vertices);
+        mVao.draw(GL_TRIANGLES);
         x += (character.advance >> 6) * scale;
     }
+
+    return;
 }

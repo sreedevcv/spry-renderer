@@ -9,17 +9,23 @@ spry::VAO::VAO()
     glGenBuffers(1, &mVBO);
 }
 
-void spry::VAO::load(std::span<float> vertices, std::span<uint32_t> format, GLenum drawtype)
+void spry::VAO::load(std::span<float> vertices, std::span<uint32_t> format, uint32_t vertexCount, GLenum drawtype)
 {
+    void* data = (void*)vertices.data();
+    if (drawtype == GL_DYNAMIC_DRAW) {
+        data = nullptr;
+    }
+
     glBindVertexArray(mVAO);
     glBindBuffer(GL_ARRAY_BUFFER, mVBO);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), (void*)vertices.data(), drawtype);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), data, drawtype);
 
     int stride = 0;
     for (int attribSize : format) {
         stride += attribSize;
     }
-    mVertexCount = (vertices.size() * sizeof(float)) / stride;
+    
+    mVertexCount = vertexCount;
 
     long prevAttribSize = 0;
     for (auto i = 0ul; i < format.size(); i++) {
@@ -40,9 +46,8 @@ void spry::VAO::draw(GLenum mode) const
 
 void spry::VAO::updateMesh(std::span<float> vertices) const
 {
-    glBindVertexArray(mVAO);
     glBindBuffer(GL_ARRAY_BUFFER, mVBO);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, vertices.size(), vertices.data());
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float) * vertices.size(), vertices.data());
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 

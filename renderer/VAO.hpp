@@ -12,7 +12,7 @@ public:
     VAO();
     ~VAO() = default;
 
-    void load(std::span<float> vertices, std::span<uint32_t> format, GLenum drawtype);
+    void load(std::span<float> vertices, std::span<uint32_t> format, uint32_t vertexCount, GLenum drawtype);
     void draw(GLenum mode = GL_TRIANGLES) const;
     void unload() const;
     void updateMesh(std::span<float> vertices) const;

@@ -140,6 +140,38 @@ void spry::Window::setWireFrameMode(bool value) const
     spdlog::info("Wire frame mode is {}", value);
 }
 
+void spry::Window::setCulling(bool value) const
+{
+    if (value) {
+        glEnable(GL_CULL_FACE);
+    } else {
+        glDisable(GL_CULL_FACE);
+    }
+    spdlog::info("Culling is {}", value);
+}
+
+void spry::Window::setDepthTest(bool value) const
+{
+    if (value) {
+        glEnable(GL_DEPTH_TEST);
+    } else {
+        glDisable(GL_DEPTH_TEST);
+    }
+    spdlog::info("Depth testing is {}", value);
+}
+
+void spry::Window::setBlending(bool value) const
+{
+    if (value) {
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    } else {
+        glDisable(GL_BLEND);
+    }
+    spdlog::info("Blending is {}", value);
+}
+
+
 void spry::Window::closeWindow() const
 {
     glfwSetWindowShouldClose(m_window, true);
@@ -243,7 +275,7 @@ void APIENTRY glDebugOutput(GLenum source,
         severityMsg = "Severity: notification";
         break;
     }
-    
+
     spdlog::critical("OpenGL Debug message ({}): {}", id, message);
     spdlog::critical("{}", srcMsg);
     spdlog::critical("{}", typeMsg);

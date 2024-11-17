@@ -15,6 +15,9 @@ public:
     double getGlobalTime() const;
     void setMouseCapture(bool capture) const;
     void setWireFrameMode(bool value) const;
+    void setCulling(bool value) const;
+    void setDepthTest(bool value) const;
+    void setBlending(bool value) const;
 
     void start();
     void closeWindow() const;

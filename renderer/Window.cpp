@@ -192,6 +192,7 @@ void spry::Window::onMouseScroll(double xOffset, double yOffset)
 
 void spry::Window::onScreenSizeChange(int width, int height)
 {
+    glViewport(0, 0, width, height);
 }
 
 void APIENTRY glDebugOutput(GLenum source,

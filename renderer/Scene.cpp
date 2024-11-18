@@ -8,7 +8,7 @@ void spry::Scene::process(float delta)
 {
 }
 
-void spry::Scene::update(float delta)
+void spry::Scene::draw()
 {
 }
 

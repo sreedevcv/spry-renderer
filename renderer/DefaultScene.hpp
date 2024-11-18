@@ -16,7 +16,7 @@ public:
 
     void load() override;
     void process(float delta) override;
-    void update(float delta) override;
+    void draw() override;
     void unload() override;
 
 private:

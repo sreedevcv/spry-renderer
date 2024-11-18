@@ -86,11 +86,9 @@ void spry::Texture::load(const char* filePath)
         GLenum format = GL_RGB;
         if (nrComponents == 1) {
             format = GL_RED;
-        }
-        else if (nrComponents == 3) {
+        } else if (nrComponents == 3) {
             format = GL_RGB;
-        }
-        else if (nrComponents == 4) {
+        } else if (nrComponents == 4) {
             format = GL_RGBA;
         } else {
             spdlog::error("Unkonw number of components for pic {}", filePath);
@@ -107,4 +105,9 @@ void spry::Texture::load(const char* filePath)
         spdlog::debug("Failed to load Texture at path: {}", filePath);
         stbi_image_free(data);
     }
+}
+
+uint32_t spry::Texture::getID() const
+{
+    return mTexture;
 }

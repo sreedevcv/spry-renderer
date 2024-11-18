@@ -27,6 +27,7 @@ public:
     void load(const char* filePath);
     void load(void* data, int width, int height, GLenum dataFormat);
     void unload() const;
+    uint32_t getID() const;
 
 private:
     uint32_t mTexture;

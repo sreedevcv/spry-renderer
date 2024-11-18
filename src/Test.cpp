@@ -93,7 +93,7 @@ private:
         glClearColor(0.4f, 0.5f, 0.5f, 1.0f);
         glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
-        defaultScene.update(deltaTime);
+        defaultScene.draw();
 
         glm::mat4 model = glm::mat4(1.0f);
         model = glm::translate(model, glm::vec3(0.0f, 0.0f, 1.0f));
@@ -132,16 +132,16 @@ private:
             std::println("LookAt {} {} {}", camera.mFront.x, camera.mFront.y, camera.mFront.z);
         }
 
-        camera.defaultInputProcess(*this, deltaTime);
+        camera.processInputDefault(*this, deltaTime);
     }
 
     void onMouseMove(double xPosIn, double yPosIn) override
     {
-        camera.defaultMousePan(xPosIn, yPosIn);
+        camera.onMouseMoveDefault(xPosIn, yPosIn);
     }
 
     void onMouseScroll(double xOffset, double yOffset) override
     {
-        camera.processMouseScroll(static_cast<float>(yOffset));
+        camera.onMouseScrollDefault(static_cast<float>(yOffset));
     }
 };

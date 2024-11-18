@@ -122,17 +122,17 @@ private:
             std::println("LookAt {} {} {}", camera.mFront.x, camera.mFront.y, camera.mFront.z);
         }
 
-        camera.defaultInputProcess(*this, deltaTime);
+        camera.processInputDefault(*this, deltaTime);
     }
 
     void onMouseMove(double xPosIn, double yPosIn) override
     {
-        camera.defaultMousePan(xPosIn, yPosIn);
+        camera.onMouseMoveDefault(xPosIn, yPosIn);
     }
 
     void onMouseScroll(double xOffset, double yOffset) override
     {
-        camera.processMouseScroll(static_cast<float>(yOffset));
+        camera.onMouseScrollDefault(static_cast<float>(yOffset));
     }
 };
 

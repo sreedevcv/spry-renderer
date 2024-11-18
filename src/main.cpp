@@ -5,7 +5,9 @@
 #include "Camera.hpp"
 #include "DefaultScene.hpp"
 #include "Shader.hpp"
-#include "VAO.hpp"
+#include "shapes/Cuboid.hpp"
+#include "Texture.hpp"
+#include "TextureRenderTarget.hpp"
 #include "Window.hpp"
 #include "FontRenderer.hpp"
 
@@ -20,12 +22,43 @@ public:
         : spry::Window(width, height, "Test", true)
         , mWidth { width }
         , mHeight { height }
+        , camera(width, height)
+        , defaultScene(camera)
     {
-        setCulling(false);
+        setCulling(true);
         setDepthTest(true);
         setBlending(true);
         setMouseCapture(true);
         setWireFrameMode(false);
+        camera.setPosition(glm::vec3(0.0f, 0.0f, 3.0f));
+
+        defaultScene.load();
+
+        std::array<uint8_t, 3 * 4> colors = {
+            255, 0, 0, //
+            0, 255, 0, //
+            0, 255, 0, //
+            255, 0, 0, //
+        };
+
+        imgTexture
+            .create()
+            .setFilterMode(GL_NEAREST)
+            .setWrapMode(GL_CLAMP_TO_EDGE)
+            .load(colors.data(), 2, 2, GL_RGB);
+
+        targetTexture
+            .create()
+            .setFilterMode(GL_LINEAR)
+            .setWrapMode(GL_CLAMP_TO_EDGE)
+            .load(nullptr, 300, 200, GL_RGB);
+
+        renderTarget.attachTexture(targetTexture);
+
+        testShader
+            .bind(RES_PATH "shaders/Textured.vert.glsl", GL_VERTEX_SHADER)
+            .bind(RES_PATH "shaders/Textured.frag.glsl", GL_FRAGMENT_SHADER)
+            .compile();
     }
 
     ~TestWindow()
@@ -36,12 +69,21 @@ private:
     int mWidth;
     int mHeight;
     spry::FontRenderer fontRenderer;
+    spry::Camera camera;
+    spry::DefaultScene defaultScene;
+    spry::TextureRenderTarget renderTarget;
+    spry::Texture targetTexture;
+    spry::Shader testShader;
+    spry::Cuboid cuboid;
+    spry::Texture imgTexture;
 
     void onUpdate(float deltaTime) override
     {
         processInput(deltaTime);
 
-        glClearColor(0.4f, 0.5f, 0.5f, 1.0f);
+        // First Pass
+        renderTarget.bind();
+        glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
         glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
         glm::mat4 ortho = glm::ortho(
@@ -50,21 +92,32 @@ private:
             0.0f,
             static_cast<float>(mHeight));
 
-        // fontRenderer.draw(
-        //     "A",
-        //     25.0,
-        //     25.0,
-        //     1.0,
-        //     glm::vec4(0.5f, 0.8f, 0.9f, 1.0f),
-        //     ortho);
-
         fontRenderer.draw(
             "Hello World",
-            250.0,
-            250.0,
+            25.0,
+            25.0,
             1.0,
             glm::vec4(0.5f, 0.8f, 0.9f, 1.0f),
             ortho);
+
+        renderTarget.unbind();
+
+        glClearColor(0.4f, 0.5f, 0.5f, 1.0f);
+        glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+
+        defaultScene.process(deltaTime);
+        defaultScene.draw();
+
+        auto model = glm::mat4(1.0f);
+        auto view = camera.getViewMatrix();
+        auto proj = camera.getProjectionMatrix();
+
+        testShader.use();
+        testShader.setUniformMatrix("model", model);
+        testShader.setUniformMatrix("view", view);
+        testShader.setUniformMatrix("projection", proj);
+        targetTexture.bind(0);
+        cuboid.draw();
 
         // closeWindow();
     }
@@ -76,6 +129,23 @@ private:
         }
         if (isKeyPressed(GLFW_KEY_ENTER)) {
         }
+
+        camera.processInputDefault(*this, deltaTime);
+    }
+
+    void onMouseMove(double xPosIn, double yPosIn) override
+    {
+        camera.onMouseMoveDefault(xPosIn, yPosIn);
+    }
+
+    void onMouseScroll(double xOffset, double yOffset) override
+    {
+        camera.onMouseScrollDefault(yOffset);
+    }
+
+    void onScreenSizeChange(int width, int height) override
+    {
+        camera.setScreenSize(width, height);
     }
 };
 

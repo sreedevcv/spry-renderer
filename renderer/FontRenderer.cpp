@@ -1,7 +1,7 @@
 #include "FontRenderer.hpp"
 #include "Shader.hpp"
 #include "VAO.hpp"
-#include "spdlog/spdlog.h"
+
 #include <array>
 #include <cstdint>
 #include <span>
@@ -42,12 +42,6 @@ void spry::FontRenderer::draw(const std::string_view text, float x, float y, flo
             xPos + w, yPos, 1.0f, 1.0f, //
             xPos + w, yPos + h, 1.0f, 0.0f, //
         };
-
-        // spdlog::info("{} {} {} {}", xPos, yPos + h, 0.0f, 0.0f);
-        // spdlog::info("{} {} {} {}", xPos, yPos, 0.0f, 1.0f);
-        // spdlog::info("{} {} {} {}", xPos + w, yPos + h, 1.0f, 0.0f);
-        // spdlog::info("{} {} {} {}", xPos + w, yPos, 1.0f, 1.0f);
-        // spdlog::warn("");
 
         character.texture.bind(0);
         mVao.updateMesh(vertices);

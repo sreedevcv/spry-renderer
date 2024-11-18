@@ -16,7 +16,7 @@ public:
 
     virtual void load();
     virtual void process(float delta);
-    virtual void update(float delta);
+    virtual void draw();
     virtual void unload();
 
 private:

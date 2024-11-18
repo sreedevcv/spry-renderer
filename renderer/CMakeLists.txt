@@ -72,6 +72,10 @@ add_library(
     Font.cpp
     FontRenderer.cpp
     IndexedVAO.cpp
+    FrameBuffer.cpp
+    RenderBuffer.cpp
+    TextureRenderTarget.cpp
+    shapes/Cuboid.cpp
 )
 
 target_include_directories(renderer PRIVATE ${FREETYPE_INCLUDE_DIRS})

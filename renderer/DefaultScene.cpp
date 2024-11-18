@@ -23,7 +23,7 @@ void spry::DefaultScene::process(float delta)
 {
 }
 
-void spry::DefaultScene::update(float delta)
+void spry::DefaultScene::draw()
 {
     mShader.use();
     mShader.setUniformMatrix("projection", mCamera.getProjectionMatrix());

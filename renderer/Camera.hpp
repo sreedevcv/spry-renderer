@@ -47,13 +47,13 @@ public:
 
     void processMovement(movement m, float delta_time);
     void processMouseMovement(float x_offset, float y_offset, bool constrain_pitch = true);
-    void processMouseScroll(float y_offset);
+    void onMouseScrollDefault(float y_offset);
 
     void setScreenSize(const int width, const int height);
     void setPosition(glm::vec3&& position);
 
-    void defaultInputProcess(const Window& window, float delta);
-    void defaultMousePan(double xPosIn, double yPosIn);
+    void processInputDefault(const Window& window, float delta);
+    void onMouseMoveDefault(double xPosIn, double yPosIn);
 
 private:
     int mWidth;

@@ -90,7 +90,7 @@ void spry::Camera::processMouseMovement(float x_offset, float y_offset, bool con
     updateCameraVectors();
 }
 
-void spry::Camera::processMouseScroll(float y_offset)
+void spry::Camera::onMouseScrollDefault(float y_offset)
 {
     mZoom -= y_offset;
 
@@ -101,7 +101,7 @@ void spry::Camera::processMouseScroll(float y_offset)
     }
 }
 
-void spry::Camera::defaultInputProcess(const Window& window, float delta)
+void spry::Camera::processInputDefault(const Window& window, float delta)
 {
     if (window.isKeyPressed(GLFW_KEY_W)) {
         processMovement(spry::Camera::movement::FORWARD, delta);
@@ -123,7 +123,7 @@ void spry::Camera::defaultInputProcess(const Window& window, float delta)
     }
 }
 
-void spry::Camera::defaultMousePan(double xPosIn, double yPosIn)
+void spry::Camera::onMouseMoveDefault(double xPosIn, double yPosIn)
 {
     float xPos = static_cast<float>(xPosIn);
     float yPos = static_cast<float>(yPosIn);

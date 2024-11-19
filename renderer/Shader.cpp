@@ -90,10 +90,15 @@ void spry::Shader::compile()
     }
 }
 
-void spry::Shader::use() const
+void spry::Shader::bind() const
 {
     glUseProgram(mID);
     spdlog::debug("Using program[{}]", mID);
+}
+
+void spry::Shader::unbind() const
+{
+    glUseProgram(0);
 }
 
 void spry::Shader::setUniformFloat(const char* name, const float value) const

@@ -1,11 +1,7 @@
 #include "TextureRenderTarget.hpp"
+
 #include "spdlog/spdlog.h"
-
 #include <glad/glad.h>
-
-void spry::TextureRenderTarget::load(uint32_t width, uint32_t height) const
-{
-}
 
 void spry::TextureRenderTarget::bind() const
 {

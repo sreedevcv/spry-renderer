@@ -9,7 +9,6 @@ namespace spry {
 
 class TextureRenderTarget {
 public:
-    void load(uint32_t width, uint32_t height) const;
     void bind() const;
     void unbind() const;
     void attachTexture(const Texture& texture) const;

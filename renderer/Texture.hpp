@@ -24,6 +24,7 @@ public:
     Texture& setFilterMode(GLenum mode);
 
     void bind(int texCount) const;
+    void unbind() const;
     void load(const char* filePath);
     void load(void* data, int width, int height, GLenum dataFormat);
     void unload() const;

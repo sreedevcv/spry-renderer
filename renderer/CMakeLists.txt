@@ -65,7 +65,7 @@ add_library(
     VAO.cpp
     Shader.cpp
     Camera.cpp
-    Line.cpp
+    shapes/Line.cpp
     Scene.cpp
     DefaultScene.cpp
     Texture.cpp
@@ -76,9 +76,13 @@ add_library(
     RenderBuffer.cpp
     TextureRenderTarget.cpp
     shapes/Cuboid.cpp
+    utils/FontManager.cpp
 )
 
 target_include_directories(renderer PRIVATE ${FREETYPE_INCLUDE_DIRS})
+target_include_directories(renderer PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(renderer PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/shapes)
+target_include_directories(renderer PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/utils)
 
 target_link_libraries(
     renderer
@@ -89,4 +93,3 @@ target_link_libraries(
     spdlog
 )
 
-target_include_directories(renderer PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

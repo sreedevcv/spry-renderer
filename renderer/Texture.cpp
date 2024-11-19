@@ -71,6 +71,11 @@ void spry::Texture::bind(int tex_count) const
     glBindTexture(GL_TEXTURE_2D, mTexture);
 }
 
+void spry::Texture::unbind() const
+{
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
+
 void spry::Texture::unload() const
 {
     glDeleteTextures(1, &mTexture);

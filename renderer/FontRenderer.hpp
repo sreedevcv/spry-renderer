@@ -18,7 +18,7 @@ public:
 private:
     Shader mShader;
     VAO mVao;
-    Font mFont;
+    // Font mFont;
 };
 
 }

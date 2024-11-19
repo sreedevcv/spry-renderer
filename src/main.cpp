@@ -4,7 +4,9 @@
 
 #include "Camera.hpp"
 #include "DefaultScene.hpp"
+#include "FontManager.hpp"
 #include "Shader.hpp"
+#include "glm/trigonometric.hpp"
 #include "shapes/Cuboid.hpp"
 #include "Texture.hpp"
 #include "TextureRenderTarget.hpp"
@@ -32,6 +34,8 @@ public:
         setWireFrameMode(false);
         camera.setPosition(glm::vec3(0.0f, 0.0f, 3.0f));
 
+        // spry::FontManager::instance().load(RES_PATH "fonts/Lato-Regular.ttf");
+
         defaultScene.load();
 
         std::array<uint8_t, 3 * 4> colors = {
@@ -49,9 +53,9 @@ public:
 
         targetTexture
             .create()
-            .setFilterMode(GL_LINEAR)
+            .setFilterMode(GL_NEAREST)
             .setWrapMode(GL_CLAMP_TO_EDGE)
-            .load(nullptr, 300, 200, GL_RGB);
+            .load(nullptr, 600, 600, GL_RGB);
 
         renderTarget.attachTexture(targetTexture);
 
@@ -59,10 +63,6 @@ public:
             .bind(RES_PATH "shaders/Textured.vert.glsl", GL_VERTEX_SHADER)
             .bind(RES_PATH "shaders/Textured.frag.glsl", GL_FRAGMENT_SHADER)
             .compile();
-    }
-
-    ~TestWindow()
-    {
     }
 
 private:
@@ -86,7 +86,7 @@ private:
         glClearColor(0.3f, 0.3f, 0.3f, 1.0f);
         glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
-        glm::mat4 ortho = glm::ortho(
+        auto orthoProj = glm::ortho(
             0.0f,
             static_cast<float>(mWidth),
             0.0f,
@@ -97,11 +97,12 @@ private:
             25.0,
             25.0,
             1.0,
-            glm::vec4(0.5f, 0.8f, 0.9f, 1.0f),
-            ortho);
+            glm::vec4(glm::abs(glm::sin(getGlobalTime())), 0.8f, glm::abs(glm::cos(getGlobalTime())), 1.0f),
+            orthoProj);
 
         renderTarget.unbind();
 
+        // Second pass
         glClearColor(0.4f, 0.5f, 0.5f, 1.0f);
         glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
@@ -112,7 +113,7 @@ private:
         auto view = camera.getViewMatrix();
         auto proj = camera.getProjectionMatrix();
 
-        testShader.use();
+        testShader.bind();
         testShader.setUniformMatrix("model", model);
         testShader.setUniformMatrix("view", view);
         testShader.setUniformMatrix("projection", proj);

@@ -103,7 +103,7 @@ private:
 
         simpleTexture.bind(0);
 
-        textureShader.use();
+        textureShader.bind();
         textureShader.setUniformMatrix("projection", proj);
         textureShader.setUniformMatrix("view", view);
         textureShader.setUniformMatrix("model", model);

@@ -4,7 +4,6 @@
 
 #include "Camera.hpp"
 #include "DefaultScene.hpp"
-#include "FontManager.hpp"
 #include "Shader.hpp"
 #include "glm/trigonometric.hpp"
 #include "shapes/Cuboid.hpp"
@@ -12,6 +11,7 @@
 #include "TextureRenderTarget.hpp"
 #include "Window.hpp"
 #include "FontRenderer.hpp"
+#include "FontManager.hpp"
 
 #include "glm/ext/matrix_clip_space.hpp"
 #include "glm/ext/matrix_float4x4.hpp"
@@ -34,7 +34,7 @@ public:
         setWireFrameMode(false);
         camera.setPosition(glm::vec3(0.0f, 0.0f, 3.0f));
 
-        // spry::FontManager::instance().load(RES_PATH "fonts/Lato-Regular.ttf");
+        spry::FontManager::instance().load(RES_PATH "fonts/Lato-Regular.ttf");
 
         defaultScene.load();
 

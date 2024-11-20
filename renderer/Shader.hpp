@@ -6,18 +6,6 @@
 #include <glm/mat4x4.hpp>
 
 namespace spry {
-
-class SingleShader {
-public:
-    unsigned int mID;
-
-    SingleShader(const char* shaderpath, GLenum shaderType);
-    ~SingleShader();
-
-private:
-    const char* mShaderPath;
-};
-
 class Shader {
 public:
     Shader();

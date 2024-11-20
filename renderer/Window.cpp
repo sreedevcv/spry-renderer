@@ -12,8 +12,8 @@ void APIENTRY glDebugOutput(GLenum source,
     const void* userParam);
 
 spry::Window::Window(int width, int height, const char* title, bool debug_mode)
-    : m_width(width)
-    , m_height(height)
+    : mWidth(width)
+    , mHeight(height)
 {
     spdlog::set_pattern("[%H:%M:%S.%e] [%^%l%$] [T %t] %v");
 
@@ -24,16 +24,17 @@ spry::Window::Window(int width, int height, const char* title, bool debug_mode)
     if (debug_mode) {
         glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, true);
     }
-    m_window = glfwCreateWindow(m_width, m_height, title, nullptr, nullptr);
 
-    if (m_window == nullptr) {
+    mWindow = glfwCreateWindow(mWidth, mHeight, title, nullptr, nullptr);
+
+    if (mWindow == nullptr) {
         spdlog::error("Failed to load window of size {} {}", width, height);
         glfwTerminate();
         std::exit(-1);
     }
 
-    glfwMakeContextCurrent(m_window);
-    glfwSetWindowUserPointer(m_window, this);
+    glfwMakeContextCurrent(mWindow);
+    glfwSetWindowUserPointer(mWindow, this);
 
     static const auto mouse_move_callback = [](GLFWwindow* glfw_window, double x_pos_in, double y_pos_in) {
         auto window = static_cast<Window*>(glfwGetWindowUserPointer(glfw_window));
@@ -51,9 +52,9 @@ spry::Window::Window(int width, int height, const char* title, bool debug_mode)
         window->onScreenSizeChange(width, height);
     };
 
-    glfwSetCursorPosCallback(m_window, mouse_move_callback);
-    glfwSetScrollCallback(m_window, mouse_scroll_callback);
-    glfwSetFramebufferSizeCallback(m_window, framebuffer_size_callback);
+    glfwSetCursorPosCallback(mWindow, mouse_move_callback);
+    glfwSetScrollCallback(mWindow, mouse_scroll_callback);
+    glfwSetFramebufferSizeCallback(mWindow, framebuffer_size_callback);
 
     if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress)) {
         spdlog::error("Failed to initialize GLAD");
@@ -75,7 +76,7 @@ spry::Window::Window(int width, int height, const char* title, bool debug_mode)
 
 spry::Window::~Window()
 {
-    glfwDestroyWindow(m_window);
+    glfwDestroyWindow(mWindow);
     glfwTerminate();
     spdlog::info("Window destroyed");
 }
@@ -85,14 +86,14 @@ void spry::Window::start()
     spdlog::info("Starting main loop");
     double prevTime = glfwGetTime();
 
-    while (!glfwWindowShouldClose(m_window)) {
+    while (!glfwWindowShouldClose(mWindow)) {
         double currTime = glfwGetTime();
         float deltaTime = static_cast<float>(currTime - prevTime);
         prevTime = currTime;
 
         onUpdate(deltaTime);
 
-        glfwSwapBuffers(m_window);
+        glfwSwapBuffers(mWindow);
         glfwPollEvents();
     }
 
@@ -101,7 +102,7 @@ void spry::Window::start()
 
 bool spry::Window::isKeyPressed(int key) const
 {
-    if (glfwGetKey(m_window, key) == GLFW_PRESS) {
+    if (glfwGetKey(mWindow, key) == GLFW_PRESS) {
         return true;
     }
     return false;
@@ -109,7 +110,7 @@ bool spry::Window::isKeyPressed(int key) const
 
 bool spry::Window::isKeyReleased(int key) const
 {
-    if (glfwGetKey(m_window, key) == GLFW_RELEASE) {
+    if (glfwGetKey(mWindow, key) == GLFW_RELEASE) {
         return true;
     }
     return false;
@@ -118,9 +119,9 @@ bool spry::Window::isKeyReleased(int key) const
 void spry::Window::setMouseCapture(bool capture) const
 {
     if (capture) {
-        glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        glfwSetInputMode(mWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     } else {
-        glfwSetInputMode(m_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        glfwSetInputMode(mWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
     }
     spdlog::info("Mouse capture is {}", capture);
 }
@@ -174,12 +175,12 @@ void spry::Window::setBlending(bool value) const
 
 void spry::Window::closeWindow() const
 {
-    glfwSetWindowShouldClose(m_window, true);
+    glfwSetWindowShouldClose(mWindow, true);
 }
 
 GLFWwindow* spry::Window::get_window() const
 {
-    return m_window;
+    return mWindow;
 }
 
 void spry::Window::onMouseMove(double xPosIn, double yPosIn)

@@ -8,37 +8,41 @@
 #include <spdlog/spdlog.h>
 #include <glm/gtc/type_ptr.hpp>
 
-spry::SingleShader::SingleShader(const char* shaderpath, GLenum shaderType)
-    : mShaderPath { shaderpath }
-{
-    std::ifstream shaderFile;
-    shaderFile.open(mShaderPath);
-    std::stringstream shaderStream;
-    shaderStream << shaderFile.rdbuf();
-    std::string shaderCode = shaderStream.str();
-    const char* shaderCodeStr = shaderCode.c_str();
+struct SingleShader {
+    unsigned int mID;
 
-    mID = glCreateShader(shaderType);
-    glShaderSource(mID, 1, &shaderCodeStr, nullptr);
-    glCompileShader(mID);
+    SingleShader(const char* shaderPath, GLenum shaderType)
+    {
+        std::ifstream shaderFile;
+        shaderFile.open(shaderPath);
+        std::stringstream shaderStream;
+        shaderStream << shaderFile.rdbuf();
+        std::string shaderCode = shaderStream.str();
+        const char* shaderCodeStr = shaderCode.c_str();
 
-    int success;
-    char log[1024];
-    glGetShaderiv(mID, GL_COMPILE_STATUS, &success);
+        mID = glCreateShader(shaderType);
+        glShaderSource(mID, 1, &shaderCodeStr, nullptr);
+        glCompileShader(mID);
 
-    if (!success) {
-        glGetShaderInfoLog(mID, 1024, nullptr, log);
-        spdlog::error("Failed to compile shader {} :: {}", shaderpath, log);
-    } else {
-        spdlog::info("Compiled shader[{}]: {}", mID, mShaderPath);
+        int success;
+        char log[1024];
+        glGetShaderiv(mID, GL_COMPILE_STATUS, &success);
+
+        if (!success) {
+            glGetShaderInfoLog(mID, 1024, nullptr, log);
+            spdlog::error("Failed to compile shader {} :: {}", shaderPath, log);
+        } else {
+            spdlog::info("Compiled shader[{}]: {}", mID, shaderPath);
+        }
     }
-}
 
-spry::SingleShader::~SingleShader()
-{
-    glDeleteShader(mID);
-    spdlog::debug("Deleted shader[{}]", mID);
-}
+    ~SingleShader()
+    {
+        glDeleteShader(mID);
+        spdlog::debug("Deleted shader[{}]", mID);
+    }
+};
+
 
 spry::Shader::Shader()
 {

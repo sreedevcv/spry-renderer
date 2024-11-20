@@ -8,7 +8,6 @@
 #include <span>
 
 spry::FontRenderer::FontRenderer()
-// : mFont(RES_PATH "fonts/Lato-Regular.ttf", 40)
 {
     mShader
         .bind(RES_PATH "shaders/Font.vert", GL_VERTEX_SHADER)
@@ -26,7 +25,7 @@ void spry::FontRenderer::draw(const std::string_view text, float x, float y, flo
     mShader.setUniformMatrix("projection", projection);
     mShader.setUniformVec("textColor", color);
     auto& fontManager = FontManager::instance();
-    auto& font = fontManager.load(RES_PATH "fonts/Lato-Regular.ttf");
+    auto& font = fontManager.get(RES_PATH "fonts/Lato-Regular.ttf");
 
     for (const char c : text) {
         const auto& character = font.mCharacters[c];

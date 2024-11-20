@@ -10,7 +10,7 @@ namespace spry {
 
 template <typename Res>
 class ResourceManager {
-protected:
+public:
     Res& get(std::string_view name)
     {
         return mResources.at(std::string(name));
@@ -19,7 +19,6 @@ protected:
     void insert(const std::string_view name, Res&& resource)
     {
         spdlog::info("Inserted name into ResourceManager");
-        // std::pair<std::string_view, Res> p = { (name), std::move(resource) };
         std::pair<std::string, Res> p = { std::string(name), std::move(resource) };
         mResources.insert(std::move(p));
     }

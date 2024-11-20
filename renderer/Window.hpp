@@ -30,10 +30,10 @@ protected:
     virtual void onScreenSizeChange(int width, int height);
 
 private:
-    int m_width;
-    int m_height;
+    int mWidth;
+    int mHeight;
 
-    GLFWwindow* m_window;
+    GLFWwindow* mWindow;
 };
 
 }

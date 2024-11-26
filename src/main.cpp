@@ -1,5 +1,3 @@
-#include <array>
-#include <cstdint>
 #include <cstdlib>
 #include <print>
 
@@ -25,7 +23,7 @@ public:
         setDepthTest(true);
         setBlending(true);
         setMouseCapture(true);
-        setWireFrameMode(true);
+        setWireFrameMode(false);
         camera.setPosition(glm::vec3(0.0f, 0.0f, 3.0f));
 
         defaultScene.load();

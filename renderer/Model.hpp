@@ -24,14 +24,17 @@ public:
     void load(const char* path);
     void draw() const;
 
+    bool loggedOnce = false;
+
 private:
     std::string mDirectory;
     std::vector<Mesh> mMeshes;
+    std::vector<Mesh::NamedTexture> mTextures;
     std::unordered_set<std::string> mLoadedTextures;
 
     void processNode(aiNode* node, const aiScene* scene);
     Mesh processMesh(aiMesh* mesh, const aiScene* scene);
-    std::vector<Mesh::NamedTexture> loadMaterialTexture(const aiMaterial* material, aiTextureType type, const char* typeName);
+    std::vector<uint32_t> loadMaterialTexture(const aiMaterial* material, aiTextureType type, const char* typeName);
 };
 
 }

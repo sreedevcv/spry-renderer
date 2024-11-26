@@ -23,9 +23,9 @@ public:
 
     using NamedTexture = std::pair<Texture, std::string>;
 
-    Mesh(std::vector<Vertex>& vertices,
-        std::vector<uint32_t>& indices,
-        std::vector<NamedTexture>& textures);
+    Mesh(std::vector<Vertex>&& vertices,
+        std::vector<uint32_t>&& indices,
+        std::vector<uint32_t>&& textures);
 
     Mesh(Mesh&& mesh);
     Mesh& operator=(Mesh&& mesh);
@@ -33,12 +33,14 @@ public:
     Mesh& operator=(const Mesh& mesh) = delete;
 
     void draw() const;
-    void load();
+    void load(std::vector<NamedTexture>* textureReference);
+    const std::vector<uint32_t>& getTexturesIndices() const;
 
 private:
     std::vector<Vertex> mVertices;
     std::vector<uint32_t> mIndices;
-    std::vector<NamedTexture> mTextures;
+    std::vector<uint32_t> mTextures;
+    std::vector<NamedTexture>* mTextureReference = nullptr;
     IndexedVAO mVao;
 };
 

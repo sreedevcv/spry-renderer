@@ -45,8 +45,8 @@ void spry::Model::load(const char* path)
 
     processNode(scene->mRootNode, scene);
 
-    for (auto& mesh: mMeshes) {
-        mesh.load();
+    for (auto& mesh : mMeshes) {
+        mesh.load(&mTextures);
     }
 
     spdlog::info("Completed creating vao's for meshes");
@@ -73,7 +73,7 @@ spry::Mesh spry::Model::processMesh(aiMesh* mesh, const aiScene* scene)
 {
     std::vector<Mesh::Vertex> vertices;
     std::vector<uint32_t> indices;
-    std::vector<std::pair<Texture, std::string>> textures;
+    std::vector<uint32_t> textures;
 
     // Get the vertices
     for (auto i = 0ul; i < mesh->mNumVertices; i++) {
@@ -119,15 +119,15 @@ spry::Mesh spry::Model::processMesh(aiMesh* mesh, const aiScene* scene)
         textures.insert(textures.end(), std::make_move_iterator(heightMaps.begin()), std::make_move_iterator(heightMaps.end()));
     }
 
-    return Mesh(vertices, indices, textures);
+    return Mesh(std::move(vertices), std::move(indices), std::move(textures));
 }
 
-std::vector<spry::Mesh::NamedTexture> spry::Model::loadMaterialTexture(
+std::vector<uint32_t> spry::Model::loadMaterialTexture(
     const aiMaterial* material,
     aiTextureType type,
     const char* typeName)
 {
-    std::vector<Mesh::NamedTexture> textures;
+    std::vector<uint32_t> textures;
 
     for (auto i = 0ul; i < material->GetTextureCount(type); i++) {
         aiString str;
@@ -142,9 +142,12 @@ std::vector<spry::Mesh::NamedTexture> spry::Model::loadMaterialTexture(
                 .setFilterMode(GL_LINEAR)
                 .setWrapMode(GL_CLAMP_TO_EDGE)
                 .load(path.c_str());
-            textures.push_back(Mesh::NamedTexture {
-                std::move(texture),
-                std::string(typeName) });
+            mTextures.push_back(
+                Mesh::NamedTexture {
+                    std::move(texture),
+                    std::string(typeName) });
+
+            textures.push_back(mTextures.size() - 1);
             mLoadedTextures.insert(std::move(pathStr));
         }
     }
@@ -154,7 +157,18 @@ std::vector<spry::Mesh::NamedTexture> spry::Model::loadMaterialTexture(
 
 void spry::Model::draw() const
 {
-    for (const auto& mesh: mMeshes) {
+    for (const auto& mesh : mMeshes) {
+
+        for (auto texCount = 0ul; texCount < mesh.getTexturesIndices().size(); texCount++) {
+
+            const auto index = mesh.getTexturesIndices()[texCount];
+            const auto& [texture, name] = mTextures[index];
+
+            if (name == "texture_diffuse") {
+                texture.bind(texCount);
+            }
+            // TODO::Implement for other textures
+        }
         mesh.draw();
     }
 }

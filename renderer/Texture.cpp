@@ -107,7 +107,7 @@ void spry::Texture::load(const char* filePath)
         mWidth = width;
         mHeight = height;
 
-        spdlog::info("Loaded texture[{}] at: {}[{}x{}]", mTexture, filePath, mWidth, mHeight);
+        spdlog::info("Loaded texture[{}] at: {}[{}x{}x{}]", mTexture, filePath, mWidth, mHeight, nrComponents);
     } else {
         spdlog::error("Failed to load Texture at path: {}", filePath);
         stbi_image_free(data);

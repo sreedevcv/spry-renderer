@@ -16,8 +16,7 @@ public:
     Shader(const Shader& shader) = delete;
     Shader& operator=(const Shader& shader) = delete;
 
-
-    Shader& bind(const char* path, GLenum type);
+    Shader& add(const char* path, GLenum type);
     void compile();
 
     void bind() const;

@@ -73,7 +73,8 @@ void spry::Shader::unload() const
     spdlog::debug("Deleted program[{}]", mID);
 }
 
-spry::Shader& spry::Shader::bind(const char* path, GLenum type)
+// Attach a shader to the glProgram
+spry::Shader& spry::Shader::add(const char* path, GLenum type)
 {
     SingleShader shader(path, type);
     glAttachShader(mID, shader.mID);

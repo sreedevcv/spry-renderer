@@ -4,7 +4,6 @@
 
 #include "Shader.hpp"
 #include "VAO.hpp"
-#include "Font.hpp"
 
 
 namespace spry {

@@ -13,6 +13,7 @@ void spry::TextureRenderTarget::unbind() const
     mFrameBuffer.unbind();
 }
 
+// Attach a texture as the Framebuffer to ben rendered on
 void spry::TextureRenderTarget::attachTexture(const Texture& texture) const
 {
     mFrameBuffer.bind();

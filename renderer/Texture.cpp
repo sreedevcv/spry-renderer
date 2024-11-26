@@ -45,6 +45,7 @@ spry::Texture& spry::Texture::setFilterMode(GLenum mode)
     return *this;
 }
 
+// Load a buffer of bytes (uint8_t) into gpu memory
 void spry::Texture::load(void* data, int width, int height, GLenum dataFormat)
 {
     glTexImage2D(
@@ -82,6 +83,7 @@ void spry::Texture::unload() const
     spdlog::debug("Deleted texture[{}]", mTexture);
 }
 
+// Load an image from memory as a texture
 void spry::Texture::load(const char* filePath)
 {
     stbi_set_flip_vertically_on_load(1);
@@ -105,9 +107,9 @@ void spry::Texture::load(const char* filePath)
         mWidth = width;
         mHeight = height;
 
-        spdlog::info("Loaded texture[{}] at: {}", mTexture, filePath);
+        spdlog::info("Loaded texture[{}] at: {}[{}x{}]", mTexture, filePath, mWidth, mHeight);
     } else {
-        spdlog::debug("Failed to load Texture at path: {}", filePath);
+        spdlog::error("Failed to load Texture at path: {}", filePath);
         stbi_image_free(data);
     }
 }

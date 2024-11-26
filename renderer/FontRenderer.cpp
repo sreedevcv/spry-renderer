@@ -10,8 +10,8 @@
 spry::FontRenderer::FontRenderer()
 {
     mShader
-        .bind(RES_PATH "shaders/Font.vert", GL_VERTEX_SHADER)
-        .bind(RES_PATH "shaders/Font.frag", GL_FRAGMENT_SHADER)
+        .add(RES_PATH "shaders/Font.vert", GL_VERTEX_SHADER)
+        .add(RES_PATH "shaders/Font.frag", GL_FRAGMENT_SHADER)
         .compile();
 
     std::array<uint32_t, 1> format = { 4 };

@@ -14,8 +14,8 @@ void spry::DefaultScene::load()
     mModel = glm::mat4(1.0f);
 
     mShader
-        .bind(RES_PATH "shaders/Line.vert.glsl", GL_VERTEX_SHADER)
-        .bind(RES_PATH "shaders/Line.frag.glsl", GL_FRAGMENT_SHADER)
+        .add(RES_PATH "shaders/Line.vert.glsl", GL_VERTEX_SHADER)
+        .add(RES_PATH "shaders/Line.frag.glsl", GL_FRAGMENT_SHADER)
         .compile();
 }
 

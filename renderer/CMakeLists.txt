@@ -66,7 +66,6 @@ add_library(
     VAO.cpp
     Shader.cpp
     Camera.cpp
-    shapes/Line.cpp
     Scene.cpp
     DefaultScene.cpp
     Texture.cpp
@@ -76,7 +75,9 @@ add_library(
     FrameBuffer.cpp
     RenderBuffer.cpp
     TextureRenderTarget.cpp
+    shapes/Line.cpp
     shapes/Cuboid.cpp
+    shapes/Plane.cpp
     utils/FontManager.cpp
     Mesh.cpp
     Model.cpp

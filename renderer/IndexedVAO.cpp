@@ -8,7 +8,7 @@ spry::IndexedVAO::IndexedVAO()
 
 void spry::IndexedVAO::load(std::span<float> vertices, std::span<uint32_t> indices, std::span<uint32_t> format, GLenum drawtype)
 {
-    mVertexCount = indices.size();
+    mIndexedDrawCount = indices.size();
 
     glGenVertexArrays(1, &mVAO);
     glGenBuffers(1, &mVBO);
@@ -44,7 +44,7 @@ void spry::IndexedVAO::updateMesh(std::span<float> vertices) const
 void spry::IndexedVAO::draw(GLenum mode) const
 {
     glBindVertexArray(mVAO);
-    glDrawElements(mode, mVertexCount, GL_UNSIGNED_INT, 0);
+    glDrawElements(mode, mIndexedDrawCount, GL_UNSIGNED_INT, 0);
     glBindVertexArray(0);
 }
 
@@ -64,11 +64,11 @@ spry::IndexedVAO& spry::IndexedVAO::operator=(IndexedVAO&& mesh)
         this->mVAO = std::move(mesh.mVAO);
         this->mEBO = std::move(mesh.mEBO);
         this->mVBO = std::move(mesh.mVBO);
-        this->mVertexCount = std::move(mesh.mVertexCount);
+        this->mIndexedDrawCount = std::move(mesh.mIndexedDrawCount);
         mesh.mVAO = 0;
         mesh.mEBO = 0;
         mesh.mVBO = 0;
-        mesh.mVertexCount = 0;
+        mesh.mIndexedDrawCount = 0;
     }
     return *this;
 }
@@ -79,11 +79,11 @@ spry::IndexedVAO::IndexedVAO(IndexedVAO&& mesh)
         this->mVAO = std::move(mesh.mVAO);
         this->mEBO = std::move(mesh.mEBO);
         this->mVBO = std::move(mesh.mVBO);
-        this->mVertexCount = std::move(mesh.mVertexCount);
+        this->mIndexedDrawCount = std::move(mesh.mIndexedDrawCount);
 
         mesh.mVAO = 0;
         mesh.mEBO = 0;
         mesh.mVBO = 0;
-        mesh.mVertexCount = 0;
+        mesh.mIndexedDrawCount = 0;
     }
 }

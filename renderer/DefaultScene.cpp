@@ -26,7 +26,7 @@ void spry::DefaultScene::process(float delta)
 void spry::DefaultScene::draw()
 {
     mShader.bind();
-    mShader.setUniformMatrix("projection", mCamera.getProjectionMatrix());
+    mShader.setUniformMatrix("proj", mCamera.getProjectionMatrix());
     mShader.setUniformMatrix("view", mCamera.getViewMatrix());
     mShader.setUniformMatrix("model", mModel);
     mShader.setUniformVec("lineColor", glm::vec3(1.0f, 0.0f, 0.0f));

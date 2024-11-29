@@ -22,7 +22,7 @@ public:
     float mMouseSensitivity = 0.1f;
     float mZoom = 45.0f;
     float mNearPoint = 0.1f;
-    float mFarPoint = 1000.0f;
+    float mFarPoint = 2000.0f;
 
     Camera(int screenWidth, int screenHeight);
     ~Camera() = default;

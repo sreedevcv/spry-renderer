@@ -22,7 +22,7 @@ spry::FontRenderer::FontRenderer()
 void spry::FontRenderer::draw(const std::string_view text, float x, float y, float scale, const glm::vec4& color, const glm::mat4& projection)
 {
     mShader.bind();
-    mShader.setUniformMatrix("projection", projection);
+    mShader.setUniformMatrix("proj", projection);
     mShader.setUniformVec("textColor", color);
     auto& fontManager = FontManager::instance();
     auto& font = fontManager.get(RES_PATH "fonts/Lato-Regular.ttf");

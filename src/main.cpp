@@ -3,8 +3,9 @@
 
 #include "Camera.hpp"
 #include "DefaultScene.hpp"
-#include "Model.hpp"
+#include "Plane.hpp"
 #include "Shader.hpp"
+#include "Texture.hpp"
 #include "Window.hpp"
 
 #include "glm/ext/matrix_float4x4.hpp"
@@ -28,12 +29,18 @@ public:
 
         defaultScene.load();
 
-        modelShader
-            .add(RES_PATH "shaders/Model.vert", GL_VERTEX_SHADER)
-            .add(RES_PATH "shaders/Model.frag", GL_FRAGMENT_SHADER)
+        shapeShader
+            .add(RES_PATH "shaders/Shape.vert", GL_VERTEX_SHADER)
+            .add(RES_PATH "shaders/Shape.frag", GL_FRAGMENT_SHADER)
             .compile();
 
-        backpackModel.load(RES_PATH "backpack/backpack.obj");
+        shapeTexture
+            .create()
+            .setWrapMode(GL_CLAMP_TO_EDGE)
+            .setFilterMode(GL_LINEAR)
+            .load(RES_PATH "models/Sponza-master/textures/sponza_fabric_blue_diff.tga");
+        
+        plane.load(5, 10);
     }
 
 private:
@@ -41,8 +48,9 @@ private:
     int mHeight;
     spry::Camera camera;
     spry::DefaultScene defaultScene;
-    spry::Model backpackModel;
-    spry::Shader modelShader;
+    spry::Shader shapeShader;
+    spry::Texture shapeTexture;
+    spry::Plane plane;
 
     void onUpdate(float deltaTime) override
     {
@@ -55,15 +63,16 @@ private:
         defaultScene.draw();
 
         auto model = glm::mat4(1.0f);
+        // model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
         auto view = camera.getViewMatrix();
         auto proj = camera.getProjectionMatrix();
 
-        modelShader.bind();
-        modelShader.setUniformMatrix("model", model);
-        modelShader.setUniformMatrix("view", view);
-        modelShader.setUniformMatrix("projection", proj);
+        shapeShader.bind();
+        shapeShader.setUniformMatrix("model", model);
+        shapeShader.setUniformMatrix("view", view);
+        shapeShader.setUniformMatrix("proj", proj);
 
-        backpackModel.draw();
+        plane.draw(shapeTexture);
         // closeWindow();
     }
 

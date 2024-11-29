@@ -105,6 +105,13 @@ spry::Mesh spry::Model::processMesh(aiMesh* mesh, const aiScene* scene)
         }
     }
 
+    //  AI_MATKEY_COLOR_DIFFUSE
+    //  AI_MATKEY_COLOR_AMBIENT
+    //  AI_MATKEY_COLOR_SPECULAR
+    //  AI_MATKEY_COLOR_EMISSIVE
+    //  AI_MATKEY_COLOR_TRANSPARENT
+    //  AI_MATKEY_COLOR_REFLECTIVE
+
     // Get materials
     if (mesh->mMaterialIndex >= 0) {
         const aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
@@ -122,6 +129,8 @@ spry::Mesh spry::Model::processMesh(aiMesh* mesh, const aiScene* scene)
     return Mesh(std::move(vertices), std::move(indices), std::move(textures));
 }
 
+// Are we just randomly loading materials for every node instead of chcking typeName
+// Complare with learnOpengl's implementation
 std::vector<uint32_t> spry::Model::loadMaterialTexture(
     const aiMaterial* material,
     aiTextureType type,
@@ -142,6 +151,7 @@ std::vector<uint32_t> spry::Model::loadMaterialTexture(
                 .setFilterMode(GL_LINEAR)
                 .setWrapMode(GL_CLAMP_TO_EDGE)
                 .load(path.c_str());
+
             mTextures.push_back(
                 Mesh::NamedTexture {
                     std::move(texture),
@@ -176,9 +186,11 @@ void spry::Model::draw() const
 spry::Model::Model(Model&& model)
 {
     mMeshes = std::move(model.mMeshes);
+    mTextures = std::move(model.mTextures);
     mDirectory = std::move(model.mDirectory);
     mLoadedTextures = std::move(model.mLoadedTextures);
     model.mMeshes.clear();
+    model.mTextures.clear();
     model.mDirectory.clear();
     model.mLoadedTextures.clear();
 }
@@ -187,9 +199,11 @@ spry::Model& spry::Model::operator=(Model&& model)
 {
     if (this != &model) {
         mMeshes = std::move(model.mMeshes);
+        mTextures = std::move(model.mTextures);
         mDirectory = std::move(model.mDirectory);
         mLoadedTextures = std::move(model.mLoadedTextures);
         model.mMeshes.clear();
+        model.mTextures.clear();
         model.mDirectory.clear();
         model.mLoadedTextures.clear();
     }

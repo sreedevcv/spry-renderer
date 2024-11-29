@@ -23,7 +23,7 @@ public:
     template <typename T>
     void load(std::span<T> vertices, std::span<uint32_t> indices, std::span<uint32_t> sizes, std::span<uint32_t> offset, GLenum drawtype)
     {
-        mVertexCount = indices.size();
+        mIndexedDrawCount = indices.size();
 
         glGenVertexArrays(1, &mVAO);
         glGenBuffers(1, &mVBO);
@@ -43,7 +43,7 @@ public:
     }
 
 private:
-    unsigned int mVertexCount;
+    unsigned int mIndexedDrawCount;
     unsigned int mVAO;
     unsigned int mVBO;
     unsigned int mEBO;

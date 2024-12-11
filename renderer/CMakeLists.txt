@@ -59,6 +59,7 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(spdlog)
 
+
 add_library(
     renderer
     glad.c
@@ -84,6 +85,7 @@ add_library(
 )
 
 target_include_directories(renderer PRIVATE ${FREETYPE_INCLUDE_DIRS})
+target_include_directories(renderer PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../include)  # added becaiuse #include <glad/glad.h> was not working
 target_include_directories(renderer PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(renderer PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/shapes)
 target_include_directories(renderer PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/utils)

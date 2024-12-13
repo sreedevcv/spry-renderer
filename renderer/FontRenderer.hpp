@@ -15,9 +15,8 @@ public:
     void draw(const std::string_view text, float x, float y, float scale, const glm::vec4& color, const glm::mat4& ortho);
 
 private:
-    Shader mShader;
+    const Shader& mShader;
     VAO mVao;
-    // Font mFont;
 };
 
 }

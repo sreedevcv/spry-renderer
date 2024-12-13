@@ -23,9 +23,8 @@ private:
     spry::Line xAxis;
     spry::Line yAxis;
     spry::Line zAxis;
-    spry::Shader mShader;
     glm::mat4 mModel;
-
+    const spry::Shader& mShader;
     const Camera& mCamera;
 };
 

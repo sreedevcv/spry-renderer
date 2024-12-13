@@ -1,7 +1,9 @@
 #include "DefaultScene.hpp"
+#include "ShaderManager.hpp"
 
 spry::DefaultScene::DefaultScene(const Camera& camera)
     : mCamera(camera)
+    , mShader(ShaderManager::instance().loadAndGet(ShaderManager::LINE))
 {
 }
 
@@ -12,11 +14,6 @@ void spry::DefaultScene::load()
     zAxis.setEndPoints(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1000.0f));
 
     mModel = glm::mat4(1.0f);
-
-    mShader
-        .add(RES_PATH "shaders/Line.vert.glsl", GL_VERTEX_SHADER)
-        .add(RES_PATH "shaders/Line.frag.glsl", GL_FRAGMENT_SHADER)
-        .compile();
 }
 
 void spry::DefaultScene::process(float delta)
@@ -39,7 +36,6 @@ void spry::DefaultScene::draw()
 
 void spry::DefaultScene::unload()
 {
-    mShader.unload();
     xAxis.unload();
     yAxis.unload();
     zAxis.unload();

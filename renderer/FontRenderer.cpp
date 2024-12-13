@@ -1,6 +1,7 @@
 #include "FontRenderer.hpp"
 #include "FontManager.hpp"
 #include "Shader.hpp"
+#include "ShaderManager.hpp"
 #include "VAO.hpp"
 
 #include <array>
@@ -8,12 +9,8 @@
 #include <span>
 
 spry::FontRenderer::FontRenderer()
+    : mShader(ShaderManager::instance().loadAndGet(ShaderManager::FONT))
 {
-    mShader
-        .add(RES_PATH "shaders/Font.vert", GL_VERTEX_SHADER)
-        .add(RES_PATH "shaders/Font.frag", GL_FRAGMENT_SHADER)
-        .compile();
-
     std::array<uint32_t, 1> format = { 4 };
     std::array<float, 24> vertices {};
     mVao.load(vertices, std::span<uint32_t> { format }, 24, GL_DYNAMIC_DRAW);

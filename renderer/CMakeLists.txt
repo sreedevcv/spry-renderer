@@ -80,6 +80,7 @@ add_library(
     shapes/Cuboid.cpp
     shapes/Plane.cpp
     utils/FontManager.cpp
+    utils/ShaderManager.cpp
     Mesh.cpp
     Model.cpp
 )

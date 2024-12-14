@@ -1,5 +1,6 @@
 #include "Shader.hpp"
 
+#include <cstdint>
 #include <fstream>
 #include <print>
 #include <sstream>
@@ -104,6 +105,12 @@ void spry::Shader::bind() const
 void spry::Shader::unbind() const
 {
     glUseProgram(0);
+}
+
+void spry::Shader::setUniformBlockBinding(const char* uniformBlockName, uint32_t bindingPoint) const
+{
+    uint32_t blockIndex = glGetUniformBlockIndex(mID, uniformBlockName);
+    glUniformBlockBinding(mID, blockIndex, bindingPoint);
 }
 
 void spry::Shader::setUniformFloat(const char* name, const float value) const

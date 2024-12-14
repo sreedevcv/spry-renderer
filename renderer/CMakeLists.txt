@@ -69,15 +69,6 @@ FetchContent_Declare(
 
 FetchContent_MakeAvailable(imgui)
 
-# set(IMGUI_FILES
-#     ${imgui_SOURCE_DIR}/imgui.cpp
-#     # ${imgui_SOURCE_DIR}/imgui_draw.cpp
-#     ${imgui_SOURCE_DIR}/imgui_internal.cpp
-#     # ${imgui_SOURCE_DIR}/imgui_tables.cpp
-#     # ${imgui_SOURCE_DIR}/imgui_.cpp
-# )
-
-
 
 add_library(
     renderer
@@ -102,7 +93,7 @@ add_library(
     utils/ShaderManager.cpp
     Mesh.cpp
     Model.cpp
-    # ${IMGUI_FILES}
+    UniformBuffer.cpp
 )
 
 target_include_directories(renderer PRIVATE ${FREETYPE_INCLUDE_DIRS})

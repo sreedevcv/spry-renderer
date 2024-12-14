@@ -29,6 +29,7 @@ protected:
     virtual void onMouseMove(double xPosIn, double yPosIn);
     virtual void onMouseScroll(double xOffset, double yOffset);
     virtual void onScreenSizeChange(int width, int height);
+    virtual void onImguiDebugDraw(float delta);
 
 private:
     int mWidth;

@@ -60,6 +60,25 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(spdlog)
 
 
+# Imgui
+FetchContent_Declare(
+    imgui
+    GIT_REPOSITORY https://github.com/ocornut/imgui.git
+    GIT_TAG v1.91.6
+)
+
+FetchContent_MakeAvailable(imgui)
+
+# set(IMGUI_FILES
+#     ${imgui_SOURCE_DIR}/imgui.cpp
+#     # ${imgui_SOURCE_DIR}/imgui_draw.cpp
+#     ${imgui_SOURCE_DIR}/imgui_internal.cpp
+#     # ${imgui_SOURCE_DIR}/imgui_tables.cpp
+#     # ${imgui_SOURCE_DIR}/imgui_.cpp
+# )
+
+
+
 add_library(
     renderer
     glad.c
@@ -83,6 +102,7 @@ add_library(
     utils/ShaderManager.cpp
     Mesh.cpp
     Model.cpp
+    # ${IMGUI_FILES}
 )
 
 target_include_directories(renderer PRIVATE ${FREETYPE_INCLUDE_DIRS})
@@ -90,6 +110,24 @@ target_include_directories(renderer PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../includ
 target_include_directories(renderer PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(renderer PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/shapes)
 target_include_directories(renderer PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/utils)
+target_include_directories(renderer PUBLIC ${imgui_SOURCE_DIR}/)
+
+add_library(
+    imgui_gui
+    ${imgui_SOURCE_DIR}/imgui.cpp
+    ${imgui_SOURCE_DIR}/backends/imgui_impl_glfw.cpp
+    ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl3.cpp
+    ${imgui_SOURCE_DIR}/imgui_widgets.cpp
+    ${imgui_SOURCE_DIR}/imgui_draw.cpp
+    ${imgui_SOURCE_DIR}/imgui_tables.cpp
+    ${imgui_SOURCE_DIR}/imgui_demo.cpp # REMOVE this file; not needed
+)
+
+target_include_directories(imgui_gui PUBLIC ${imgui_SOURCE_DIR}/)
+
+target_link_libraries(imgui_gui
+    glfw
+)
 
 target_link_libraries(
     renderer
@@ -98,4 +136,5 @@ target_link_libraries(
     assimp
     freetype
     spdlog
+    imgui_gui
 )

@@ -39,7 +39,7 @@ public:
             .setWrapMode(GL_CLAMP_TO_EDGE)
             .setFilterMode(GL_LINEAR)
             .load(RES_PATH "models/Sponza-master/textures/sponza_fabric_blue_diff.tga");
-        
+
         plane.load(5, 10);
     }
 
@@ -72,7 +72,8 @@ private:
         shapeShader.setUniformMatrix("view", view);
         shapeShader.setUniformMatrix("proj", proj);
 
-        plane.draw(shapeTexture);
+        shapeTexture.bind(0);
+        plane.draw();
         // closeWindow();
     }
 

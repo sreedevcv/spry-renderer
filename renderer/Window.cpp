@@ -3,6 +3,10 @@
 #include <print>
 #include <spdlog/spdlog.h>
 
+#include <imgui.h>
+#include <backends/imgui_impl_glfw.h>
+#include <backends/imgui_impl_opengl3.h>
+
 void APIENTRY glDebugOutput(GLenum source,
     GLenum type,
     unsigned int id,
@@ -72,6 +76,20 @@ spry::Window::Window(int width, int height, const char* title, bool debug_mode)
     }
 
     spdlog::info("Window and OpenGL(4.6) inititalized");
+
+    // Guard compilation using constexpr if checking for debug_mode
+    // Setup Imgui
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+
+    ImGui::StyleColorsDark();
+    // ImGui::StyleColorsLight();
+
+    ImGui_ImplGlfw_InitForOpenGL(mWindow, true);
+    ImGui_ImplOpenGL3_Init("#version 460");
+    spdlog::info("ImGui Initialized");
 }
 
 spry::Window::~Window()
@@ -92,6 +110,16 @@ void spry::Window::start()
         prevTime = currTime;
 
         onUpdate(deltaTime);
+
+        // Setup Imgui
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+        // Imgui Callback
+        onImguiDebugDraw(deltaTime);
+        // ImGui Rendering
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         glfwSwapBuffers(mWindow);
         glfwPollEvents();
@@ -172,7 +200,6 @@ void spry::Window::setBlending(bool value) const
     spdlog::info("Blending is {}", value);
 }
 
-
 void spry::Window::closeWindow() const
 {
     glfwSetWindowShouldClose(mWindow, true);
@@ -188,6 +215,10 @@ void spry::Window::onMouseMove(double xPosIn, double yPosIn)
 }
 
 void spry::Window::onMouseScroll(double xOffset, double yOffset)
+{
+}
+
+void spry::Window::onImguiDebugDraw(float delta)
 {
 }
 

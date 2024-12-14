@@ -16,10 +16,22 @@ void spry::ShaderManager::loadAllShaders()
     loadAndGet(LINE);
     loadAndGet(FONT);
     loadAndGet(MODEL);
+    loadAndGet(SHAPE);
 }
 
 const spry::Shader& spry::ShaderManager::loadAndGet(BaseShader shaderEnum)
 {
+    // Bounds checking
+    if (shaderEnum >= ShaderManager::SHADER_MAX) {
+        shaderEnum = TEXTURED;
+
+        spdlog::error("Trying to get a shader with value({}) greater then spry::ShaderManager::SHADER_MAX({})",
+            static_cast<int>(shaderEnum),
+            static_cast<int>(ShaderManager::SHADER_MAX));
+        spdlog::warn("Returning TEXTURED BaseShader instead");
+    }
+
+    // Check whether already loaded
     if (!instance().mShaders.contains(shaderEnum)) {
         Shader shader;
         std::string vertPath(RES_PATH);

@@ -118,13 +118,31 @@ void spry::Shader::setUniformMatrix(const char* name, const glm::mat4& value) co
     glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(value));
 }
 
+void spry::Shader::setUniformVec(const char* name, const glm::vec4&& value) const
+{
+    int loc = glGetUniformLocation(mID, name);
+    glUniform4fv(loc, 1, glm::value_ptr(value));
+}
+
 void spry::Shader::setUniformVec(const char* name, const glm::vec3&& value) const
 {
     int loc = glGetUniformLocation(mID, name);
     glUniform3fv(loc, 1, glm::value_ptr(value));
 }
 
-void spry::Shader::setUniformVec(const char* name, const glm::vec4&& value) const
+void spry::Shader::setUniformVec(const char* name, const glm::vec2&& value) const
+{
+    int loc = glGetUniformLocation(mID, name);
+    glUniform2fv(loc, 1, glm::value_ptr(value));
+}
+
+void spry::Shader::setUniformVec(const char* name, const glm::ivec2&& value) const
+{
+    int loc = glGetUniformLocation(mID, name);
+    glUniform2iv(loc, 1, glm::value_ptr(value));
+}
+
+void spry::Shader::setUniformVec(const char* name, const glm::vec4& value) const
 {
     int loc = glGetUniformLocation(mID, name);
     glUniform4fv(loc, 1, glm::value_ptr(value));
@@ -136,14 +154,20 @@ void spry::Shader::setUniformVec(const char* name, const glm::vec3& value) const
     glUniform3fv(loc, 1, glm::value_ptr(value));
 }
 
+void spry::Shader::setUniformVec(const char* name, const glm::vec2& value) const
+{
+    int loc = glGetUniformLocation(mID, name);
+    glUniform2fv(loc, 1, glm::value_ptr(value));
+}
+
+void spry::Shader::setUniformVec(const char* name, const glm::ivec2& value) const
+{
+    int loc = glGetUniformLocation(mID, name);
+    glUniform2iv(loc, 1, glm::value_ptr(value));
+}
+
 void spry::Shader::setUniformInt(const char* name, const int value) const
 {
     int loc = glGetUniformLocation(mID, name);
     glUniform1i(loc, value);
-}
-
-void spry::Shader::setUniformVec(const char* name, const glm::vec4& value) const
-{
-    int loc = glGetUniformLocation(mID, name);
-    glUniform4fv(loc, 1, glm::value_ptr(value));
 }

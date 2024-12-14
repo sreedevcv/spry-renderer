@@ -25,8 +25,12 @@ public:
     void setUniformMatrix(const char* name, const glm::mat4& value) const;
     void setUniformVec(const char* name, const glm::vec4&& value) const;
     void setUniformVec(const char* name, const glm::vec3&& value) const;
+    void setUniformVec(const char* name, const glm::vec2&& value) const;
+    void setUniformVec(const char* name, const glm::ivec2&& value) const;
     void setUniformVec(const char* name, const glm::vec4& value) const;
     void setUniformVec(const char* name, const glm::vec3& value) const;
+    void setUniformVec(const char* name, const glm::vec2& value) const;
+    void setUniformVec(const char* name, const glm::ivec2& value) const;
     void setUniformInt(const char* name, const int value) const;
     void unload() const;
 

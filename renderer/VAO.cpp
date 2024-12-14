@@ -62,10 +62,6 @@ void spry::VAO::unload() const
 
 spry::VAO& spry::VAO::operator=(VAO&& mesh)
 {
-    // Since we don't own the vertex data, it is better that
-    // we don't delete the the buffers to preserve RAII
-    // So not calling: `deleteBuffers()`
-
     if (this != &mesh) {
         this->mVAO = std::move(mesh.mVAO);
         this->mVBO = std::move(mesh.mVBO);

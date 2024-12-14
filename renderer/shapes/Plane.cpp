@@ -1,5 +1,4 @@
 #include "Plane.hpp"
-#include "IndexedVAO.hpp"
 
 #include <vector>
 
@@ -25,8 +24,8 @@ spry::Plane::Buffer spry::Plane::getBuffers(uint32_t width, uint32_t height) con
             vertices[idx++] = 1.0f;
             vertices[idx++] = 0.0f;
             // Tex coords
-            vertices[idx++] = x / (width + 1);
-            vertices[idx++] = z / (height + 1);
+            vertices[idx++] = x / (width);
+            vertices[idx++] = z / (height);
         }
     }
 
@@ -56,8 +55,7 @@ spry::Plane::Buffer spry::Plane::getBuffers(uint32_t width, uint32_t height) con
     };
 }
 
-void spry::Plane::draw(const Texture& texture) const
+void spry::Plane::draw() const
 {
-    texture.bind(0);
     mVao.draw();
 }

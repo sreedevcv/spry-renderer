@@ -2,14 +2,19 @@
 #include <print>
 
 #include "Camera.hpp"
+#include "CubeMap.hpp"
 #include "DefaultScene.hpp"
 #include "Plane.hpp"
 #include "Shader.hpp"
+#include "Sphere.hpp"
 #include "Texture.hpp"
+#include "Timer.hpp"
+#include "Toggle.hpp"
 #include "Window.hpp"
 
 #include "glm/ext/matrix_float4x4.hpp"
 #include "glm/ext/vector_float3.hpp"
+#include "spdlog/spdlog.h"
 
 class TestWindow : public spry::Window {
 public:
@@ -20,7 +25,7 @@ public:
         , camera(width, height)
         , defaultScene(camera)
     {
-        setCulling(true);
+        setCulling(false);
         setDepthTest(true);
         setBlending(true);
         setMouseCapture(true);
@@ -29,11 +34,6 @@ public:
 
         defaultScene.load();
 
-        shapeShader
-            .add(RES_PATH "shaders/Shape.vert", GL_VERTEX_SHADER)
-            .add(RES_PATH "shaders/Shape.frag", GL_FRAGMENT_SHADER)
-            .compile();
-
         shapeTexture
             .create()
             .setWrapMode(GL_CLAMP_TO_EDGE)
@@ -41,6 +41,7 @@ public:
             .load(RES_PATH "models/Sponza-master/textures/sponza_fabric_blue_diff.tga");
 
         plane.load(5, 10);
+        cubeMap.load("/home/sreedev/Documents/equirectangularImage.png");
     }
 
 private:
@@ -50,7 +51,8 @@ private:
     spry::DefaultScene defaultScene;
     spry::Shader shapeShader;
     spry::Texture shapeTexture;
-    spry::Plane plane;
+    spry::Sphere plane;
+    spry::CubeMap cubeMap;
 
     void onUpdate(float deltaTime) override
     {
@@ -67,22 +69,33 @@ private:
         auto view = camera.getViewMatrix();
         auto proj = camera.getProjectionMatrix();
 
-        shapeShader.bind();
-        shapeShader.setUniformMatrix("model", model);
-        shapeShader.setUniformMatrix("view", view);
-        shapeShader.setUniformMatrix("proj", proj);
+        // shapeShader.bind();
+        // shapeShader.setUniformMatrix("model", model);
+        // shapeShader.setUniformMatrix("view", view);
+        // shapeShader.setUniformMatrix("proj", proj);
 
-        shapeTexture.bind(0);
-        plane.draw();
+        // shapeTexture.bind(0);
+        // plane.draw();
         // closeWindow();
+
+        cubeMap.getShader().bind();
+        cubeMap.getShader().setUniformMatrix("model", model);
+        cubeMap.getShader().setUniformMatrix("view", view);
+        cubeMap.getShader().setUniformMatrix("proj", proj);
+        cubeMap.draw();
     }
+
+    spry::Toggle toggle;
 
     void processInput(float deltaTime)
     {
+        toggle.update(deltaTime);
+
         if (isKeyPressed(GLFW_KEY_ESCAPE)) {
             closeWindow();
         }
-        if (isKeyPressed(GLFW_KEY_ENTER)) {
+        if (isKeyPressed(GLFW_KEY_ENTER) && toggle.canToggle()) {
+            setWireFrameMode(toggle.toggle());
         }
 
         camera.processInputDefault(*this, deltaTime);

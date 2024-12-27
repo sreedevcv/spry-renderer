@@ -17,6 +17,7 @@ void spry::ShaderManager::loadAllShaders()
     loadAndGet(FONT);
     loadAndGet(MODEL);
     loadAndGet(SHAPE);
+    loadAndGet(SKYBOX);
 }
 
 const spry::Shader& spry::ShaderManager::loadAndGet(BaseShader shaderEnum)

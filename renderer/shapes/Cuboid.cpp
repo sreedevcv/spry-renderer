@@ -1,11 +1,10 @@
 #include "Cuboid.hpp"
-#include "VAO.hpp"
+
 #include <array>
 #include <cstdint>
 
 spry::Cuboid::Cuboid()
 {
-
     std::array<float, 24 * 5> vertices = {
         // Front face
         -1.0f, -1.0f, 1.0f, 0.0f, 0.0f, // Bottom-left

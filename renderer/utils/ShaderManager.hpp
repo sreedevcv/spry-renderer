@@ -18,7 +18,7 @@ public:
     };
 
     static ShaderManager& instance();
-    const Shader& get(BaseShader shaderEnum);
+    const Shader& get(BaseShader shaderEnum) const;
     void loadAllShaders();
     const Shader& loadAndGet(BaseShader shaderEnum);
 

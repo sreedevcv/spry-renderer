@@ -44,9 +44,9 @@ public:
 
 private:
     unsigned int mIndexedDrawCount;
-    unsigned int mVAO;
-    unsigned int mVBO;
-    unsigned int mEBO;
+    unsigned int mVAO { 0 };
+    unsigned int mVBO { 0 };
+    unsigned int mEBO { 0 };
 };
 
 }

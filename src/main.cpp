@@ -3,7 +3,6 @@
 
 #include "Camera.hpp"
 #include "DefaultScene.hpp"
-#include "Plane.hpp"
 #include "Shader.hpp"
 #include "ShaderManager.hpp"
 #include "Sphere.hpp"
@@ -13,6 +12,8 @@
 
 #include "glm/ext/matrix_float4x4.hpp"
 #include "glm/ext/vector_float3.hpp"
+#include "imgui.h"
+
 
 class TestWindow : public spry::Window {
 public:
@@ -22,12 +23,11 @@ public:
         , mHeight { height }
         , camera(width, height)
         , defaultScene(camera)
-    // , shapeShader(spry::ShaderManager::instance().loadAndGet(spry::ShaderManager::SHAPE))
     {
         setCulling(false);
         setDepthTest(true);
         setBlending(true);
-        setMouseCapture(true);
+        setMouseCapture(false);
         setWireFrameMode(false);
         camera.setPosition(glm::vec3(0.0f, 0.0f, 3.0f));
 
@@ -41,7 +41,9 @@ public:
             .setFilterMode(GL_LINEAR)
             .load(RES_PATH "models/Sponza-master/textures/sponza_fabric_blue_diff.tga");
 
-        sphere.load(10, 10);
+        // sphere.load(10, 10);
+        testSphere = new spry::Sphere;
+        testSphere->load(sphereWidth, sphereHeight);
     }
 
 private:
@@ -74,7 +76,8 @@ private:
         shapeShader.setUniformMatrix("proj", proj);
 
         shapeTexture.bind(0);
-        sphere.draw();
+        // sphere.draw();
+        testSphere->draw();
         // closeWindow();
     }
 
@@ -96,7 +99,7 @@ private:
 
     void onMouseMove(double xPosIn, double yPosIn) override
     {
-        camera.onMouseMoveDefault(xPosIn, yPosIn);
+        // camera.onMouseMoveDefault(xPosIn, yPosIn);
     }
 
     void onMouseScroll(double xOffset, double yOffset) override
@@ -107,6 +110,22 @@ private:
     void onScreenSizeChange(int width, int height) override
     {
         camera.setScreenSize(width, height);
+    }
+
+    int sphereWidth = 10;
+    int sphereHeight = 10;
+    spry::Sphere* testSphere;
+
+    void onImguiDebugDraw(float delta) override
+    {
+        ImGui::Text("FPS: %f", 1.0 / delta);
+        ImGui::SliderInt("width", &sphereWidth, 0, 100);
+        ImGui::SliderInt("height", &sphereHeight, 0, 100);
+        if (ImGui::Button("Generate")) {
+            delete testSphere;
+            testSphere = new spry::Sphere;
+            testSphere->load(sphereWidth, sphereHeight);
+        }
     }
 };
 

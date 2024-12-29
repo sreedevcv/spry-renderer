@@ -9,7 +9,6 @@
 #include "Materials.hpp"
 #include "Plane.hpp"
 #include "Shader.hpp"
-#include "ShaderManager.hpp"
 #include "Sphere.hpp"
 #include "Texture.hpp"
 #include "Toggle.hpp"
@@ -83,6 +82,8 @@ private:
     glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
     glm::vec3 lightPosition = glm::vec3(10.0f, 20.0f, 5.0f);
     spry::Material currMaterial = *spry::materials.at("emerald");
+    float innerCutOffAngle = 0.01f;
+    float outerCutOffAngle = 0.1;
     // ImGuiView
     std::vector<const char*> materialNames;
 
@@ -109,13 +110,21 @@ private:
         lightingShader.setUniformMatrix("view", view);
         lightingShader.setUniformMatrix("proj", proj);
         lightingShader.setUniformVec("lightColor", lightColor);
-        lightingShader.setUniformVec("lightPosition", lightPosition);
+        // lightingShader.setUniformVec("lightPosition", lightPosition);
+        lightingShader.setUniformVec("lightPosition", camera.mPosition);
         lightingShader.setUniformVec("viewPosition", camera.mPosition);
 
+        // Material
         lightingShader.setUniformVec("material.ambient", currMaterial.ambient);
         lightingShader.setUniformVec("material.diffuse", currMaterial.diffuse);
         lightingShader.setUniformVec("material.specular", currMaterial.specular);
         lightingShader.setUniformFloat("material.shininess", currMaterial.shininess);
+        // SpotLight
+        lightingShader.setUniformVec("spotLight.position", camera.mPosition);
+        lightingShader.setUniformVec("spotLight.direction", camera.mFront);
+        lightingShader.setUniformFloat("spotLight.innerCutOffAngle", innerCutOffAngle);
+        lightingShader.setUniformFloat("spotLight.outerCutOffAngle", outerCutOffAngle);
+        // lightingShader.setUniformFloat("spotLight.cutOffAngle", glm::cos(glm::radians(12.5f)));
 
         planeTexture.bind(0);
         testSphere->draw();
@@ -186,6 +195,9 @@ private:
         ImGui::Text("FPS: %f", 1.0 / delta);
         ImGui::Text("Delta: %fms", delta * 1000);
 
+        ImGui::SliderFloat("innerCutOffAngle", &innerCutOffAngle, 0.0f, glm::pi<float>() / 2);
+        ImGui::SliderFloat("outerCutOffAngle", &outerCutOffAngle, 0.0f, glm::pi<float>() / 2);
+
         ImGui::Separator();
         ImGui::SliderFloat("lightPosition.x", &lightPosition.x, -100.0f, 100.0f);
         ImGui::SliderFloat("lightPosition.y", &lightPosition.y, -100.0f, 100.0f);
@@ -205,6 +217,7 @@ private:
         ImGui::ColorEdit3("Ambient Color", &currMaterial.ambient.r);
         ImGui::ColorEdit3("Diffuse Color", &currMaterial.diffuse.r);
         ImGui::ColorEdit3("Specular Color", &currMaterial.specular.r);
+        ImGui::SliderFloat("Shininesss", &currMaterial.shininess, 0.0f, 10.0f);
         ImGui::Separator();
 
         ImGui::SliderInt("width", &sphereWidth, 0, 100);

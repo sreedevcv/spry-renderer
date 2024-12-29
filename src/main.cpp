@@ -1,10 +1,12 @@
 #include <cstdint>
 #include <cstdlib>
 #include <print>
+#include <vector>
 
 #include "Camera.hpp"
 #include "Cuboid.hpp"
 #include "DefaultScene.hpp"
+#include "Materials.hpp"
 #include "Plane.hpp"
 #include "Shader.hpp"
 #include "ShaderManager.hpp"
@@ -35,7 +37,9 @@ public:
         setWireFrameMode(false);
         camera.setPosition(glm::vec3(0.0f, 0.0f, 3.0f));
 
-        spry::ShaderManager::instance().loadAndGet(spry::ShaderManager::SHAPE);
+        for (const auto& [key, value] : spry::materials) {
+            materialNames.push_back(key);
+        }
 
         defaultScene.load();
 
@@ -60,8 +64,6 @@ public:
             .setFilterMode(GL_LINEAR)
             .load(color2, 1, 1, GL_RGBA);
 
-        // .load(RES_PATH; "models/Sponza-master/textures/sponza_fabric_blue_diff.tga");
-
         plane.load(30, 30);
         testSphere = new spry::Sphere;
         testSphere->load(sphereWidth, sphereHeight);
@@ -77,16 +79,16 @@ private:
     spry::Cuboid cube;
     spry::Plane plane;
     spry::Shader lightingShader;
-    // unoiforms
+    // Uniforms
     glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f);
-    glm::vec3 objectColor = glm::vec3(1.0f, 0.5f, 0.31f);
     glm::vec3 lightPosition = glm::vec3(10.0f, 20.0f, 5.0f);
-    float ambientStrength = 0.1f;
+    spry::Material currMaterial = *spry::materials.at("emerald");
+    // ImGuiView
+    std::vector<const char*> materialNames;
 
     void onUpdate(float deltaTime) override
     {
         processInput(deltaTime);
-        const auto& shapeShader = spry::ShaderManager::instance().get(spry::ShaderManager::SHAPE);
 
         glClearColor(0.4f, 0.5f, 0.5f, 1.0f);
         glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
@@ -94,8 +96,11 @@ private:
         defaultScene.process(deltaTime);
         defaultScene.draw();
 
+        lightPosition.x = 5.0f + 10.0f * glm::sin(getGlobalTime());
+        lightPosition.y = 20 + 10.0f * glm::cos(getGlobalTime());
+        lightPosition.z = 5.0f + 10.0f * glm::sin(getGlobalTime());
+
         auto model = glm::mat4(1.0f);
-        // model = glm::rotate(model, (float)getGlobalTime(), glm::vec3(1.0f, 0.0f, 1.0f));
         auto view = camera.getViewMatrix();
         auto proj = camera.getProjectionMatrix();
 
@@ -104,14 +109,22 @@ private:
         lightingShader.setUniformMatrix("view", view);
         lightingShader.setUniformMatrix("proj", proj);
         lightingShader.setUniformVec("lightColor", lightColor);
-        lightingShader.setUniformVec("objectColor", objectColor);
         lightingShader.setUniformVec("lightPosition", lightPosition);
         lightingShader.setUniformVec("viewPosition", camera.mPosition);
-        lightingShader.setUniformFloat("ambientStrength", ambientStrength);
+
+        lightingShader.setUniformVec("material.ambient", currMaterial.ambient);
+        lightingShader.setUniformVec("material.diffuse", currMaterial.diffuse);
+        lightingShader.setUniformVec("material.specular", currMaterial.specular);
+        lightingShader.setUniformFloat("material.shininess", currMaterial.shininess);
 
         planeTexture.bind(0);
         testSphere->draw();
-        // cube.draw();
+
+        model = glm::translate(glm::mat4(1.0f), glm::vec3(5.0f, 1.0f, 5.0f));
+        model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+
+        lightingShader.setUniformMatrix("model", model);
+        cube.draw();
 
         model = glm::translate(glm::mat4(1.0f), glm::vec3(-5.0f, -5.0f, -5.0f));
         // model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
@@ -162,9 +175,14 @@ private:
     int sphereWidth = 10;
     int sphereHeight = 10;
     spry::Sphere* testSphere;
+    int currentItem = 0;
 
     void onImguiDebugDraw(float delta) override
     {
+        // ImGui::ShowDemoWindow();
+
+        ImGui::PushItemWidth(180.0f);
+
         ImGui::Text("FPS: %f", 1.0 / delta);
         ImGui::Text("Delta: %fms", delta * 1000);
 
@@ -172,18 +190,21 @@ private:
         ImGui::SliderFloat("lightPosition.x", &lightPosition.x, -100.0f, 100.0f);
         ImGui::SliderFloat("lightPosition.y", &lightPosition.y, -100.0f, 100.0f);
         ImGui::SliderFloat("lightPosition.z", &lightPosition.z, -100.0f, 100.0f);
-
-        ImGui::Separator();
-        ImGui::SliderFloat("ambientStrength", &ambientStrength, 0.0f, 1.0f);
         ImGui::Separator();
 
-        ImGui::PushItemWidth(180.0f);
-        {
-            ImGui::ColorPicker3("Light Color", &lightColor.r);
-            ImGui::ColorPicker3("Object Color", &objectColor.r);
+        ImGui::ColorEdit3("Light Color", &lightColor.r);
+        ImGui::Separator();
+
+        // List showing all materials
+        if (ImGui::ListBox("Materials", &currentItem, materialNames.data(), materialNames.size(), 6)) {
+            currMaterial = *spry::materials.at(materialNames[currentItem]);
         }
-        ImGui::PopItemWidth();
+        ImGui::Separator();
 
+        ImGui::Text("Current Material: %s", materialNames[currentItem]);
+        ImGui::ColorEdit3("Ambient Color", &currMaterial.ambient.r);
+        ImGui::ColorEdit3("Diffuse Color", &currMaterial.diffuse.r);
+        ImGui::ColorEdit3("Specular Color", &currMaterial.specular.r);
         ImGui::Separator();
 
         ImGui::SliderInt("width", &sphereWidth, 0, 100);
@@ -194,6 +215,8 @@ private:
             testSphere = new spry::Sphere;
             testSphere->load(sphereWidth, sphereHeight);
         }
+
+        ImGui::PopItemWidth();
     }
 };
 

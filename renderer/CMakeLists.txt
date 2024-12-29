@@ -89,11 +89,15 @@ add_library(
     shapes/Line.cpp
     shapes/Cuboid.cpp
     shapes/Plane.cpp
+    shapes/Sphere.cpp
     utils/FontManager.cpp
     utils/ShaderManager.cpp
+    utils/Timer.cpp
+    utils/Toggle.cpp
     Mesh.cpp
     Model.cpp
     UniformBuffer.cpp
+    CubeMap.cpp
 )
 
 target_include_directories(renderer PRIVATE ${FREETYPE_INCLUDE_DIRS})

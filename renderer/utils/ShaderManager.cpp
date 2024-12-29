@@ -17,6 +17,7 @@ void spry::ShaderManager::loadAllShaders()
     loadAndGet(FONT);
     loadAndGet(MODEL);
     loadAndGet(SHAPE);
+    loadAndGet(SKYBOX);
 }
 
 const spry::Shader& spry::ShaderManager::loadAndGet(BaseShader shaderEnum)
@@ -50,15 +51,15 @@ const spry::Shader& spry::ShaderManager::loadAndGet(BaseShader shaderEnum)
     return mShaders[shaderEnum];
 }
 
-const spry::Shader& spry::ShaderManager::get(spry::ShaderManager::BaseShader shaderEnum)
+const spry::Shader& spry::ShaderManager::get(spry::ShaderManager::BaseShader shaderEnum) const
 {
     if (shaderEnum < ShaderManager::SHADER_MAX) {
-        return mShaders[shaderEnum];
+        return mShaders.at(shaderEnum);
     } else {
         spdlog::error("Trying to get a shader with value({}) greater then spry::ShaderManager::SHADER_MAX({})",
             static_cast<int>(shaderEnum),
             static_cast<int>(ShaderManager::SHADER_MAX));
         spdlog::warn("Returning TEXTURED BaseShader instead");
-        return mShaders[TEXTURED];
+        return mShaders.at(TEXTURED);
     }
 }

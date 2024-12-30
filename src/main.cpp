@@ -21,7 +21,6 @@
 #include "glm/ext/vector_float3.hpp"
 #include "glm/trigonometric.hpp"
 #include "imgui.h"
-#include "spdlog/spdlog.h"
 
 #define POINT_LIGHT_COUNT 4
 
@@ -173,8 +172,11 @@ private:
     SpotLight spotLight;
 
     // ImGuiView
-    std::vector<const char*>
-        materialNames;
+    std::vector<const char*> materialNames;
+    int useBlinnPhongModel = 0;
+    int useDirectionalLights = 1;
+    int useSpotLights = 0;
+    int usePointLights = 1;
 
     void onUpdate(float deltaTime) override
     {
@@ -187,9 +189,9 @@ private:
         defaultScene.process(deltaTime);
         defaultScene.draw();
 
-        lightPosition.x = 5.0f + 10.0f * glm::sin(getGlobalTime());
-        lightPosition.y = 20 + 10.0f * glm::cos(getGlobalTime());
-        lightPosition.z = 5.0f + 10.0f * glm::sin(getGlobalTime());
+        dirLight.direction.x = lightPosition.x + 30.0f * glm::sin(getGlobalTime());
+        dirLight.direction.y = lightPosition.y + 10.0f * glm::cos(getGlobalTime());
+        dirLight.direction.z = lightPosition.z + 10.0f * glm::sin(getGlobalTime());
 
         auto model = glm::mat4(1.0f);
         auto view = camera.getViewMatrix();
@@ -202,6 +204,10 @@ private:
         lightingShader.setUniformMatrix("view", view);
         lightingShader.setUniformMatrix("proj", proj);
         lightingShader.setUniformVec("viewPosition", camera.mPosition);
+        lightingShader.setUniformInt("useBlinnPhongModel", useBlinnPhongModel);
+        lightingShader.setUniformInt("useDirectionalLights", useDirectionalLights);
+        lightingShader.setUniformInt("usePointLights", usePointLights);
+        lightingShader.setUniformInt("useSpotLights", useSpotLights);
 
         // Materials
         lightingShader.setUniformVec("material.ambient", currMaterial.ambient);
@@ -316,6 +322,21 @@ private:
 
         ImGui::Text("FPS: %f", 1.0 / delta);
         ImGui::Text("Delta: %fms", delta * 1000);
+        ImGui::Separator();
+
+        if (ImGui::Button(std::format("Use useBlinnPhongModel[{}]", useBlinnPhongModel == 1).c_str())) {
+            useBlinnPhongModel = (useBlinnPhongModel == 0) ? 1 : 0;
+        }
+        if (ImGui::Button(std::format("Use DirectionalLights[{}]", useDirectionalLights == 1).c_str())) {
+            useDirectionalLights = (useDirectionalLights == 0) ? 1 : 0;
+        }
+        if (ImGui::Button(std::format("Use PointLights[{}]", usePointLights == 1).c_str())) {
+            usePointLights = (usePointLights == 0) ? 1 : 0;
+        }
+        if (ImGui::Button(std::format("Use SpotLights[{}]", useSpotLights == 1).c_str())) {
+            useSpotLights = (useSpotLights == 0) ? 1 : 0;
+        }
+        ImGui::Separator();
 
         ImGui::SliderFloat("innerCutOffAngle", &spotLight.innerCutOffAngle, 0.0f, glm::pi<float>() / 2);
         ImGui::SliderFloat("outerCutOffAngle", &spotLight.outerCutOffAngle, 0.0f, glm::pi<float>() / 2);

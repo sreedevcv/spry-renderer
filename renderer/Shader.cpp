@@ -31,7 +31,7 @@ struct SingleShader {
 
         if (!success) {
             glGetShaderInfoLog(mID, 1024, nullptr, log);
-            spdlog::error("Failed to compile shader {} :: {}", shaderPath, log);
+            spdlog::error("Failed to compile shader {}:{}", shaderPath, log);
         } else {
             spdlog::info("Compiled shader[{}]: {}", mID, shaderPath);
         }

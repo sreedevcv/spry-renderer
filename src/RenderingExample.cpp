@@ -57,7 +57,7 @@ public:
             .setWrapMode(GL_CLAMP_TO_EDGE)
             .load(nullptr, 600, 600, GL_RGB);
 
-        renderTarget.attachTexture(targetTexture);
+        renderTarget.attachTextureColor(targetTexture);
 
         testShader
             .add(RES_PATH "shaders/Textured.vert.glsl", GL_VERTEX_SHADER)

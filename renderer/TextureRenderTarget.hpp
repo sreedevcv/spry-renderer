@@ -11,7 +11,8 @@ class TextureRenderTarget {
 public:
     void bind() const;
     void unbind() const;
-    void attachTexture(const Texture& texture) const;
+    void attachTextureColor(const Texture& texture) const;
+    void attachTextureDepth(const Texture& texture) const;
 
 private:
     FrameBuffer mFrameBuffer;

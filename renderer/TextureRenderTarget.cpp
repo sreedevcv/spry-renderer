@@ -1,5 +1,6 @@
 #include "TextureRenderTarget.hpp"
 
+#include "FrameBuffer.hpp"
 #include "spdlog/spdlog.h"
 #include <glad/glad.h>
 
@@ -14,7 +15,7 @@ void spry::TextureRenderTarget::unbind() const
 }
 
 // Attach a texture as the Framebuffer to ben rendered on
-void spry::TextureRenderTarget::attachTexture(const Texture& texture) const
+void spry::TextureRenderTarget::attachTextureColor(const Texture& texture) const
 {
     mFrameBuffer.bind();
 
@@ -33,6 +34,23 @@ void spry::TextureRenderTarget::attachTexture(const Texture& texture) const
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
         spdlog::error("Framebuffer for TextureRenderTarget is not complete!");
     } else {
-        spdlog::info("Attached TextureRenderTarget to texture[{}]", texture.getID());
+        spdlog::info("Attached TextureRenderTarget(Color) to texture[{}]", texture.getID());
     }
+}
+
+void spry::TextureRenderTarget::attachTextureDepth(const Texture& texture) const
+{
+    mFrameBuffer.bind();
+    glFramebufferTexture2D(
+        GL_FRAMEBUFFER,
+        GL_DEPTH_ATTACHMENT,
+        GL_TEXTURE_2D,
+        texture.getID(),
+        0);
+
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+    mFrameBuffer.unbind();
+
+    spdlog::info("Attached TextureRenderTarget(Depth) to texture[{}]", texture.getID());
 }

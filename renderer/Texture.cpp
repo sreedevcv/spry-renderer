@@ -46,7 +46,7 @@ spry::Texture& spry::Texture::setFilterMode(GLenum mode)
 }
 
 // Load a buffer of bytes (uint8_t) into gpu memory
-void spry::Texture::load(void* data, int width, int height, GLenum dataFormat)
+void spry::Texture::load(void* data, int width, int height, GLenum dataFormat, GLenum type)
 {
     glTexImage2D(
         GL_TEXTURE_2D,
@@ -56,7 +56,7 @@ void spry::Texture::load(void* data, int width, int height, GLenum dataFormat)
         height,
         0,
         dataFormat,
-        GL_UNSIGNED_BYTE,
+        type,
         data);
     glGenerateMipmap(GL_TEXTURE_2D);
 

@@ -13,6 +13,8 @@
 #include "ShaderManager.hpp"
 #include "Sphere.hpp"
 #include "Texture.hpp"
+#include "TextureRenderTarget.hpp"
+#include "TextureViewer.hpp"
 #include "Toggle.hpp"
 #include "Window.hpp"
 
@@ -44,7 +46,6 @@ public:
             materialNames.push_back(key);
         }
 
-        defaultScene.load();
         spry::ShaderManager::instance().loadAndGet(spry::ShaderManager::SHAPE);
 
         lightingShader
@@ -102,7 +103,15 @@ public:
         };
 
         uint8_t color1[4]
-            = { 255, 0, 0, 255 };
+            = { 255, 255, 0, 255 };
+
+        depthMap
+            .create()
+            .setWrapMode(GL_REPEAT)
+            .setFilterMode(GL_LINEAR)
+            .load(nullptr, depthMapWidth, depthMapHeight, GL_DEPTH_COMPONENT, GL_FLOAT);
+
+        depthMapTarget.attachTextureDepth(depthMap);
 
         planeTexture
             .create()
@@ -110,7 +119,7 @@ public:
             .setFilterMode(GL_LINEAR)
             .load(color1, 1, 1, GL_RGBA);
 
-        uint8_t color2[] = { 0, 255, 0, 255 };
+        uint8_t color2[] = { 100, 255, 200, 255 };
 
         sphereTexture
             .create()
@@ -118,9 +127,11 @@ public:
             .setFilterMode(GL_LINEAR)
             .load(color2, 1, 1, GL_RGBA);
 
-        plane.load(30, 30);
         testSphere = new spry::Sphere;
         testSphere->load(sphereWidth, sphereHeight);
+        defaultScene.load();
+        plane.load(30, 30);
+        textureViewer.load(10, 20, mWidth, mHeight);
     }
 
 private:
@@ -133,6 +144,11 @@ private:
     spry::Cuboid cube;
     spry::Plane plane;
     spry::Shader lightingShader;
+    spry::Texture depthMap;
+    spry::TextureRenderTarget depthMapTarget;
+    spry::DebugTextureViewer textureViewer;
+    uint32_t depthMapWidth = 1024;
+    uint32_t depthMapHeight = 1024;
     // Uniforms
     glm::vec3 lightColor = glm::vec3(1.0f, 1.0f, 1.0f); //
     glm::vec3 lightPosition = glm::vec3(10.0f, 20.0f, 5.0f); //
@@ -188,6 +204,7 @@ private:
 
         defaultScene.process(deltaTime);
         defaultScene.draw();
+        textureViewer.draw(sphereTexture);
 
         dirLight.direction.x = lightPosition.x + 30.0f * glm::sin(getGlobalTime());
         dirLight.direction.y = lightPosition.y + 10.0f * glm::cos(getGlobalTime());
@@ -264,7 +281,6 @@ private:
         cube.draw();
 
         model = glm::translate(glm::mat4(1.0f), glm::vec3(-5.0f, -5.0f, -5.0f));
-        // model = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
         lightingShader.setUniformMatrix("model", model);
         sphereTexture.bind(0);
         plane.draw();

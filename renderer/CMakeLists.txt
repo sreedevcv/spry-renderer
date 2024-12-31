@@ -86,6 +86,10 @@ add_library(
     FrameBuffer.cpp
     RenderBuffer.cpp
     TextureRenderTarget.cpp
+    Mesh.cpp
+    Model.cpp
+    UniformBuffer.cpp
+    CubeMap.cpp
     shapes/Line.cpp
     shapes/Cuboid.cpp
     shapes/Plane.cpp
@@ -94,10 +98,7 @@ add_library(
     utils/ShaderManager.cpp
     utils/Timer.cpp
     utils/Toggle.cpp
-    Mesh.cpp
-    Model.cpp
-    UniformBuffer.cpp
-    CubeMap.cpp
+    utils/DebugTextureViewer.cpp
 )
 
 target_include_directories(renderer PRIVATE ${FREETYPE_INCLUDE_DIRS})

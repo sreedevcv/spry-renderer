@@ -29,13 +29,14 @@ void spry::TextureRenderTarget::attachTextureColor(const Texture& texture) const
     mRenderBuffer.bind();
     mRenderBuffer.attachToDepthAndStencil(texture.mWidth, texture.mHeight);
     mRenderBuffer.unbind();
-    mFrameBuffer.unbind();
 
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
         spdlog::error("Framebuffer for TextureRenderTarget is not complete!");
     } else {
         spdlog::info("Attached TextureRenderTarget(Color) to texture[{}]", texture.getID());
     }
+
+    mFrameBuffer.unbind();
 }
 
 void spry::TextureRenderTarget::attachTextureDepth(const Texture& texture) const
@@ -50,7 +51,12 @@ void spry::TextureRenderTarget::attachTextureDepth(const Texture& texture) const
 
     glDrawBuffer(GL_NONE);
     glReadBuffer(GL_NONE);
-    mFrameBuffer.unbind();
 
-    spdlog::info("Attached TextureRenderTarget(Depth) to texture[{}]", texture.getID());
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+        spdlog::error("Framebuffer for TextureRenderTarget(Depth) is not complete!");
+    } else {
+        spdlog::info("Attached TextureRenderTarget(Depth) to texture[{}]", texture.getID());
+    }
+
+    mFrameBuffer.unbind();
 }

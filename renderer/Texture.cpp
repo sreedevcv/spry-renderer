@@ -45,6 +45,12 @@ spry::Texture& spry::Texture::setFilterMode(GLenum mode)
     return *this;
 }
 
+spry::Texture& spry::Texture::setBorderColor(std::span<float, 4> borderColor)
+{
+    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor.data());  
+    return *this;
+}
+
 // Load a buffer of bytes (uint8_t) into gpu memory
 void spry::Texture::load(void* data, int width, int height, GLenum dataFormat, GLenum type)
 {

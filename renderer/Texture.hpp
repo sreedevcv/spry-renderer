@@ -3,6 +3,7 @@
 #include <cstdint>
 
 #include <glad/glad.h>
+#include <span>
 
 namespace spry {
 
@@ -22,6 +23,7 @@ public:
     Texture& create();
     Texture& setWrapMode(GLenum mode);
     Texture& setFilterMode(GLenum mode);
+    Texture& setBorderColor(std::span<float, 4> borderColor);
 
     void bind(int texCount) const;
     void unbind() const;

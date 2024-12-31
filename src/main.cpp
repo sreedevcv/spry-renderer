@@ -1,3 +1,4 @@
+#include <array>
 #include <cstdint>
 #include <cstdlib>
 #include <format>
@@ -14,13 +15,15 @@
 #include "Sphere.hpp"
 #include "Texture.hpp"
 #include "TextureRenderTarget.hpp"
-#include "TextureViewer.hpp"
+#include "DebugTextureViewer.hpp"
 #include "Toggle.hpp"
 #include "Window.hpp"
 
+#include "glm/ext/matrix_clip_space.hpp"
 #include "glm/ext/matrix_float4x4.hpp"
 #include "glm/ext/matrix_transform.hpp"
 #include "glm/ext/vector_float3.hpp"
+#include "glm/ext/vector_int4.hpp"
 #include "glm/trigonometric.hpp"
 #include "imgui.h"
 
@@ -35,10 +38,10 @@ public:
         , camera(width, height)
         , defaultScene(camera)
     {
-        setCulling(false);
+        setCulling(true);
         setDepthTest(true);
-        setBlending(true);
-        setMouseCapture(false);
+        setBlending(false);
+        setMouseCapture(true);
         setWireFrameMode(false);
         camera.setPosition(glm::vec3(0.0f, 0.0f, 3.0f));
 
@@ -51,6 +54,11 @@ public:
         lightingShader
             .add(RES_PATH "shaders/Lighting.vert", GL_VERTEX_SHADER)
             .add(RES_PATH "shaders/Lighting.frag", GL_FRAGMENT_SHADER)
+            .compile();
+
+        shadowShader
+            .add(RES_PATH "shaders/Shadow.vert", GL_VERTEX_SHADER)
+            .add(RES_PATH "shaders/Shadow.frag", GL_FRAGMENT_SHADER)
             .compile();
 
         pointLights[0] = {
@@ -102,22 +110,29 @@ public:
             .quadratic = 0.032f,
         };
 
-        uint8_t color1[4]
-            = { 255, 255, 0, 255 };
+        std::array borderColors { 1.0f, 1.0f, 1.0f, 1.0f };
 
         depthMap
             .create()
-            .setWrapMode(GL_REPEAT)
+            .setWrapMode(GL_CLAMP_TO_BORDER)
             .setFilterMode(GL_LINEAR)
+            .setBorderColor(borderColors)
             .load(nullptr, depthMapWidth, depthMapHeight, GL_DEPTH_COMPONENT, GL_FLOAT);
 
         depthMapTarget.attachTextureDepth(depthMap);
+
+        uint8_t color1[4 * 4] {
+            255, 255, 0, 255, //
+            255, 0, 0, 255, //
+            255, 255, 255, 255, //
+            0, 255, 255, 255, //
+        };
 
         planeTexture
             .create()
             .setWrapMode(GL_CLAMP_TO_EDGE)
             .setFilterMode(GL_LINEAR)
-            .load(color1, 1, 1, GL_RGBA);
+            .load(color1, 2, 2, GL_RGBA);
 
         uint8_t color2[] = { 100, 255, 200, 255 };
 
@@ -131,7 +146,8 @@ public:
         testSphere->load(sphereWidth, sphereHeight);
         defaultScene.load();
         plane.load(30, 30);
-        textureViewer.load(10, 20, mWidth, mHeight);
+        textureViewer.load(glm::ivec4(mWidth - 200, mHeight - 200, 100, 100), mWidth, mHeight);
+        // textureViewer.load(glm::ivec4(100, 100, 90, 90), mWidth, mHeight);
     }
 
 private:
@@ -144,6 +160,7 @@ private:
     spry::Cuboid cube;
     spry::Plane plane;
     spry::Shader lightingShader;
+    spry::Shader shadowShader;
     spry::Texture depthMap;
     spry::TextureRenderTarget depthMapTarget;
     spry::DebugTextureViewer textureViewer;
@@ -155,7 +172,7 @@ private:
     spry::Material currMaterial = *spry::materials.at("emerald");
 
     struct DirLight {
-        glm::vec3 direction = glm::vec3(10.0f, 20.0f, 5.0f);
+        glm::vec3 direction = glm::vec3(5.0f, 20.0f, 2.0f);
 
         glm::vec3 ambient = glm::vec3(0.18f, 0.18f, 0.18f);
         glm::vec3 diffuse = glm::vec3(0.8f, 0.8f, 0.8f);
@@ -192,10 +209,48 @@ private:
     int useBlinnPhongModel = 0;
     int useDirectionalLights = 1;
     int useSpotLights = 0;
-    int usePointLights = 1;
+    int usePointLights = 0;
 
     void onUpdate(float deltaTime) override
     {
+        glm::mat4 lightViewProj;
+
+        depthMapTarget.bind();
+        {
+            // glCullFace(GL_FRONT);
+            glViewport(0, 0, depthMapWidth, depthMapHeight);
+            glClear(GL_DEPTH_BUFFER_BIT);
+            auto lightProj = glm::ortho(
+                -10.0f,
+                10.0f,
+                -10.0f,
+                10.0f,
+                0.1f,
+                100.0f);
+            auto lighView = glm::lookAt(
+                dirLight.direction,
+                glm::vec3(0.0f, 0.0f, 0.0f),
+                glm::vec3(0.0f, 1.0f, 0.0f));
+            lightViewProj = lightProj * lighView;
+
+            shadowShader.bind();
+            shadowShader.setUniformMatrix("lightViewProj", lightViewProj);
+
+            auto model = glm::mat4(1.0f);
+            shadowShader.setUniformMatrix("model", model);
+            testSphere->draw();
+
+            model = glm::translate(model, glm::vec3(5.0f, 1.0f, 5.0f));
+            shadowShader.setUniformMatrix("model", model);
+            cube.draw();
+
+            model = glm::translate(glm::mat4(1.0f), glm::vec3(3.0f, -5.0f, -5.0f));
+            shadowShader.setUniformMatrix("model", model);
+            cube.draw();
+            // glCullFace(GL_BACK);
+        }
+        depthMapTarget.unbind();
+
         const auto& shapeShader = spry::ShaderManager::instance().get(spry::ShaderManager::SHAPE);
         processInput(deltaTime);
 
@@ -204,10 +259,10 @@ private:
 
         defaultScene.process(deltaTime);
         defaultScene.draw();
-        textureViewer.draw(sphereTexture);
+        textureViewer.draw(depthMap);
 
-        dirLight.direction.x = lightPosition.x + 30.0f * glm::sin(getGlobalTime());
-        dirLight.direction.y = lightPosition.y + 10.0f * glm::cos(getGlobalTime());
+        dirLight.direction.x = lightPosition.x + 10.0f * glm::sin(getGlobalTime());
+        // dirLight.direction.y = lightPosition.y + 10.0f * glm::cos(getGlobalTime());
         dirLight.direction.z = lightPosition.z + 10.0f * glm::sin(getGlobalTime());
 
         auto model = glm::mat4(1.0f);
@@ -220,6 +275,8 @@ private:
         lightingShader.setUniformMatrix("model", model);
         lightingShader.setUniformMatrix("view", view);
         lightingShader.setUniformMatrix("proj", proj);
+        lightingShader.setUniformMatrix("lightViewProj", lightViewProj);
+
         lightingShader.setUniformVec("viewPosition", camera.mPosition);
         lightingShader.setUniformInt("useBlinnPhongModel", useBlinnPhongModel);
         lightingShader.setUniformInt("useDirectionalLights", useDirectionalLights);
@@ -271,6 +328,7 @@ private:
             cube.draw();
         }
 
+        depthMap.bind(0);
         lightingShader.bind();
         testSphere->draw();
 
@@ -280,10 +338,17 @@ private:
         lightingShader.setUniformMatrix("model", model);
         cube.draw();
 
-        model = glm::translate(glm::mat4(1.0f), glm::vec3(-5.0f, -5.0f, -5.0f));
+        model = glm::translate(glm::mat4(1.0f), glm::vec3(-15.0f, -5.0f, -15.0f));
         lightingShader.setUniformMatrix("model", model);
-        sphereTexture.bind(0);
         plane.draw();
+
+        model = glm::translate(glm::mat4(1.0f), glm::vec3(3.0f, -5.0f, -5.0f));
+        lightingShader.setUniformMatrix("model", model);
+        lightingShader.setUniformVec("material.ambient", (*spry::materials.at("obsidian")).ambient);
+        lightingShader.setUniformVec("material.diffuse", (*spry::materials.at("obsidian")).diffuse);
+        lightingShader.setUniformVec("material.specular", (*spry::materials.at("obsidian")).specular);
+        lightingShader.setUniformFloat("material.shininess", (*spry::materials.at("obsidian")).shininess);
+        cube.draw();
 
         // closeWindow();
     }
@@ -329,6 +394,8 @@ private:
     int sphereHeight = 10;
     spry::Sphere* testSphere;
     int currentItem = 0;
+    int tx = 0;
+    int ty = 0;
 
     void onImguiDebugDraw(float delta) override
     {
@@ -339,6 +406,13 @@ private:
         ImGui::Text("FPS: %f", 1.0 / delta);
         ImGui::Text("Delta: %fms", delta * 1000);
         ImGui::Separator();
+
+        if (ImGui::SliderInt("X", &tx, 0, mWidth)) {
+            textureViewer.update(glm::ivec4(tx, ty, 100, 100), mWidth, mHeight);
+        }
+        if (ImGui::SliderInt("Y", &ty, 0, mHeight)) {
+            textureViewer.update(glm::ivec4(tx, ty, 100, 100), mWidth, mHeight);
+        }
 
         if (ImGui::Button(std::format("Use useBlinnPhongModel[{}]", useBlinnPhongModel == 1).c_str())) {
             useBlinnPhongModel = (useBlinnPhongModel == 0) ? 1 : 0;

@@ -21,7 +21,7 @@ void spry::VAO::load(std::span<float> vertices, std::span<uint32_t> format, uint
     glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), data, drawtype);
 
     int stride = 0;
-    for (int attribSize : format) {
+    for (const int attribSize : format) {
         stride += attribSize;
     }
     
@@ -41,7 +41,6 @@ void spry::VAO::draw(GLenum mode) const
 {
     glBindVertexArray(mVAO);
     glDrawArrays(mode, 0, mVertexCount);
-    glBindVertexArray(0);
 }
 
 void spry::VAO::updateMesh(std::span<float> vertices) const

@@ -15,15 +15,11 @@ public:
 
     bool isKeyPressed(int key) const;
     bool isKeyReleased(int key) const;
-    double getGlobalTime() const;
 
 protected:
-    void setMouseCapture(bool capture) const;
-    void setWireFrameMode(bool value) const;
-    void setCulling(bool value) const;
-    void setDepthTest(bool value) const;
-    void setBlending(bool value) const;
     GLFWwindow* get_window() const;
+
+    void setMouseCapture(bool capture) const;
 
     virtual void onUpdate(float deltaTime) = 0;
     virtual void onMouseMove(double xPosIn, double yPosIn);
@@ -37,5 +33,11 @@ private:
 
     GLFWwindow* mWindow;
 };
+
+void setWireFrameMode(bool value);
+void setCulling(bool value);
+void setDepthTest(bool value);
+void setBlending(bool value);
+double getGlobalTime();
 
 }

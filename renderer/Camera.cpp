@@ -3,10 +3,10 @@
 #include <glm/glm.hpp>
 
 spry::Camera::Camera(int screenWidth, int screenHeight)
-    : mWidth { screenWidth }
-    , mHeight { screenHeight }
+    : mScreenWidth { screenWidth }
+    , mScreenHeight { screenHeight }
 {
-    aspectRatio = static_cast<float>(mWidth) / static_cast<float>(mHeight);
+    aspectRatio = static_cast<float>(mScreenWidth) / static_cast<float>(mScreenHeight);
     updateCameraVectors();
 }
 
@@ -22,9 +22,9 @@ glm::mat4 spry::Camera::getProjectionMatrix() const
 
 void spry::Camera::setScreenSize(const int width, const int height)
 {
-    mWidth = width;
-    mHeight = height;
-    aspectRatio = static_cast<float>(mWidth) / static_cast<float>(mHeight);
+    mScreenWidth = width;
+    mScreenHeight = height;
+    aspectRatio = static_cast<float>(mScreenWidth) / static_cast<float>(mScreenHeight);
 }
 
 void spry::Camera::setPosition(glm::vec3&& position)

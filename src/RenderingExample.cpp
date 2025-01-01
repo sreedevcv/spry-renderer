@@ -57,6 +57,7 @@ public:
             .setWrapMode(GL_CLAMP_TO_EDGE)
             .load(nullptr, 600, 600, GL_RGB);
 
+        renderTarget.load();
         renderTarget.attachTextureColor(targetTexture);
 
         testShader

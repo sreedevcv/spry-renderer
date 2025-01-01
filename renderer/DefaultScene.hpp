@@ -11,12 +11,12 @@ namespace spry {
 
 class DefaultScene : public Scene {
 public:
-    DefaultScene(const Camera& camera);
+    DefaultScene();
     virtual ~DefaultScene() = default;
 
-    void load() override;
+    void load(const Camera* camera);
     void process(float delta) override;
-    void draw() override;
+    void draw() const;
     void unload() override;
 
 private:
@@ -25,7 +25,7 @@ private:
     spry::Line zAxis;
     glm::mat4 mModel;
     const spry::Shader& mShader;
-    const Camera& mCamera;
+    const Camera* mCamera;
 };
 
 }

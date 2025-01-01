@@ -1,4 +1,5 @@
 #include "Entity.hpp"
+
 #include "glm/ext/matrix_float4x4.hpp"
 #include "glm/ext/matrix_transform.hpp"
 
@@ -8,21 +9,15 @@ spry::Entity3D::Entity3D(glm::vec3 position, glm::vec3 scale)
 {
 }
 
-void spry::Entity3D::setPostion(glm::vec3 position)
+glm::mat4 spry::Entity3D::getModel() const
 {
-    mPosition = position;
-    mModel = glm::scale(glm::mat4(1.0f), mScale);
-    mModel = glm::translate(mModel, mPosition);
+    auto model = glm::scale(glm::mat4(1.0f), mScale);
+    model = glm::translate(model, mPosition);
+    return model;
 }
 
-void spry::Entity3D::setScale(glm::vec3 scale)
+void spry::Entity3D::update(float delta)
 {
-    mScale = scale;
-    mModel = glm::scale(glm::mat4(1.0f), mScale);
-    mModel = glm::translate(mModel, mPosition);
-}
-
-const glm::mat4& spry::Entity3D::getModel() const
-{
-    return mModel;
+    mVelocity = delta * mAccleration;
+    mPosition = delta * mPosition;
 }

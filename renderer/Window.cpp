@@ -144,6 +144,12 @@ bool spry::Window::isKeyReleased(int key) const
     return false;
 }
 
+
+double spry::getGlobalTime()
+{
+    return glfwGetTime();
+}
+
 void spry::Window::setMouseCapture(bool capture) const
 {
     if (capture) {
@@ -154,12 +160,7 @@ void spry::Window::setMouseCapture(bool capture) const
     spdlog::info("Mouse capture is {}", capture);
 }
 
-double spry::Window::getGlobalTime() const
-{
-    return glfwGetTime();
-}
-
-void spry::Window::setWireFrameMode(bool value) const
+void spry::setWireFrameMode(bool value)
 {
     if (value) {
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -169,7 +170,7 @@ void spry::Window::setWireFrameMode(bool value) const
     spdlog::info("Wire frame mode is {}", value);
 }
 
-void spry::Window::setCulling(bool value) const
+void spry::setCulling(bool value)
 {
     if (value) {
         glEnable(GL_CULL_FACE);
@@ -179,7 +180,7 @@ void spry::Window::setCulling(bool value) const
     spdlog::info("Culling is {}", value);
 }
 
-void spry::Window::setDepthTest(bool value) const
+void spry::setDepthTest(bool value)
 {
     if (value) {
         glEnable(GL_DEPTH_TEST);
@@ -189,7 +190,7 @@ void spry::Window::setDepthTest(bool value) const
     spdlog::info("Depth testing is {}", value);
 }
 
-void spry::Window::setBlending(bool value) const
+void spry::setBlending(bool value)
 {
     if (value) {
         glEnable(GL_BLEND);

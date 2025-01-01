@@ -5,7 +5,7 @@ namespace spry {
 
 class FrameBuffer {
 public:
-    FrameBuffer();
+    FrameBuffer() = default;
     ~FrameBuffer();
 
     FrameBuffer(FrameBuffer&& frameBuffer);
@@ -13,12 +13,13 @@ public:
     FrameBuffer(const FrameBuffer& frameBuffer) = delete;
     FrameBuffer& operator=(const FrameBuffer& frameBuffer) = delete;
 
+    void load();
     void unload() const;
     void bind() const;
     void unbind() const;
 
 private:
-    uint32_t mFBO;
+    uint32_t mFBO { 0 };
 };
 
 }

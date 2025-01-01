@@ -90,6 +90,7 @@ add_library(
     Model.cpp
     UniformBuffer.cpp
     CubeMap.cpp
+    BlinnPhongRenderer.cpp
     shapes/Line.cpp
     shapes/Cuboid.cpp
     shapes/Plane.cpp
@@ -99,6 +100,7 @@ add_library(
     utils/Timer.cpp
     utils/Toggle.cpp
     utils/DebugTextureViewer.cpp
+    utils/Entity.cpp
 )
 
 target_include_directories(renderer PRIVATE ${FREETYPE_INCLUDE_DIRS})

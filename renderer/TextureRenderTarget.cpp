@@ -4,6 +4,12 @@
 #include "spdlog/spdlog.h"
 #include <glad/glad.h>
 
+void spry::TextureRenderTarget::load()
+{
+    mFrameBuffer.load();
+    mRenderBuffer.load();
+}
+
 void spry::TextureRenderTarget::bind() const
 {
     mFrameBuffer.bind();

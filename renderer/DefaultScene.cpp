@@ -1,30 +1,30 @@
 #include "DefaultScene.hpp"
 #include "ShaderManager.hpp"
 
-spry::DefaultScene::DefaultScene(const Camera& camera)
-    : mCamera(camera)
-    , mShader(ShaderManager::instance().loadAndGet(ShaderManager::LINE))
+spry::DefaultScene::DefaultScene()
+    : mShader(ShaderManager::instance().loadAndGet(ShaderManager::LINE))
 {
 }
 
-void spry::DefaultScene::load()
+void spry::DefaultScene::load(const Camera* camera)
 {
     xAxis.setEndPoints(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1000.0f, 0.0f, 0.0f));
     yAxis.setEndPoints(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1000.0f, 0.0f));
     zAxis.setEndPoints(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1000.0f));
 
     mModel = glm::mat4(1.0f);
+    mCamera = camera;
 }
 
 void spry::DefaultScene::process(float delta)
 {
 }
 
-void spry::DefaultScene::draw()
+void spry::DefaultScene::draw() const
 {
     mShader.bind();
-    mShader.setUniformMatrix("proj", mCamera.getProjectionMatrix());
-    mShader.setUniformMatrix("view", mCamera.getViewMatrix());
+    mShader.setUniformMatrix("proj", mCamera->getProjectionMatrix());
+    mShader.setUniformMatrix("view", mCamera->getViewMatrix());
     mShader.setUniformMatrix("model", mModel);
     mShader.setUniformVec("lineColor", glm::vec3(1.0f, 0.0f, 0.0f));
     xAxis.draw();

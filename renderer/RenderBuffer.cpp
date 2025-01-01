@@ -4,7 +4,7 @@
 #include <spdlog/spdlog.h>
 #include <utility>
 
-spry::RenderBuffer::RenderBuffer()
+void spry::RenderBuffer::load()
 {
     glGenRenderbuffers(1, &mRBO);
     spdlog::debug("Created renderbuffer[{}]", mRBO);

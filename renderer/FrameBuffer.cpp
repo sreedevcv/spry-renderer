@@ -4,12 +4,6 @@
 #include <utility>
 #include <spdlog/spdlog.h>
 
-spry::FrameBuffer::FrameBuffer()
-{
-    glGenFramebuffers(1, &mFBO);
-    spdlog::debug("Created framebuffer[{}]", mFBO);
-}
-
 spry::FrameBuffer::~FrameBuffer()
 {
     unload();
@@ -19,6 +13,12 @@ void spry::FrameBuffer::unload() const
 {
     glDeleteFramebuffers(1, &mFBO);
     spdlog::debug("Deleted framebuffer[{}]", mFBO);
+}
+
+void spry::FrameBuffer::load()
+{
+    glGenFramebuffers(1, &mFBO);
+    spdlog::debug("Created framebuffer[{}]", mFBO);
 }
 
 spry::FrameBuffer::FrameBuffer(FrameBuffer&& frameBuffer)

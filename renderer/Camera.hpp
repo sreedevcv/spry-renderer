@@ -55,9 +55,9 @@ public:
     void processInputDefault(const Window& window, float delta);
     void onMouseMoveDefault(double xPosIn, double yPosIn);
 
+    int mScreenWidth;
+    int mScreenHeight;
 private:
-    int mWidth;
-    int mHeight;
     float aspectRatio;
 
     void updateCameraVectors();

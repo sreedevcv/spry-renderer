@@ -2,6 +2,7 @@
 
 #include "glm/ext/vector_float3.hpp"
 #include <map>
+#include <string_view>
 
 namespace spry {
 
@@ -37,7 +38,7 @@ constexpr inline Material redRubber = { glm::vec3(0.05f, 0.0f, 0.0f), glm::vec3(
 constexpr inline Material whiteRubber = { glm::vec3(0.05f, 0.05f, 0.05f), glm::vec3(0.5f, 0.5f, 0.5f), glm::vec3(0.7f, 0.7f, 0.7f), .078125f };
 constexpr inline Material yellowRubber = { glm::vec3(0.05f, 0.05f, 0.0f), glm::vec3(0.5f, 0.5f, 0.4f), glm::vec3(0.7f, 0.7f, 0.04f), .078125f };
 
-const inline std::map<const char*, const Material*> materials = {
+const inline std::map<std::string_view, const Material*> materials = {
     { "emerald", &emerald },
     { "jade", &jade },
     { "obsidian", &obsidian },

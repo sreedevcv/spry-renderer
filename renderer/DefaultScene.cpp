@@ -1,4 +1,5 @@
 #include "DefaultScene.hpp"
+
 #include "ShaderManager.hpp"
 
 spry::DefaultScene::DefaultScene()
@@ -6,7 +7,7 @@ spry::DefaultScene::DefaultScene()
 {
 }
 
-void spry::DefaultScene::load(const Camera* camera)
+void spry::DefaultScene::load(const Camera* camera, uint32_t length)
 {
     xAxis.setEndPoints(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1000.0f, 0.0f, 0.0f));
     yAxis.setEndPoints(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1000.0f, 0.0f));

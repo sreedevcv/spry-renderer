@@ -1,7 +1,6 @@
 #include "Line.hpp"
 #include "VAO.hpp"
 
-#include <algorithm>
 #include <vector>
 
 spry::Line::Line()

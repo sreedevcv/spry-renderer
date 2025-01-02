@@ -1,14 +1,15 @@
 #pragma once
 
+#include "Drawable.hpp"
 #include "IndexedVAO.hpp"
 
 namespace spry {
 
-class Cuboid {
+class Cuboid : public Drawable {
 public:
     Cuboid();
 
-    void draw() const;
+    virtual void draw() const override;
 
 private:
     IndexedVAO mVAO;

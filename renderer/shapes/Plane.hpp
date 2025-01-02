@@ -1,15 +1,16 @@
 #pragma once
 
+#include "Drawable.hpp"
 #include "IndexedVAO.hpp"
 
 #include <vector>
 
 namespace spry {
 
-class Plane {
+class Plane : public Drawable {
 public:
     void load(uint32_t width, uint32_t height);
-    void draw() const;
+    virtual void draw() const override;
 
     struct Buffer {
         std::vector<float> vertices;

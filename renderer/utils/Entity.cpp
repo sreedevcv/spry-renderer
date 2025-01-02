@@ -1,16 +1,13 @@
 #include "Entity.hpp"
 
-#include "glm/ext/matrix_float4x4.hpp"
-#include "glm/ext/matrix_transform.hpp"
-
-spry::Entity3D::Entity3D(glm::vec3 position, glm::vec3 scale)
+spry::Entity::Entity(glm::vec3 position, glm::vec3 scale)
 {
-    this->position = position;
-    this->scale = scale;
+    this->mPosition = position;
+    this->mScale = scale;
 }
 
-void spry::Entity3D::update(float delta)
+void spry::Entity::update(float delta)
 {
-    mVelocity = delta * mAccleration;
-    position = delta * mVelocity;
+    mVelocity += delta * mAccleration;
+    mPosition += delta * mVelocity;
 }

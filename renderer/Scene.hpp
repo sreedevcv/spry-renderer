@@ -1,5 +1,11 @@
 #pragma once
 
+#include "Entity.hpp"
+#include "Shader.hpp"
+#include <cstdint>
+#include <memory>
+#include <vector>
+
 namespace spry {
 
 class Scene {
@@ -7,19 +13,17 @@ public:
     Scene() = default;
     virtual ~Scene() = default;
 
-    Scene(const Scene& scene) = delete;
-    Scene& operator=(const Scene& scene) = delete;
-
-    /* process and update are called each frame but no garuntee
-     * that process and update would be called one after the another
-     */
-
     virtual void load();
     virtual void process(float delta);
-    virtual void draw();
-    virtual void unload();
+    virtual void draw(const glm::mat4& model, const Shader& shader) const;
+
+    Scene* getChild(int n) const;
+    uint32_t getChildrenSize() const;
+    void addChild(std::unique_ptr<Scene> child);
+    Entity mEntity;
 
 private:
+    std::vector<std::unique_ptr<Scene>> mChildren;
 };
 
 }

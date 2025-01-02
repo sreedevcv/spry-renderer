@@ -88,8 +88,8 @@ private:
 
     Material mCurrMaterial = *materials.at({ "gold" });
 
-    Entity3D cubeTwo { glm::vec3(3.0f, -5.0f, -5.0f) };
-    Entity3D mPlaneEntity { glm::vec3(-30.0f, -5.0f, -30.0f), glm::vec3(2.0f, 2.0f, 2.0f) };
+    Entity cubeTwo { glm::vec3(3.0f, -5.0f, -5.0f) };
+    Entity mPlaneEntity { glm::vec3(-30.0f, -5.0f, -30.0f), glm::vec3(2.0f, 2.0f, 2.0f) };
     // Debug
     int mUseBlinnPhongModel = 0;
     int mUseDirectionalLights = 1;

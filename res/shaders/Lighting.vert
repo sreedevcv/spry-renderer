@@ -19,7 +19,7 @@ uniform mat4 lightViewProj;
 void main()
 {
     vs_out.fragPos = vec3(model * vec4(positionIn, 1.0));
-    vs_out.normal = mat3(transpose(inverse(model))) * normalIn;
+    vs_out.normal = transpose(inverse(mat3(model))) * normalIn;
     vs_out.texCoord = textureCoord;
     vs_out.fragPosLightSpace = lightViewProj * vec4(vs_out.fragPos, 1.0);
     gl_Position = proj * view * vec4(vs_out.fragPos, 1.0);

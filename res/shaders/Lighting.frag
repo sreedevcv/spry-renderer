@@ -143,7 +143,20 @@ float shadowCalculation(vec4 fragPosLightSpace, vec3 lightDir, vec3 norm)
     float closestDept = texture(shadowMap, projCoords.xy).r;
     float currDepth = projCoords.z;
     float bias = max(0.05 * (1.0 - dot(lightDir, norm)), 0.005);
-    float shadow = (currDepth - bias) > closestDept ? 1 : 0;
+    // float shadow = (currDepth - bias) > closestDept ? 1 : 0;
+
+    float shadow = 0.0;
+    // Sample from sorrounding texels to get smoother shadows [percentage-closer filtering]
+    vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
+    for (int x = -1; x <= 1; x++) {
+        for (int y = -1; y <= 1; y++) {
+            float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r;
+            shadow += currDepth - bias > pcfDepth ? 1 : 0;
+        }
+    }
+
+    shadow / 9.0;
+
     return shadow;
 }
 
@@ -155,22 +168,21 @@ void main()
     vec3 lightDir = normalize(-dirLight.direction);
     float shadow = shadowCalculation(fs_in.fragPosLightSpace, lightDir, norm);
 
-    // vec3 result = calcDirLight(dirLight, norm, viewDir);
     vec3 result = vec3(0.0);
 
     if (useDirectionalLights == 1) {
         result += calcDirLight(dirLight, norm, viewDir, shadow);
     }
 
-    if (usePointLights == 1) {
-        for (int i = 0; i < POINT_LIGHT_COUNT; i++) {
-            result += calcPointLight(pointLights[i], norm, fs_in.fragPos, viewDir, shadow);
-        }
-    }
+    // if (usePointLights == 1) {
+    //     for (int i = 0; i < POINT_LIGHT_COUNT; i++) {
+    //         result += calcPointLight(pointLights[i], norm, fs_in.fragPos, viewDir, shadow);
+    //     }
+    // }
 
-    if (useSpotLights == 1) {
-        result += calcSpotLight(spotLight, norm, fs_in.fragPos, viewDir, shadow);
-    }
+    // if (useSpotLights == 1) {
+    //     result += calcSpotLight(spotLight, norm, fs_in.fragPos, viewDir, shadow);
+    // }
 
     fragColor = vec4(result, 1.0);
 }

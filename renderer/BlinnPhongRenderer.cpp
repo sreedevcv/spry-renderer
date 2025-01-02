@@ -4,13 +4,12 @@
 #include "ShaderManager.hpp"
 
 #include "Window.hpp"
-#include "glm/ext/quaternion_transform.hpp"
+#include "glm/ext/quaternion_geometric.hpp"
 #include "glm/ext/vector_float4.hpp"
+#include "glm/geometric.hpp"
 #include "imgui.h"
 #include <cstring>
 #include <format>
-
-#include <string_view>
 
 spry::BlinnPhongRenderer::BlinnPhongRenderer()
 {
@@ -20,22 +19,8 @@ spry::BlinnPhongRenderer::BlinnPhongRenderer()
     setWireFrameMode(false);
 }
 
-void spry::BlinnPhongRenderer::load(const Camera* camera)
+void spry::BlinnPhongRenderer::load(Camera* camera)
 {
-    // auto s = materials.size();
-
-    // const auto& map = materials;
-    // auto c = map.contains({"obsidian"});
-    // mCurrMaterial = *map.at({"obsidian"});
-    // auto f = false;
-    // for (const auto& [key, val] : materials) {
-    //     if (key == std::string_view {"emerald"}) {
-    //         mCurrMaterial = *val;
-    //         f = true;
-    //         break;
-    //     }
-    // }
-
     spry::ShaderManager::instance().loadAndGet(spry::ShaderManager::SHAPE);
     mCamera = camera;
 
@@ -51,10 +36,13 @@ void spry::BlinnPhongRenderer::load(const Camera* camera)
 
     std::array borderColors { 1.0f, 1.0f, 1.0f, 1.0f };
 
+    mShadowMapWidth = mCamera->mScreenWidth;
+    mShadowMapHeight = mCamera->mScreenHeight;
+
     mShadowMap
         .create()
         .setWrapMode(GL_CLAMP_TO_BORDER)
-        .setFilterMode(GL_LINEAR)
+        .setFilterMode(GL_NEAREST)
         .setBorderColor(borderColors)
         .load(nullptr, mShadowMapWidth, mShadowMapHeight, GL_DEPTH_COMPONENT, GL_FLOAT);
 
@@ -64,8 +52,7 @@ void spry::BlinnPhongRenderer::load(const Camera* camera)
     mDefaultScene.load(camera);
     mTextureViewer.load(glm::vec4(10, 10, 100, 100), mCamera->mScreenWidth, mCamera->mScreenHeight);
     mSphere.load(30, 30);
-    mPlane.load(30, 30);
-    spry::ShaderManager::instance().loadAndGet(spry::ShaderManager::SHAPE);
+    mPlane.load(60, 60);
 }
 
 void spry::BlinnPhongRenderer::addPointLight(const PointLight& pointLight)
@@ -102,19 +89,20 @@ void spry::BlinnPhongRenderer::render() const
 
     mShadowMapTarget.bind();
     {
+        glCullFace(GL_FRONT);
         glViewport(0, 0, mShadowMapWidth, mShadowMapHeight);
-
         glClear(GL_DEPTH_BUFFER_BIT);
 
         auto lightProj = glm::ortho(
-            -10.0f,
-            10.0f,
-            -10.0f,
-            10.0f,
-            0.1f,
-            100.0f);
+            oleft,
+            oright,
+            obottom,
+            otop,
+            onear,
+            ofar);
+        // NOTE::Should eye for ortho projection be -direction or +direction??
         auto lighView = glm::lookAt(
-            mDirLight.direction,
+            -mDirLight.direction,
             glm::vec3(0.0f, 0.0f, 0.0f),
             glm::vec3(0.0f, 1.0f, 0.0f));
 
@@ -135,9 +123,14 @@ void spry::BlinnPhongRenderer::render() const
         mShadowPassShader.setUniformMatrix("model", cubeTwo.getModel());
         mCuboid.draw();
 
-        model = glm::translate(glm::mat4(1.0f), glm::vec3(-15.0f, -5.0f, -15.0f));
-        mShadowPassShader.setUniformMatrix("model", model);
-        mPlane.draw();
+        glCullFace(GL_BACK);
+
+        /* NOTE::A plane has a only a single face. Using
+        ** glCullFace(GL_FRONT) would completely rempve it
+        ** So it should not be used to render is
+        */
+        // mShadowPassShader.setUniformMatrix("model", mPlaneEntity.getModel());
+        // mPlane.draw();
     }
     mShadowMapTarget.unbind();
 
@@ -221,14 +214,12 @@ void spry::BlinnPhongRenderer::render() const
     mLightingPassShader.setUniformMatrix("model", cubeTwo.getModel());
     mCuboid.draw();
 
-    model = glm::translate(glm::mat4(1.0f), glm::vec3(-15.0f, -5.0f, -15.0f));
-    mLightingPassShader.setUniformMatrix("model", model);
+    mLightingPassShader.setUniformMatrix("model", mPlaneEntity.getModel());
     mPlane.draw();
 }
 
 void spry::BlinnPhongRenderer::debugView(float delta)
 {
-    // ImGui::ShowDemoWindow();
 
     ImGui::PushItemWidth(180.0f);
 
@@ -236,12 +227,28 @@ void spry::BlinnPhongRenderer::debugView(float delta)
     ImGui::Text("Delta: %.2fms", delta * 1000);
     ImGui::Separator();
 
-    // if (ImGui::SliderInt("X", &tx, 0, mWidth)) {
-    //     textureViewer.update(glm::ivec4(tx, ty, 100, 100), mWidth, mHeight);
-    // }
-    // if (ImGui::SliderInt("Y", &ty, 0, mHeight)) {
-    //     textureViewer.update(glm::ivec4(tx, ty, 100, 100), mWidth, mHeight);
-    // }
+    if (ImGui::Button("align light dir")) {
+        mDirLight.direction = mCamera->mFront;
+    }
+    if (ImGui::Button("align camera dir")) {
+        mCamera->mFront = glm::normalize(mDirLight.direction);
+    }
+
+    const auto camNorm = glm::normalize(mCamera->mFront);
+    const auto dirNorm = glm::normalize(mDirLight.direction);
+    ImGui::Text("Camera pos:  %.2f  %.2f  %.2f", mCamera->mPosition.x, mCamera->mPosition.y, mCamera->mPosition.z);
+    ImGui::Text("Camera dir:  %.2f  %.2f  %.2f", camNorm.x, camNorm.y, camNorm.z);
+    ImGui::Text("DLight dir:  %.2f  %.2f  %.2f", dirNorm.x, dirNorm.y, dirNorm.z);
+    ImGui::Separator();
+
+    if (ImGui::CollapsingHeader("Shadow Render Projection Details")) {
+        ImGui::SliderFloat("oleft", &oleft, -300.0f, 300.0f);
+        ImGui::SliderFloat("oright", &oright, -300.0f, 300.0f);
+        ImGui::SliderFloat("otop", &otop, -300.0f, 300.0f);
+        ImGui::SliderFloat("obottom", &obottom, -300.0f, 300.0f);
+        ImGui::SliderFloat("onear", &onear, -300.0f, 300.0f);
+        ImGui::SliderFloat("ofar", &ofar, -300.0f, 300.0f);
+    }
 
     if (ImGui::Button(std::format("Use useBlinnPhongModel[{}]", mUseBlinnPhongModel == 1).c_str())) {
         mUseBlinnPhongModel = (mUseBlinnPhongModel == 0) ? 1 : 0;

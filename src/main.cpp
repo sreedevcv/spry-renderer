@@ -3,9 +3,13 @@
 
 #include "BlinnPhongRenderer.hpp"
 #include "Camera.hpp"
+#include "Cuboid.hpp"
+#include "DefaultScene.hpp"
+#include "Shader.hpp"
+#include "Sphere.hpp"
+#include "Texture.hpp"
 #include "Toggle.hpp"
 #include "Window.hpp"
-
 
 class TestWindow : public spry::Window {
 public:
@@ -79,6 +83,26 @@ public:
         }
 
         renderer.load(&camera);
+
+        uint8_t colors[] = {
+            255, 0, 255, 255, //
+            255, 0, 0, 255, //
+            0, 255, 255, 255, //
+            255, 255, 0, 255, //
+        };
+        texture.create()
+            .setWrapMode(GL_REPEAT)
+            .setFilterMode(GL_NEAREST)
+            .load(colors, 2, 2, GL_RGBA);
+
+        // explodingShader
+        //     .add(RES_PATH "shaders/Shape.vert", GL_VERTEX_SHADER)
+        //     .add(RES_PATH "shaders/Shape.frag", GL_FRAGMENT_SHADER)
+        //     .add(RES_PATH "shaders/Shape.geom", GL_GEOMETRY_SHADER)
+        //     .compile();
+
+        sphere.load(30, 30);
+        scene.load(&camera);
     }
 
 private:
@@ -86,6 +110,11 @@ private:
     int mHeight;
     spry::Camera camera;
     spry::BlinnPhongRenderer renderer;
+    spry::Texture texture;
+    spry::Sphere sphere;
+    spry::Shader explodingShader;
+    spry::Cuboid cube;
+    spry::DefaultScene scene;
 
     // ImGuiView
     // std::vector<const char*> materialNames;
@@ -95,6 +124,23 @@ private:
         processInput(deltaTime);
         renderer.process(deltaTime);
         renderer.render();
+
+        // glClearColor(0.4f, 0.5f, 0.5f, 1.0f);
+        // glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+
+        // const auto view = camera.getViewMatrix();
+        // const auto proj = camera.getProjectionMatrix();
+        // auto model = glm::mat4(1.0f);
+        // scene.draw();
+        // explodingShader.bind();
+        // explodingShader.setUniformMatrix("model", model);
+        // explodingShader.setUniformMatrix("view", view);
+        // explodingShader.setUniformMatrix("proj", proj);
+        // explodingShader.setUniformFloat("time", spry::getGlobalTime());
+        // texture.bind(0);
+        // sphere.draw();
+        // cube.draw();
+
         // closeWindow();
     }
 

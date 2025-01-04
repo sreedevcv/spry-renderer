@@ -12,7 +12,6 @@ public:
 
     void load(std::span<float> vertices, std::span<uint32_t> indices, std::span<uint32_t> format, GLenum drawtype);
     void draw(GLenum mode = GL_TRIANGLES) const;
-    void unload() const;
     void updateMesh(std::span<float> vertices) const;
 
     IndexedVAO(IndexedVAO&& mesh);
@@ -43,10 +42,12 @@ public:
     }
 
 private:
-    unsigned int mIndexedDrawCount;
+    unsigned int mIndexedDrawCount { 0 };
     unsigned int mVAO { 0 };
     unsigned int mVBO { 0 };
     unsigned int mEBO { 0 };
+
+    void unload() const;
 };
 
 }

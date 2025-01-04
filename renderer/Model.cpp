@@ -189,10 +189,6 @@ spry::Model::Model(Model&& model)
     mTextures = std::move(model.mTextures);
     mDirectory = std::move(model.mDirectory);
     mLoadedTextures = std::move(model.mLoadedTextures);
-    model.mMeshes.clear();
-    model.mTextures.clear();
-    model.mDirectory.clear();
-    model.mLoadedTextures.clear();
 }
 
 spry::Model& spry::Model::operator=(Model&& model)
@@ -202,10 +198,6 @@ spry::Model& spry::Model::operator=(Model&& model)
         mTextures = std::move(model.mTextures);
         mDirectory = std::move(model.mDirectory);
         mLoadedTextures = std::move(model.mLoadedTextures);
-        model.mMeshes.clear();
-        model.mTextures.clear();
-        model.mDirectory.clear();
-        model.mLoadedTextures.clear();
     }
 
     return *this;

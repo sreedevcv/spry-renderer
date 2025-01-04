@@ -32,6 +32,8 @@ spry::RenderBuffer::RenderBuffer(RenderBuffer&& renderBuffer)
 spry::RenderBuffer& spry::RenderBuffer::operator=(RenderBuffer&& renderBuffer)
 {
     if (this != &renderBuffer) {
+        unload();
+        
         mRBO = std::move(renderBuffer.mRBO);
         mRBO = 0;
     }

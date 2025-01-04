@@ -33,10 +33,11 @@ public:
     void setUniformVec(const char* name, const glm::vec2& value) const;
     void setUniformVec(const char* name, const glm::ivec2& value) const;
     void setUniformInt(const char* name, const int value) const;
-    void unload() const;
 
 private:
-    uint32_t mID;
+    uint32_t mID { 0 };
+
+    void unload() const;
 };
 
 }

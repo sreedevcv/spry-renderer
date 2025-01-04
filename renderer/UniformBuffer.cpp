@@ -1,9 +1,10 @@
 #include "UniformBuffer.hpp"
 #include <GL/glext.h>
+#include <utility>
 
 spry::UniformBuffer::~UniformBuffer()
 {
-    glDeleteBuffers(1, &mUbo);
+    unload();
 }
 
 spry::UniformBuffer::UniformBuffer(UniformBuffer&& uniformBuffer)
@@ -17,7 +18,9 @@ spry::UniformBuffer::UniformBuffer(UniformBuffer&& uniformBuffer)
 spry::UniformBuffer& spry::UniformBuffer::operator=(UniformBuffer&& uniformBuffer)
 {
     if (this != &uniformBuffer) {
-        mUbo = uniformBuffer.mUbo;
+        unload();
+
+        mUbo = std::move(uniformBuffer.mUbo);
         uniformBuffer.mUbo = 0;
     }
 
@@ -47,4 +50,9 @@ void spry::UniformBuffer::setData(uint32_t offset, uint32_t size, void* data) co
 {
     glBindBuffer(GL_UNIFORM_BUFFER, mUbo);
     glBufferSubData(GL_UNIFORM_BUFFER, offset, size, data);
+}
+
+void spry::UniformBuffer::unload() const
+{
+    glDeleteBuffers(1, &mUbo);
 }

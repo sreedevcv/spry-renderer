@@ -24,7 +24,7 @@ void spry::VAO::load(std::span<float> vertices, std::span<uint32_t> format, uint
     for (const int attribSize : format) {
         stride += attribSize;
     }
-    
+
     mVertexCount = vertexCount;
 
     long prevAttribSize = 0;
@@ -50,7 +50,6 @@ void spry::VAO::updateMesh(std::span<float> vertices) const
     glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
-
 void spry::VAO::unload() const
 {
     glDeleteVertexArrays(1, &mVAO);
@@ -62,6 +61,7 @@ void spry::VAO::unload() const
 spry::VAO& spry::VAO::operator=(VAO&& mesh)
 {
     if (this != &mesh) {
+        unload();
         this->mVAO = std::move(mesh.mVAO);
         this->mVBO = std::move(mesh.mVBO);
         this->mVertexCount = std::move(mesh.mVertexCount);

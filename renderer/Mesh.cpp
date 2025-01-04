@@ -38,23 +38,21 @@ const std::vector<uint32_t>& spry::Mesh::getTexturesIndices() const
 
 spry::Mesh::Mesh(Mesh&& mesh)
 {
+    mTextureReference = std::move(mesh.mTextureReference);
     mVertices = std::move(mesh.mVertices);
     mIndices = std::move(mesh.mIndices);
     mTextures = std::move(mesh.mTextures);
-    mesh.mVertices.clear();
-    mesh.mIndices.clear();
-    mesh.mTextures.clear();
+    mVao = std::move(mVao);
 }
 
 spry::Mesh& spry::Mesh::operator=(Mesh&& mesh)
 {
     if (this != &mesh) {
+        mTextureReference = std::move(mesh.mTextureReference);
         mVertices = std::move(mesh.mVertices);
         mIndices = std::move(mesh.mIndices);
         mTextures = std::move(mesh.mTextures);
-        mesh.mVertices.clear();
-        mesh.mIndices.clear();
-        mesh.mTextures.clear();
+        mVao = std::move(mVao);
     }
     return *this;
 }

@@ -21,7 +21,8 @@ public:
     void setData(uint32_t offset, uint32_t size, void* data) const;
 
 private:
-    uint32_t mUbo;
+    uint32_t mUbo { 0 };
+    void unload() const;
 };
 
 }

@@ -38,9 +38,6 @@ void spry::BlinnPhongRenderer::load(Camera* camera)
 
     std::array borderColors { 1.0f, 1.0f, 1.0f, 1.0f };
 
-    mShadowMapWidth = mCamera->mScreenWidth;
-    mShadowMapHeight = mCamera->mScreenHeight;
-
     mShadowMap
         .create()
         .setWrapMode(GL_CLAMP_TO_BORDER)
@@ -159,6 +156,7 @@ void spry::BlinnPhongRenderer::render() const
     mLightingPassShader.setUniformInt("useDirectionalLights", mUseDirectionalLights);
     mLightingPassShader.setUniformInt("usePointLights", mUsePointLights);
     mLightingPassShader.setUniformInt("useSpotLights", mUseSpotLights);
+    mLightingPassShader.setUniformInt("shadowSampling", mShadowSampling);
     // Materials
     mLightingPassShader.setUniformVec("material.ambient", mCurrMaterial.ambient);
     mLightingPassShader.setUniformVec("material.diffuse", mCurrMaterial.diffuse);
@@ -219,6 +217,8 @@ void spry::BlinnPhongRenderer::debugView(float delta)
     dbg::viewSceneTree(mSphereScene);
 
     ImGui::Separator();
+
+    ImGui::SliderInt("Shdw sampling", &mShadowSampling, 0, 10);
 
     const auto camNorm = glm::normalize(mCamera->mFront);
     const auto dirNorm = glm::normalize(mDirLight.direction);

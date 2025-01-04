@@ -18,6 +18,7 @@ spry::Texture::Texture(Texture&& texture)
 spry::Texture& spry::Texture::operator=(Texture&& texture)
 {
     if (this != &texture) {
+        unload();
         mTexture = std::move(texture.mTexture);
         texture.mTexture = 0;
     }
@@ -47,7 +48,7 @@ spry::Texture& spry::Texture::setFilterMode(GLenum mode)
 
 spry::Texture& spry::Texture::setBorderColor(std::span<float, 4> borderColor)
 {
-    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor.data());  
+    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor.data());
     return *this;
 }
 

@@ -32,6 +32,8 @@ spry::FrameBuffer::FrameBuffer(FrameBuffer&& frameBuffer)
 spry::FrameBuffer& spry::FrameBuffer::operator=(FrameBuffer&& frameBuffer)
 {
     if (this != &frameBuffer) {
+        unload();
+
         mFBO = std::move(frameBuffer.mFBO);
         mFBO = 0;
     }

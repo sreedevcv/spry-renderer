@@ -61,6 +61,8 @@ spry::Shader::Shader(Shader&& shader)
 spry::Shader& spry::Shader::operator=(Shader&& shader)
 {
     if (this != &shader) {
+        unload();
+        
         mID = std::move(shader.mID);
         shader.mID = 0;
     }

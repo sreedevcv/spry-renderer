@@ -14,9 +14,7 @@ public:
 
     void load(std::span<float> vertices, std::span<uint32_t> format, uint32_t vertexCount, GLenum drawtype);
     void draw(GLenum mode = GL_TRIANGLES) const;
-    void unload() const;
     void updateMesh(std::span<float> vertices) const;
-    
 
     VAO(VAO&& mesh);
     VAO& operator=(VAO&& mesh);
@@ -24,9 +22,11 @@ public:
     VAO& operator=(const VAO& mesh) = delete;
 
 private:
-    unsigned int mVertexCount;
-    unsigned int mVAO;
-    unsigned int mVBO;
+    unsigned int mVertexCount { 0 };
+    unsigned int mVAO { 0 };
+    unsigned int mVBO { 0 };
+
+    void unload() const;
 };
 
 }

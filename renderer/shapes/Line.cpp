@@ -58,8 +58,3 @@ void spry::Line::loadMesh()
     std::vector<uint32_t> format = { 3 };
     mVAO.load(std::span { vertices }, std::span { format }, 2, GL_STATIC_DRAW);
 }
-
-void spry::Line::unload() const
-{
-    mVAO.unload();
-}

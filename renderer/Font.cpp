@@ -69,7 +69,6 @@ spry::Font::Font(Font&& font)
 {
     if (this != &font) {
         mCharacters = std::move(font.mCharacters);
-        font.mCharacters.clear();
     }
 }
 
@@ -77,7 +76,6 @@ spry::Font& spry::Font::operator=(Font&& font)
 {
     if (this != &font) {
         mCharacters = std::move(font.mCharacters);
-        font.mCharacters.clear();
     }
     return *this;
 }

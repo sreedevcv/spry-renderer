@@ -29,11 +29,12 @@ public:
     void unbind() const;
     void load(const char* filePath);
     void load(void* data, int width, int height, GLenum dataFormat, GLenum type = GL_UNSIGNED_BYTE);
-    void unload() const;
     uint32_t getID() const;
 
 private:
-    uint32_t mTexture;
+    uint32_t mTexture { 0 };
+
+    void unload() const;
 };
 
 }

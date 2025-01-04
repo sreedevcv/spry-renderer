@@ -14,12 +14,13 @@ public:
     FrameBuffer& operator=(const FrameBuffer& frameBuffer) = delete;
 
     void load();
-    void unload() const;
     void bind() const;
     void unbind() const;
 
 private:
     uint32_t mFBO { 0 };
+    
+    void unload() const;
 };
 
 }

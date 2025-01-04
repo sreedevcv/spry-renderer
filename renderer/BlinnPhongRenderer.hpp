@@ -74,8 +74,8 @@ private:
     Shader mShadowPassShader;
 
     Texture mShadowMap;
-    uint32_t mShadowMapWidth = 1024;
-    uint32_t mShadowMapHeight = 1024;
+    uint32_t mShadowMapWidth = 1024 * 4;
+    uint32_t mShadowMapHeight = 1024 * 4;
     TextureRenderTarget mShadowMapTarget;
     DebugTextureViewer mTextureViewer;
 
@@ -90,10 +90,11 @@ private:
     Material mCurrMaterial = *materials.at({ "gold" });
 
     // Debug
-    int mUseBlinnPhongModel = 0;
+    int mUseBlinnPhongModel = 1;
     int mUseDirectionalLights = 1;
     int mUseSpotLights = 0;
     int mUsePointLights = 0;
+    int mShadowSampling = 1;
     // float oleft = -10.0f;
     // float oright = 10.0f;
     // float otop = 10.0f;

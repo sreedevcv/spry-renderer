@@ -60,6 +60,7 @@ uniform int useBlinnPhongModel;
 uniform int useDirectionalLights;
 uniform int usePointLights;
 uniform int useSpotLights;
+uniform int shadowSampling;
 
 vec3 calcDirLight(DirLight light, vec3 normal, vec3 viewDir, float shadow)
 {
@@ -148,14 +149,14 @@ float shadowCalculation(vec4 fragPosLightSpace, vec3 lightDir, vec3 norm)
     float shadow = 0.0;
     // Sample from sorrounding texels to get smoother shadows [percentage-closer filtering]
     vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
-    for (int x = -1; x <= 1; x++) {
-        for (int y = -1; y <= 1; y++) {
+    for (int x = -shadowSampling; x <= shadowSampling; x++) {
+        for (int y = -shadowSampling; y <= shadowSampling; y++) {
             float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r;
             shadow += currDepth - bias > pcfDepth ? 1 : 0;
         }
     }
 
-    shadow / 9.0;
+    shadow / pow((2.0 * shadowSampling + 1.0), 2.0);
 
     return shadow;
 }

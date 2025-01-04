@@ -61,6 +61,8 @@ void spry::IndexedVAO::unload() const
 spry::IndexedVAO& spry::IndexedVAO::operator=(IndexedVAO&& mesh)
 {
     if (this != &mesh) {
+        unload();
+
         this->mVAO = std::move(mesh.mVAO);
         this->mEBO = std::move(mesh.mEBO);
         this->mVBO = std::move(mesh.mVBO);

@@ -1,15 +1,17 @@
 #include "BlinnPhongRenderer.hpp"
 
+#include "ImGuiViews.hpp"
 #include "Materials.hpp"
+#include "Scene.hpp"
 #include "ShaderManager.hpp"
 
 #include "Window.hpp"
-#include "glm/ext/quaternion_geometric.hpp"
 #include "glm/ext/vector_float4.hpp"
 #include "glm/geometric.hpp"
 #include "imgui.h"
 #include <cstring>
 #include <format>
+#include <memory>
 
 spry::BlinnPhongRenderer::BlinnPhongRenderer()
 {
@@ -53,6 +55,21 @@ void spry::BlinnPhongRenderer::load(Camera* camera)
     mTextureViewer.load(glm::vec4(10, 10, 100, 100), mCamera->mScreenWidth, mCamera->mScreenHeight);
     mSphere.load(30, 30);
     mPlane.load(60, 60);
+
+    mSphereScene = new Scene { &mSphere, "sphere" };
+    mSphereScene->addChild(std::make_unique<Scene>(
+        &mCuboid,
+        "cube1",
+        glm::vec3(3.0f, -5.0f, -5.0f)));
+    mSphereScene->addChild(std::make_unique<Scene>(
+        &mCuboid,
+        "cube2",
+        glm::vec3(5.0f, 1.0f, 5.0f)));
+    mSphereScene->addChild(std::make_unique<Scene>(
+        &mPlane,
+        "plane",
+        glm::vec3(-30.0f, -5.0f, -30.0f),
+        glm::vec3(2.0f, 2.0f, 2.0f)));
 }
 
 void spry::BlinnPhongRenderer::addPointLight(const PointLight& pointLight)
@@ -75,11 +92,6 @@ void spry::BlinnPhongRenderer::setSpotLight(const SpotLight& spotLight)
 void spry::BlinnPhongRenderer::process(float delta)
 {
     mDefaultScene.process(delta);
-    // glm::vec3 lightPosition = glm::vec3(10.0f, 20.0f, 5.0f); //
-
-    // mDirLight.direction.x = lightPosition.x + 10.0f * glm::sin(getGlobalTime());
-    // // dirLight.direction.y = lightPosition.y + 10.0f * glm::cos(getGlobalTime());
-    // dirLight.direction.z = lightPosition.z + 10.0f * glm::sin(getGlobalTime());
 }
 
 void spry::BlinnPhongRenderer::render() const
@@ -89,7 +101,7 @@ void spry::BlinnPhongRenderer::render() const
 
     mShadowMapTarget.bind();
     {
-        glCullFace(GL_FRONT);
+        // glCullFace(GL_FRONT);
         glViewport(0, 0, mShadowMapWidth, mShadowMapHeight);
         glClear(GL_DEPTH_BUFFER_BIT);
 
@@ -112,25 +124,14 @@ void spry::BlinnPhongRenderer::render() const
         mShadowPassShader.setUniformMatrix("lightViewProj", lightViewProj);
 
         auto model = glm::mat4(1.0f);
-        mShadowPassShader.setUniformMatrix("model", model);
-        mSphere.draw();
+        mSphereScene->draw(model, mShadowPassShader);
 
-        model = glm::translate(model, glm::vec3(5.0f, 1.0f, 5.0f));
-        model = glm::rotate(model, (float)getGlobalTime(), glm::vec3(1.0f, 1.0f, 0.0f));
-        mShadowPassShader.setUniformMatrix("model", model);
-        mCuboid.draw();
-
-        mShadowPassShader.setUniformMatrix("model", cubeTwo.getModel());
-        mCuboid.draw();
-
-        glCullFace(GL_BACK);
+        // glCullFace(GL_BACK);
 
         /* NOTE::A plane has a only a single face. Using
         ** glCullFace(GL_FRONT) would completely rempve it
         ** So it should not be used to render is
         */
-        // mShadowPassShader.setUniformMatrix("model", mPlaneEntity.getModel());
-        // mPlane.draw();
     }
     mShadowMapTarget.unbind();
 
@@ -204,44 +205,28 @@ void spry::BlinnPhongRenderer::render() const
 
     mLightingPassShader.bind();
     mShadowMap.bind(0);
-    mSphere.draw();
-
-    model = glm::translate(glm::mat4(1.0f), glm::vec3(5.0f, 1.0f, 5.0f));
-    model = glm::rotate(model, (float)getGlobalTime(), glm::vec3(1.0f, 1.0f, 0.0f));
-    mLightingPassShader.setUniformMatrix("model", model);
-    mCuboid.draw();
-
-    mLightingPassShader.setUniformMatrix("model", cubeTwo.getModel());
-    mCuboid.draw();
-
-    mLightingPassShader.setUniformMatrix("model", mPlaneEntity.getModel());
-    mPlane.draw();
+    mSphereScene->draw(model, mLightingPassShader);
 }
 
 void spry::BlinnPhongRenderer::debugView(float delta)
 {
-
     ImGui::PushItemWidth(180.0f);
 
     ImGui::Text("FPS: %f", 1.0 / delta);
     ImGui::Text("Delta: %.2fms", delta * 1000);
     ImGui::Separator();
 
-    if (ImGui::Button("align light dir")) {
-        mDirLight.direction = mCamera->mFront;
-    }
-    if (ImGui::Button("align camera dir")) {
-        mCamera->mFront = glm::normalize(mDirLight.direction);
-    }
+    dbg::viewSceneTree(mSphereScene);
+
+    ImGui::Separator();
 
     const auto camNorm = glm::normalize(mCamera->mFront);
     const auto dirNorm = glm::normalize(mDirLight.direction);
     ImGui::Text("Camera pos:  %.2f  %.2f  %.2f", mCamera->mPosition.x, mCamera->mPosition.y, mCamera->mPosition.z);
     ImGui::Text("Camera dir:  %.2f  %.2f  %.2f", camNorm.x, camNorm.y, camNorm.z);
-    ImGui::Text("DLight dir:  %.2f  %.2f  %.2f", dirNorm.x, dirNorm.y, dirNorm.z);
     ImGui::Separator();
 
-    if (ImGui::CollapsingHeader("Shadow Render Projection Details")) {
+    if (ImGui::CollapsingHeader("Ortho Projection Details")) {
         ImGui::SliderFloat("oleft", &oleft, -300.0f, 300.0f);
         ImGui::SliderFloat("oright", &oright, -300.0f, 300.0f);
         ImGui::SliderFloat("otop", &otop, -300.0f, 300.0f);
@@ -250,18 +235,24 @@ void spry::BlinnPhongRenderer::debugView(float delta)
         ImGui::SliderFloat("ofar", &ofar, -300.0f, 300.0f);
     }
 
-    if (ImGui::Button(std::format("Use useBlinnPhongModel[{}]", mUseBlinnPhongModel == 1).c_str())) {
-        mUseBlinnPhongModel = (mUseBlinnPhongModel == 0) ? 1 : 0;
+    if (ImGui::CollapsingHeader("Lights Option")) {
+        if (ImGui::Button("align light dir")) {
+            mDirLight.direction = mCamera->mFront;
+        }
+        if (ImGui::Button(std::format("Use useBlinnPhongModel[{}]", mUseBlinnPhongModel == 1).c_str())) {
+            mUseBlinnPhongModel = (mUseBlinnPhongModel == 0) ? 1 : 0;
+        }
+        if (ImGui::Button(std::format("Use DirectionalLights[{}]", mUseDirectionalLights == 1).c_str())) {
+            mUseDirectionalLights = (mUseDirectionalLights == 0) ? 1 : 0;
+        }
+        if (ImGui::Button(std::format("Use PointLights[{}]", mUsePointLights == 1).c_str())) {
+            mUsePointLights = (mUsePointLights == 0) ? 1 : 0;
+        }
+        if (ImGui::Button(std::format("Use SpotLights[{}]", mUseSpotLights == 1).c_str())) {
+            mUseSpotLights = (mUseSpotLights == 0) ? 1 : 0;
+        }
     }
-    if (ImGui::Button(std::format("Use DirectionalLights[{}]", mUseDirectionalLights == 1).c_str())) {
-        mUseDirectionalLights = (mUseDirectionalLights == 0) ? 1 : 0;
-    }
-    if (ImGui::Button(std::format("Use PointLights[{}]", mUsePointLights == 1).c_str())) {
-        mUsePointLights = (mUsePointLights == 0) ? 1 : 0;
-    }
-    if (ImGui::Button(std::format("Use SpotLights[{}]", mUseSpotLights == 1).c_str())) {
-        mUseSpotLights = (mUseSpotLights == 0) ? 1 : 0;
-    }
+
     ImGui::Separator();
 
     ImGui::SliderFloat("innerCutOffAngle", &mSpotLight.innerCutOffAngle, 0.0f, glm::pi<float>() / 2);
@@ -276,11 +267,6 @@ void spry::BlinnPhongRenderer::debugView(float delta)
     ImGui::ColorEdit3("DirLight Ambient Color", &mDirLight.ambient.r);
     ImGui::ColorEdit3("DirLight Diffuse Color", &mDirLight.diffuse.r);
     ImGui::ColorEdit3("DirLight Specular Color", &mDirLight.specular.r);
-    ImGui::Separator();
-
-    ImGui::SliderFloat("Cube Position.x", &cubeTwo.mPosition.x, -100.0f, 100.0f);
-    ImGui::SliderFloat("Cube Position.y", &cubeTwo.mPosition.y, -100.0f, 100.0f);
-    ImGui::SliderFloat("Cube Position.z", &cubeTwo.mPosition.z, -100.0f, 100.0f);
     ImGui::Separator();
 
     // // List showing all materials

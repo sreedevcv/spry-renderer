@@ -4,9 +4,9 @@
 #include "Cuboid.hpp"
 #include "DebugTextureViewer.hpp"
 #include "DefaultScene.hpp"
-#include "Entity.hpp"
 #include "Materials.hpp"
 #include "Plane.hpp"
+#include "Scene.hpp"
 #include "Shader.hpp"
 #include "Sphere.hpp"
 #include "Texture.hpp"
@@ -85,11 +85,10 @@ private:
     Sphere mSphere;
     Cuboid mCuboid;
     Plane mPlane;
+    Scene* mSphereScene {};
 
     Material mCurrMaterial = *materials.at({ "gold" });
 
-    Entity cubeTwo { glm::vec3(3.0f, -5.0f, -5.0f) };
-    Entity mPlaneEntity { glm::vec3(-30.0f, -5.0f, -30.0f), glm::vec3(2.0f, 2.0f, 2.0f) };
     // Debug
     int mUseBlinnPhongModel = 0;
     int mUseDirectionalLights = 1;

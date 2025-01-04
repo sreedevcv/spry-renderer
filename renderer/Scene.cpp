@@ -1,5 +1,19 @@
 #include "Scene.hpp"
+#include "Entity.hpp"
 #include <utility>
+
+spry::Scene::Scene(glm::vec3 position, glm::vec3 scale)
+    : Entity(position, scale)
+{
+}
+
+spry::Scene::Scene(Drawable* drawable, const char* name, glm::vec3 position, glm::vec3 scale)
+    : Entity(position, scale)
+    , mName(name)
+{
+    this->drawable = drawable;
+    
+}
 
 void spry::Scene::load()
 {

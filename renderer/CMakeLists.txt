@@ -101,6 +101,7 @@ add_library(
     utils/Toggle.cpp
     utils/DebugTextureViewer.cpp
     utils/Entity.cpp
+    utils/ImGuiViews.cpp
 )
 
 target_include_directories(renderer PRIVATE ${FREETYPE_INCLUDE_DIRS})

@@ -34,10 +34,3 @@ void spry::DefaultScene::draw() const
     mShader.setUniformVec("lineColor", glm::vec3(0.0f, 0.0f, 1.0f));
     zAxis.draw();
 }
-
-void spry::DefaultScene::unload()
-{
-    xAxis.unload();
-    yAxis.unload();
-    zAxis.unload();
-}

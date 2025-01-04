@@ -12,12 +12,11 @@ namespace spry {
 class DefaultScene {
 public:
     DefaultScene();
-    virtual ~DefaultScene() = default;
+    ~DefaultScene() = default;
 
     void load(const Camera* camera, uint32_t length = 1000.0f);
     void process(float delta);
     void draw() const;
-    void unload();
 
 private:
     spry::Line xAxis;

@@ -19,14 +19,13 @@ public:
 
     void setEndPoints(glm::vec3 start, glm::vec3 end);
     void draw() const;
-    
+
 private:
     glm::vec3 mStart;
     glm::vec3 mEnd;
     VAO mVAO;
 
     void loadMesh();
-    void unload() const;
 };
 
 }

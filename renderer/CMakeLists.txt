@@ -72,25 +72,24 @@ FetchContent_MakeAvailable(imgui)
 
 add_library(
     renderer
-    glad.c
-    Window.cpp
-    VAO.cpp
-    Shader.cpp
-    Camera.cpp
-    Scene.cpp
-    DefaultScene.cpp
-    Texture.cpp
-    Font.cpp
-    FontRenderer.cpp
-    IndexedVAO.cpp
-    FrameBuffer.cpp
-    RenderBuffer.cpp
-    TextureRenderTarget.cpp
-    Mesh.cpp
-    Model.cpp
-    UniformBuffer.cpp
-    CubeMap.cpp
-    BlinnPhongRenderer.cpp
+    gl/glad.c
+    gl/Window.cpp
+    gl/VAO.cpp
+    gl/Shader.cpp
+    gl/Camera.cpp
+    gl/Scene.cpp
+    gl/DefaultScene.cpp
+    gl/Texture.cpp
+    gl/Font.cpp
+    gl/FontRenderer.cpp
+    gl/IndexedVAO.cpp
+    gl/FrameBuffer.cpp
+    gl/RenderBuffer.cpp
+    gl/TextureRenderTarget.cpp
+    gl/Mesh.cpp
+    gl/Model.cpp
+    gl/UniformBuffer.cpp
+    gl/CubeMap.cpp
     shapes/Line.cpp
     shapes/Cuboid.cpp
     shapes/Plane.cpp
@@ -102,6 +101,7 @@ add_library(
     utils/DebugTextureViewer.cpp
     utils/Entity.cpp
     utils/ImGuiViews.cpp
+    BlinnPhongRenderer.cpp
 )
 
 target_include_directories(renderer PRIVATE ${FREETYPE_INCLUDE_DIRS})
@@ -109,6 +109,7 @@ target_include_directories(renderer PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/../includ
 target_include_directories(renderer PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(renderer PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/shapes)
 target_include_directories(renderer PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/utils)
+target_include_directories(renderer PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/gl)
 target_include_directories(renderer PUBLIC ${imgui_SOURCE_DIR}/)
 
 add_library(

@@ -4,6 +4,7 @@
 #include <unordered_set>
 #include <vector>
 
+#include "Drawable.hpp"
 #include "Mesh.hpp"
 #include "assimp/material.h"
 #include "assimp/mesh.h"
@@ -11,10 +12,10 @@
 
 namespace spry {
 
-class Model {
+class Model: public Drawable {
 public:
     Model() = default;
-    ~Model() = default;
+    virtual ~Model() = default;
 
     Model(Model&& model);
     Model& operator=(Model&& model);
@@ -22,7 +23,7 @@ public:
     Model& operator=(const Model& model) = delete;
 
     void load(const char* path);
-    void draw() const;
+    void draw() const override;
 
     bool loggedOnce = false;
 

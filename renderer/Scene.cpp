@@ -7,7 +7,7 @@ void spry::Scene::load()
 
 void spry::Scene::process(float delta)
 {
-    mEntity.update(delta);
+    update(delta);
 
     for (const auto& scene : mChildren) {
         scene->process(delta);
@@ -16,10 +16,10 @@ void spry::Scene::process(float delta)
 
 void spry::Scene::draw(const glm::mat4& model, const Shader& shader) const
 {
-    const auto entityModel = model * mEntity.getModel();
+    const auto entityModel = model * getModel();
 
     shader.setUniformMatrix("model", entityModel);
-    mEntity.drawable->draw();
+    drawable->draw();
 
     for (const auto& scene : mChildren) {
         scene->draw(entityModel, shader);

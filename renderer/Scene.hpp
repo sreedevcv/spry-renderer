@@ -8,7 +8,7 @@
 
 namespace spry {
 
-class Scene {
+class Scene: public Entity {
 public:
     Scene() = default;
     virtual ~Scene() = default;
@@ -20,7 +20,6 @@ public:
     Scene* getChild(int n) const;
     uint32_t getChildrenSize() const;
     void addChild(std::unique_ptr<Scene> child);
-    Entity mEntity;
 
 private:
     std::vector<std::unique_ptr<Scene>> mChildren;

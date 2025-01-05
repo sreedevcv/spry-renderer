@@ -9,10 +9,10 @@
 
 namespace spry {
 
-class DefaultScene {
+class DefaultAxes {
 public:
-    DefaultScene();
-    ~DefaultScene() = default;
+    DefaultAxes();
+    ~DefaultAxes() = default;
 
     void load(const Camera* camera, uint32_t length = 1000.0f);
     void process(float delta);

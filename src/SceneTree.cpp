@@ -3,7 +3,7 @@
 
 #include "Camera.hpp"
 #include "Cuboid.hpp"
-#include "DefaultScene.hpp"
+#include "DefaultAxes.hpp"
 #include "Plane.hpp"
 #include "Scene.hpp"
 #include "Shader.hpp"
@@ -43,16 +43,16 @@ public:
         plane.load(30, 30);
         scene.load(&camera);
 
-        planeScene.mEntity.mPosition = glm::vec3(-15.0f, 0.0f, -15.0f);
-        planeScene.mEntity.drawable = &plane;
+        planeScene.mPosition = glm::vec3(-15.0f, 0.0f, -15.0f);
+        planeScene.drawable = &plane;
 
         auto cubeScene = new spry::Scene();
-        cubeScene->mEntity.drawable = &cube;
-        cubeScene->mEntity.mScale.y = 2.0f;
+        cubeScene->drawable = &cube;
+        cubeScene->mScale.y = 2.0f;
         planeScene.addChild(std::unique_ptr<spry::Scene> { cubeScene });
 
         auto sphereScene = new spry::Scene();
-        sphereScene->mEntity.drawable = &sphere;
+        sphereScene->drawable = &sphere;
         cubeScene->addChild(std::unique_ptr<spry::Scene> { sphereScene });
     }
 
@@ -64,7 +64,7 @@ private:
     spry::Sphere sphere;
     spry::Cuboid cube;
     spry::Plane plane;
-    spry::DefaultScene scene;
+    spry::DefaultAxes scene;
     spry::Scene planeScene;
     float updateTime;
     float prevTime;
@@ -74,12 +74,12 @@ private:
         float time = glfwGetTime();
         processInput(deltaTime);
 
-        planeScene.mEntity.mVelocity.x = 3 * glm::sin(spry::getGlobalTime());
-        planeScene.getChild(0)->mEntity.mVelocity.z = 5 * glm::sin(2.0 * spry::getGlobalTime());
-        planeScene.getChild(0)->mEntity.mPosition.y = 7 * glm::abs(glm::sin(2.0 * spry::getGlobalTime()));
+        planeScene.mVelocity.x = 3 * glm::sin(spry::getGlobalTime());
+        planeScene.getChild(0)->mVelocity.z = 5 * glm::sin(2.0 * spry::getGlobalTime());
+        planeScene.getChild(0)->mPosition.y = 7 * glm::abs(glm::sin(2.0 * spry::getGlobalTime()));
 
-        planeScene.getChild(0)->getChild(0)->mEntity.mPosition.x = 3.0f * glm::sin(spry::getGlobalTime());
-        planeScene.getChild(0)->getChild(0)->mEntity.mPosition.z = 3.0f * glm::cos(spry::getGlobalTime());
+        planeScene.getChild(0)->getChild(0)->mPosition.x = 3.0f * glm::sin(spry::getGlobalTime());
+        planeScene.getChild(0)->getChild(0)->mPosition.z = 3.0f * glm::cos(spry::getGlobalTime());
         planeScene.process(deltaTime);
 
         glClearColor(0.4f, 0.5f, 0.5f, 1.0f);
@@ -140,7 +140,7 @@ private:
     void onImguiDebugDraw(float delta) override
     {
         ImGui::Text("Update Time: %.2f", updateTime);
-        const auto& position = planeScene.getChild(0)->getChild(0)->mEntity.mPosition;
+        const auto& position = planeScene.getChild(0)->getChild(0)->mPosition;
         ImGui::Text("Sphere pos: %.2f %.2f %.2f", position.x, position.y, position.z);
     }
 };

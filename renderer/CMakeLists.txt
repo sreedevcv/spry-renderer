@@ -77,8 +77,6 @@ add_library(
     gl/VAO.cpp
     gl/Shader.cpp
     gl/Camera.cpp
-    gl/Scene.cpp
-    gl/DefaultScene.cpp
     gl/Texture.cpp
     gl/Font.cpp
     gl/FontRenderer.cpp
@@ -94,6 +92,8 @@ add_library(
     shapes/Cuboid.cpp
     shapes/Plane.cpp
     shapes/Sphere.cpp
+    utils/Scene.cpp
+    utils/DefaultAxes.cpp
     utils/FontManager.cpp
     utils/ShaderManager.cpp
     utils/Timer.cpp

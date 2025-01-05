@@ -4,7 +4,7 @@
 #include "BlinnPhongRenderer.hpp"
 #include "Camera.hpp"
 #include "Cuboid.hpp"
-#include "DefaultScene.hpp"
+#include "DefaultAxes.hpp"
 #include "Entity.hpp"
 #include "GLFW/glfw3.h"
 #include "ImGuiViews.hpp"
@@ -140,7 +140,7 @@ private:
     spry::Sphere sphere;
     spry::Cuboid cube;
     spry::Plane plane;
-    spry::DefaultScene scene;
+    spry::DefaultAxes scene;
     float updateTime;
     float prevTime;
     spry::BlinnPhongRenderer::DirLight mDirLight;

@@ -1,13 +1,13 @@
-#include "DefaultScene.hpp"
+#include "DefaultAxes.hpp"
 
 #include "ShaderManager.hpp"
 
-spry::DefaultScene::DefaultScene()
+spry::DefaultAxes::DefaultAxes()
     : mShader(ShaderManager::instance().loadAndGet(ShaderManager::LINE))
 {
 }
 
-void spry::DefaultScene::load(const Camera* camera, uint32_t length)
+void spry::DefaultAxes::load(const Camera* camera, uint32_t length)
 {
     xAxis.setEndPoints(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(1000.0f, 0.0f, 0.0f));
     yAxis.setEndPoints(glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 1000.0f, 0.0f));
@@ -17,11 +17,11 @@ void spry::DefaultScene::load(const Camera* camera, uint32_t length)
     mCamera = camera;
 }
 
-void spry::DefaultScene::process(float delta)
+void spry::DefaultAxes::process(float delta)
 {
 }
 
-void spry::DefaultScene::draw() const
+void spry::DefaultAxes::draw() const
 {
     mShader.bind();
     mShader.setUniformMatrix("proj", mCamera->getProjectionMatrix());

@@ -7,7 +7,7 @@
 
 #include "Camera.hpp"
 #include "Cuboid.hpp"
-#include "DefaultScene.hpp"
+#include "DefaultAxes.hpp"
 #include "Materials.hpp"
 #include "Plane.hpp"
 #include "Shader.hpp"
@@ -45,7 +45,7 @@ public:
         camera.setPosition(glm::vec3(0.0f, 0.0f, 3.0f));
 
         for (const auto& [key, value] : spry::materials) {
-            materialNames.push_back(key);
+            materialNames.push_back(key.data());
         }
 
         spry::ShaderManager::instance().loadAndGet(spry::ShaderManager::SHAPE);
@@ -153,7 +153,7 @@ private:
     int mWidth;
     int mHeight;
     spry::Camera camera;
-    spry::DefaultScene defaultScene;
+    spry::DefaultAxes defaultScene;
     spry::Texture planeTexture;
     spry::Texture sphereTexture;
     spry::Cuboid cube;
@@ -253,7 +253,7 @@ private:
         const auto& shapeShader = spry::ShaderManager::instance().get(spry::ShaderManager::SHAPE);
         processInput(deltaTime);
 
-        glViewport(0, 0, mWidth,mHeight);
+        glViewport(0, 0, mWidth, mHeight);
         glClearColor(0.4f, 0.5f, 0.5f, 1.0f);
         glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 

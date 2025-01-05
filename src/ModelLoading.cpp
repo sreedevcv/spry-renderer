@@ -2,7 +2,7 @@
 #include <print>
 
 #include "Camera.hpp"
-#include "DefaultScene.hpp"
+#include "DefaultAxes.hpp"
 #include "Model.hpp"
 #include "Shader.hpp"
 #include "Window.hpp"
@@ -17,16 +17,15 @@ public:
         , mWidth { width }
         , mHeight { height }
         , camera(width, height)
-        , defaultScene(camera)
     {
-        setCulling(true);
-        setDepthTest(true);
-        setBlending(true);
+        spry::setCulling(true);
+        spry::setDepthTest(true);
+        spry::setBlending(true);
+        spry::setWireFrameMode(false);
         setMouseCapture(true);
-        setWireFrameMode(false);
         camera.setPosition(glm::vec3(0.0f, 0.0f, 3.0f));
 
-        defaultScene.load();
+        defaultScene.load(&camera);
 
         modelShader
             .add(RES_PATH "shaders/Model.vert", GL_VERTEX_SHADER)
@@ -40,7 +39,7 @@ private:
     int mWidth;
     int mHeight;
     spry::Camera camera;
-    spry::DefaultScene defaultScene;
+    spry::DefaultAxes defaultScene;
     spry::Model backpackModel;
     spry::Shader modelShader;
 

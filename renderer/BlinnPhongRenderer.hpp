@@ -3,7 +3,7 @@
 #include "Camera.hpp"
 #include "Cuboid.hpp"
 #include "DebugTextureViewer.hpp"
-#include "DefaultScene.hpp"
+#include "DefaultAxes.hpp"
 #include "Materials.hpp"
 #include "Plane.hpp"
 #include "Scene.hpp"
@@ -79,7 +79,7 @@ private:
     TextureRenderTarget mShadowMapTarget;
     DebugTextureViewer mTextureViewer;
 
-    DefaultScene mDefaultScene;
+    DefaultAxes mDefaultScene;
     Camera* mCamera { nullptr };
 
     Sphere mSphere;

@@ -3,7 +3,7 @@
 #include <print>
 
 #include "Camera.hpp"
-#include "DefaultScene.hpp"
+#include "DefaultAxes.hpp"
 #include "Plane.hpp"
 #include "Shader.hpp"
 #include "ShaderManager.hpp"
@@ -25,18 +25,17 @@ public:
         , mWidth { width }
         , mHeight { height }
         , camera(width, height)
-        , defaultScene(camera)
     {
-        setCulling(false);
-        setDepthTest(true);
-        setBlending(true);
+        spry::setCulling(false);
+        spry::setDepthTest(true);
+        spry::setBlending(true);
+        spry::setWireFrameMode(false);
         setMouseCapture(false);
-        setWireFrameMode(false);
         camera.setPosition(glm::vec3(0.0f, 0.0f, 3.0f));
 
         spry::ShaderManager::instance().loadAndGet(spry::ShaderManager::SHAPE);
 
-        defaultScene.load();
+        defaultScene.load(&camera);
 
         uint8_t color1[4] = { 255, 0, 0, 255 };
 
@@ -65,7 +64,7 @@ private:
     int mWidth;
     int mHeight;
     spry::Camera camera;
-    spry::DefaultScene defaultScene;
+    spry::DefaultAxes defaultScene;
     spry::Texture planeTexture;
     spry::Texture sphereTexture;
     spry::Sphere sphere;
@@ -83,7 +82,7 @@ private:
         defaultScene.draw();
 
         auto model = glm::mat4(1.0f);
-        model = glm::rotate(model, (float)getGlobalTime(), glm::vec3(1.0f, 0.0f, 1.0f));
+        model = glm::rotate(model, (float)spry::getGlobalTime(), glm::vec3(1.0f, 0.0f, 1.0f));
         auto view = camera.getViewMatrix();
         auto proj = camera.getProjectionMatrix();
 
@@ -112,7 +111,7 @@ private:
             closeWindow();
         }
         if (isKeyPressed(GLFW_KEY_ENTER) && toggle.canToggle()) {
-            setWireFrameMode(toggle.toggle());
+            spry::setWireFrameMode(toggle.toggle());
         }
 
         camera.processInputDefault(*this, deltaTime);

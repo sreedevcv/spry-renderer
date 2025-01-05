@@ -3,7 +3,7 @@
 #include <print>
 
 #include "Camera.hpp"
-#include "DefaultScene.hpp"
+#include "DefaultAxes.hpp"
 #include "Shader.hpp"
 #include "glm/trigonometric.hpp"
 #include "shapes/Cuboid.hpp"
@@ -25,18 +25,17 @@ public:
         , mWidth { width }
         , mHeight { height }
         , camera(width, height)
-        , defaultScene(camera)
     {
-        setCulling(true);
-        setDepthTest(true);
-        setBlending(true);
+        spry::setCulling(true);
+        spry::setDepthTest(true);
+        spry::setBlending(true);
+        spry::setWireFrameMode(false);
         setMouseCapture(true);
-        setWireFrameMode(false);
         camera.setPosition(glm::vec3(0.0f, 0.0f, 3.0f));
 
         spry::FontManager::instance().load(RES_PATH "fonts/Lato-Regular.ttf");
 
-        defaultScene.load();
+        defaultScene.load(&camera);
 
         std::array<uint8_t, 3 * 4> colors = {
             255, 0, 0, //
@@ -71,7 +70,7 @@ private:
     int mHeight;
     spry::FontRenderer fontRenderer;
     spry::Camera camera;
-    spry::DefaultScene defaultScene;
+    spry::DefaultAxes defaultScene;
     spry::TextureRenderTarget renderTarget;
     spry::Texture targetTexture;
     spry::Shader testShader;
@@ -98,7 +97,7 @@ private:
             25.0,
             25.0,
             1.0,
-            glm::vec4(glm::abs(glm::sin(getGlobalTime())), 0.8f, glm::abs(glm::cos(getGlobalTime())), 1.0f),
+            glm::vec4(glm::abs(glm::sin(spry::getGlobalTime())), 0.8f, glm::abs(glm::cos(spry::getGlobalTime())), 1.0f),
             orthoProj);
 
         renderTarget.unbind();

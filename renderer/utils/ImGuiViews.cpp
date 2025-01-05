@@ -1,4 +1,5 @@
 #include "ImGuiViews.hpp"
+#include "Materials.hpp"
 #include "Scene.hpp"
 #include "glm/ext/quaternion_geometric.hpp"
 #include "imgui.h"
@@ -14,11 +15,20 @@ void spry::dbg::viewTransform(Transform& transform, const char* name)
     }
 }
 
+void spry::dbg::viewMaterial(Material& material, const char* name)
+{
+    ImGui::ColorEdit3(std::format("{} ambient", name).c_str(), (float*)&material.ambient.r);
+    ImGui::ColorEdit3(std::format("{} diffuse", name).c_str(), (float*)&material.diffuse.r);
+    ImGui::ColorEdit3(std::format("{} specular", name).c_str(), (float*)&material.specular.r);
+    ImGui::DragFloat(std::format("{} shininess", name).c_str(), (float*)&material.shininess, 0.01f, 0.0f, 1.0f);
+}
+
 void spry::dbg::viewSceneTree(Scene* scene)
 {
     if (ImGui::TreeNode(scene->mName)) {
         viewTransform(*scene, scene->mName);
         ImGui::Separator();
+        viewMaterial(scene->mMaterial, scene->mName);
         for (uint32_t i = 0; i < scene->getChildrenSize(); i++) {
             auto child = scene->getChild(i);
             viewSceneTree(child);

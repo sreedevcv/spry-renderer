@@ -53,18 +53,21 @@ void spry::BlinnPhongRenderer::load(Camera* camera)
     mSphere.load(30, 30);
     mPlane.load(60, 60);
 
-    mSphereScene = new Scene { &mSphere, "sphere" };
+    mSphereScene = new Scene { &mSphere, "sphere", "turquoise" };
     mSphereScene->addChild(std::make_unique<Scene>(
         &mCuboid,
         "cube1",
+        "obsidian",
         glm::vec3(3.0f, -5.0f, -5.0f)));
     mSphereScene->addChild(std::make_unique<Scene>(
         &mCuboid,
         "cube2",
+        "redPlastic",
         glm::vec3(5.0f, 1.0f, 5.0f)));
     mSphereScene->addChild(std::make_unique<Scene>(
         &mPlane,
         "plane",
+        "whiteRubber",
         glm::vec3(-30.0f, -5.0f, -30.0f),
         glm::vec3(2.0f, 2.0f, 2.0f)));
 }
@@ -201,9 +204,16 @@ void spry::BlinnPhongRenderer::render() const
         mCuboid.draw();
     }
 
+    constexpr auto materialDrawCallback = [](const Scene* scene, const Shader& shader) {
+        shader.setUniformVec("material.ambient", scene->mMaterial.ambient);
+        shader.setUniformVec("material.diffuse", scene->mMaterial.diffuse);
+        shader.setUniformVec("material.specular", scene->mMaterial.specular);
+        shader.setUniformFloat("material.shininess", scene->mMaterial.shininess);
+    };
+
     mLightingPassShader.bind();
     mShadowMap.bind(0);
-    mSphereScene->draw(model, mLightingPassShader);
+    mSphereScene->draw(model, mLightingPassShader, materialDrawCallback);
 }
 
 void spry::BlinnPhongRenderer::debugView(float delta)

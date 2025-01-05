@@ -1,18 +1,26 @@
 #include "Scene.hpp"
 #include "Entity.hpp"
+#include "Materials.hpp"
 #include <utility>
 
 spry::Scene::Scene(glm::vec3 position, glm::vec3 scale)
     : Entity(position, scale)
 {
+    mMaterial = *materials.at(mMaterialName);
 }
 
-spry::Scene::Scene(Drawable* drawable, const char* name, glm::vec3 position, glm::vec3 scale)
+spry::Scene::Scene(
+    Drawable* drawable,
+    const char* name,
+    const char* materialName,
+    glm::vec3 position,
+    glm::vec3 scale)
     : Entity(position, scale)
     , mName(name)
+    , mMaterialName(materialName)
 {
     this->drawable = drawable;
-    
+    mMaterial = *materials.at(mMaterialName);
 }
 
 void spry::Scene::load()

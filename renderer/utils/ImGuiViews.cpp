@@ -26,9 +26,11 @@ void spry::dbg::viewMaterial(Material& material, const char* name)
 void spry::dbg::viewSceneTree(Scene* scene)
 {
     if (ImGui::TreeNode(scene->mName)) {
-        viewTransform(*scene, scene->mName);
-        ImGui::Separator();
-        viewMaterial(scene->mMaterial, scene->mName);
+        if (ImGui::CollapsingHeader("Properties")) {
+            viewTransform(*scene, scene->mName);
+            ImGui::Separator();
+            viewMaterial(scene->mMaterial, scene->mName);
+        }
         for (uint32_t i = 0; i < scene->getChildrenSize(); i++) {
             auto child = scene->getChild(i);
             viewSceneTree(child);

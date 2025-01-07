@@ -54,7 +54,7 @@ uniform Material material;
 uniform SpotLight spotLight;
 uniform DirLight dirLight;
 uniform PointLight pointLights[POINT_LIGHT_COUNT];
-uniform sampler2D shadowMap; 
+uniform sampler2DShadow shadowMap; 
 // Options
 uniform int useBlinnPhongModel;
 uniform int useDirectionalLights;
@@ -130,35 +130,37 @@ vec3 calcSpotLight(SpotLight light, vec3 normal, vec3 fragPosition, vec3 viewDir
     return ambient + diffuse + specular;
 }
 
+// using sampler2DShadow
 float shadowCalculation(vec4 fragPosLightSpace, vec3 lightDir, vec3 norm)
 {
+    float bias = max(0.05 * (1.0 - dot(lightDir, norm)), 0.005);
     // Perform perspective divide
     vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
     // Transform to [0, 1]
     projCoords = projCoords * 0.5 + 0.5;
 
     if(projCoords.z > 1.0)
-        return 0.0;
+        return 1.0;     // FIXME::should i return 1.0 or 0.0??
+    
+    projCoords.z -= bias;
 
-    // Get closest depth value from light's perspective (using [0,1] range fragPosLight as coords)
-    float closestDept = texture(shadowMap, projCoords.xy).r;
-    float currDepth = projCoords.z;
-    float bias = max(0.05 * (1.0 - dot(lightDir, norm)), 0.005);
-    // float shadow = (currDepth - bias) > closestDept ? 1 : 0;
+    // float shadow = texture(shadowMap, projCoords);
 
     float shadow = 0.0;
     // Sample from sorrounding texels to get smoother shadows [percentage-closer filtering]
     vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
     for (int x = -shadowSampling; x <= shadowSampling; x++) {
         for (int y = -shadowSampling; y <= shadowSampling; y++) {
-            float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r;
-            shadow += currDepth - bias > pcfDepth ? 1 : 0;
+            vec2 offset = vec2(x, y) * texelSize;
+            vec3 samplePoint = vec3(projCoords.xy + offset, projCoords.z);
+            float pcfDepth = texture(shadowMap, samplePoint);
+            shadow += pcfDepth;
         }
     }
 
-    shadow / pow((2.0 * shadowSampling + 1.0), 2.0);
+    shadow /= pow((2.0 * shadowSampling + 1.0), 2.0);
 
-    return shadow;
+    return  1.0 - shadow;
 }
 
 void main()

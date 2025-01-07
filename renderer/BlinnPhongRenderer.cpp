@@ -3,6 +3,7 @@
 #include "ImGuiViews.hpp"
 #include "Materials.hpp"
 #include "Scene.hpp"
+#include "Shader.hpp"
 #include "ShaderManager.hpp"
 
 #include "Window.hpp"
@@ -36,13 +37,26 @@ void spry::BlinnPhongRenderer::load(Camera* camera)
         .add(RES_PATH "shaders/Shadow.frag", GL_FRAGMENT_SHADER)
         .compile();
 
+    uint8_t colors[] = {
+        255, 0, 255, 255, //
+        255, 0, 0, 255, //
+        0, 255, 255, 255, //
+        255, 255, 0, 255, //
+    };
+
+    mShapeTexture.create()
+        .setWrapMode(GL_REPEAT)
+        .setFilterMode(GL_NEAREST)
+        .load(colors, 2, 2, GL_RGBA);
+
     std::array borderColors { 1.0f, 1.0f, 1.0f, 1.0f };
 
     mShadowMap
         .create()
         .setWrapMode(GL_CLAMP_TO_BORDER)
-        .setFilterMode(GL_NEAREST)
+        .setFilterMode(GL_LINEAR)
         .setBorderColor(borderColors)
+        .setCompareModeAndFunc(GL_COMPARE_REF_TO_TEXTURE, GL_LEQUAL)
         .load(nullptr, mShadowMapWidth, mShadowMapHeight, GL_DEPTH_COMPONENT, GL_FLOAT);
 
     mShadowMapTarget.load();
@@ -99,9 +113,11 @@ void spry::BlinnPhongRenderer::render() const
     // First pass
     glm::mat4 lightViewProj;
 
+    /* NOTE::A plane has only a single face. Using glCullFace(GL_FRONT) would completely
+       remove it So ideally, it should not be used to rendering the plane */
     mShadowMapTarget.bind();
     {
-        // glCullFace(GL_FRONT);
+        glCullFace(GL_FRONT);
         glViewport(0, 0, mShadowMapWidth, mShadowMapHeight);
         glClear(GL_DEPTH_BUFFER_BIT);
 
@@ -126,12 +142,7 @@ void spry::BlinnPhongRenderer::render() const
         auto model = glm::mat4(1.0f);
         mSphereScene->draw(model, mShadowPassShader);
 
-        // glCullFace(GL_BACK);
-
-        /* NOTE::A plane has a only a single face. Using
-        ** glCullFace(GL_FRONT) would completely rempve it
-        ** So it should not be used to render is
-        */
+        glCullFace(GL_BACK);
     }
     mShadowMapTarget.unbind();
 
@@ -140,7 +151,7 @@ void spry::BlinnPhongRenderer::render() const
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
     mDefaultScene.draw();
-    mTextureViewer.draw(mShadowMap);
+    // mTextureViewer.draw(mShadowMap);
 
     const auto& shapeShader = spry::ShaderManager::instance().get(spry::ShaderManager::SHAPE);
     const auto view = mCamera->getViewMatrix();
@@ -160,11 +171,6 @@ void spry::BlinnPhongRenderer::render() const
     mLightingPassShader.setUniformInt("usePointLights", mUsePointLights);
     mLightingPassShader.setUniformInt("useSpotLights", mUseSpotLights);
     mLightingPassShader.setUniformInt("shadowSampling", mShadowSampling);
-    // Materials
-    mLightingPassShader.setUniformVec("material.ambient", mCurrMaterial.ambient);
-    mLightingPassShader.setUniformVec("material.diffuse", mCurrMaterial.diffuse);
-    mLightingPassShader.setUniformVec("material.specular", mCurrMaterial.specular);
-    mLightingPassShader.setUniformFloat("material.shininess", mCurrMaterial.shininess);
     // SpotLight
     mLightingPassShader.setUniformVec("spotLight.position", mCamera->mPosition);
     mLightingPassShader.setUniformVec("spotLight.direction", mCamera->mFront);
@@ -201,6 +207,7 @@ void spry::BlinnPhongRenderer::render() const
         shapeShader.setUniformMatrix("model", model);
         shapeShader.setUniformMatrix("view", view);
         shapeShader.setUniformMatrix("proj", proj);
+        mShapeTexture.bind(0);
         mCuboid.draw();
     }
 
@@ -212,6 +219,7 @@ void spry::BlinnPhongRenderer::render() const
     };
 
     mLightingPassShader.bind();
+    mLightingPassShader.setUniformInt("shadowMap", 0);
     mShadowMap.bind(0);
     mSphereScene->draw(model, mLightingPassShader, materialDrawCallback);
 }

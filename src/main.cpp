@@ -18,7 +18,6 @@
 #include "Toggle.hpp"
 #include "Window.hpp"
 
-#include "glm/ext/matrix_float4x4.hpp"
 #include "glm/ext/vector_float3.hpp"
 #include "imgui.h"
 
@@ -147,9 +146,6 @@ private:
     spry::Material mCurrMaterial = *spry::materials.at({ "gold" });
     spry::Scene root;
 
-    // ImGuiView
-    // std::vector<const char*> materialNames;
-
     void onUpdate(float deltaTime) override
     {
         float time = glfwGetTime();
@@ -158,6 +154,7 @@ private:
         renderer.process(deltaTime);
         renderer.render();
 
+        // closeWindow();
 
         updateTime = time - prevTime;
         prevTime = time;
@@ -200,7 +197,7 @@ private:
         camera.setScreenSize(width, height);
     }
 
-        spry::Transform transform;
+    spry::Transform transform;
     void onImguiDebugDraw(float delta) override
     {
         // ImGui::ShowDemoWindow();

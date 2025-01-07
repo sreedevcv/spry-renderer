@@ -24,6 +24,7 @@ public:
     Texture& setWrapMode(GLenum mode);
     Texture& setFilterMode(GLenum mode);
     Texture& setBorderColor(std::span<float, 4> borderColor);
+    Texture& setCompareModeAndFunc(GLenum compareMode, GLenum compareFunc);
 
     void bind(int texCount) const;
     void unbind() const;

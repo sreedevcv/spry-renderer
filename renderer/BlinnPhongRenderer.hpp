@@ -72,7 +72,7 @@ private:
 
     Shader mLightingPassShader;
     Shader mShadowPassShader;
-
+    Texture mShapeTexture;
     Texture mShadowMap;
     uint32_t mShadowMapWidth = 1024 * 4;
     uint32_t mShadowMapHeight = 1024 * 4;

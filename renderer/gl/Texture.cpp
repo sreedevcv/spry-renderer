@@ -52,6 +52,13 @@ spry::Texture& spry::Texture::setBorderColor(std::span<float, 4> borderColor)
     return *this;
 }
 
+spry::Texture& spry::Texture::setCompareModeAndFunc(GLenum compareMode, GLenum compareFunc)
+{
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE, compareMode);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC, compareFunc);
+    return *this;
+}
+
 // Load a buffer of bytes (uint8_t) into gpu memory
 void spry::Texture::load(void* data, int width, int height, GLenum dataFormat, GLenum type)
 {

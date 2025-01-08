@@ -130,6 +130,34 @@ vec3 calcSpotLight(SpotLight light, vec3 normal, vec3 fragPosition, vec3 viewDir
     return ambient + diffuse + specular;
 }
 
+const 
+vec2 poissonDisk[16] = vec2[]( 
+   vec2( -0.94201624, -0.39906216 ), 
+   vec2( 0.94558609, -0.76890725 ), 
+   vec2( -0.094184101, -0.92938870 ), 
+   vec2( 0.34495938, 0.29387760 ), 
+   vec2( -0.91588581, 0.45771432 ), 
+   vec2( -0.81544232, -0.87912464 ), 
+   vec2( -0.38277543, 0.27676845 ), 
+   vec2( 0.97484398, 0.75648379 ), 
+   vec2( 0.44323325, -0.97511554 ), 
+   vec2( 0.53742981, -0.47373420 ), 
+   vec2( -0.26496911, -0.41893023 ), 
+   vec2( 0.79197514, 0.19090188 ), 
+   vec2( -0.24188840, 0.99706507 ), 
+   vec2( -0.81409955, 0.91437590 ), 
+   vec2( 0.19984126, 0.78641367 ), 
+   vec2( 0.14383161, -0.14100790 ) 
+);
+
+// Random number in the range [0, 1]
+float randFloat(vec4 seed)
+{
+    float dotProduct = dot(seed, vec4(12.9898,78.233,45.164,94.673));
+    return fract(sin(dotProduct) * 43758.5453);
+}
+
+// https://www.opengl-tutorial.org/intermediate-tutorials/tutorial-16-shadow-mapping/
 // using sampler2DShadow
 float shadowCalculation(vec4 fragPosLightSpace, vec3 lightDir, vec3 norm)
 {
@@ -144,21 +172,33 @@ float shadowCalculation(vec4 fragPosLightSpace, vec3 lightDir, vec3 norm)
     
     projCoords.z -= bias;
 
-    // float shadow = texture(shadowMap, projCoords);
-
-    float shadow = 0.0;
     // Sample from sorrounding texels to get smoother shadows [percentage-closer filtering]
-    vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
-    for (int x = -shadowSampling; x <= shadowSampling; x++) {
-        for (int y = -shadowSampling; y <= shadowSampling; y++) {
-            vec2 offset = vec2(x, y) * texelSize;
-            vec3 samplePoint = vec3(projCoords.xy + offset, projCoords.z);
-            float pcfDepth = texture(shadowMap, samplePoint);
-            shadow += pcfDepth;
+    // /*
+        float shadow = 0.0;
+        vec2 texelSize = 1.0 / textureSize(shadowMap, 0);
+        for (int x = -shadowSampling; x <= shadowSampling; x++) {
+            for (int y = -shadowSampling; y <= shadowSampling; y++) {
+                vec2 offset = vec2(x, y) * texelSize;
+                vec3 samplePoint = vec3(projCoords.xy + offset, projCoords.z);
+                float pcfDepth = texture(shadowMap, samplePoint);
+                shadow += pcfDepth;
+            }
         }
-    }
+        shadow /= pow((2.0 * shadowSampling + 1.0), 2.0);
+    // */
 
-    shadow /= pow((2.0 * shadowSampling + 1.0), 2.0);
+    // Poisson disk sampling
+    /*
+        float shadow = 0.0;
+        for (int i = 0; i < shadowSampling; i++) {
+            int index = int(16.0 * randFloat(vec4(fs_in.fragPos.xyz * 1000.0, i))) % 16;    // based on camera position
+            // int index = int(16.0 * randFloat(vec4(gl_FragCoord.xyy, i))) % 16;           // based on fragment position
+            vec2 offset = projCoords.xy + poissonDisk[index] / 700.0;
+            float sampleValue = texture(shadowMap, vec3(offset.xy, projCoords.z));
+            shadow += (1.0 / float(shadowSampling)) * (1.0 - sampleValue);
+        }
+    */
+
 
     return  1.0 - shadow;
 }

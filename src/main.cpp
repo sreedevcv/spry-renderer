@@ -33,9 +33,6 @@ public:
         camera.setPosition(glm::vec3(0.0f, 0.0f, 3.0f));
         spry::setCulling(true);
         glCullFace(GL_BACK);
-        // for (const auto& [key, value] : spry::materials) {
-        //     materialNames.push_back(key);
-        // }
 
         spry::BlinnPhongRenderer::PointLight pointLights[POINT_LIGHT_COUNT];
 

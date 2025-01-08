@@ -5,6 +5,7 @@
 #include "DebugTextureViewer.hpp"
 #include "DefaultAxes.hpp"
 #include "Materials.hpp"
+#include "Model.hpp"
 #include "Plane.hpp"
 #include "Scene.hpp"
 #include "Shader.hpp"
@@ -85,6 +86,7 @@ private:
     Sphere mSphere;
     Cuboid mCuboid;
     Plane mPlane;
+    Model mCubeModel;
     Scene* mSphereScene {};
 
     Material mCurrMaterial = *materials.at({ "gold" });
@@ -105,7 +107,7 @@ private:
     float obottom = -50.0f;
 
     float ofar = 100.0f;
-    float onear = 0.1f;
+    float onear = 0.001f;
 };
 
 }

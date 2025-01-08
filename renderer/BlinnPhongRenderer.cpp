@@ -66,24 +66,25 @@ void spry::BlinnPhongRenderer::load(Camera* camera)
     mTextureViewer.load(glm::vec4(10, 10, 100, 100), mCamera->mScreenWidth, mCamera->mScreenHeight);
     mSphere.load(30, 30);
     mPlane.load(60, 60);
+    mCubeModel.load(RES_PATH"models/cube.obj");
 
     mSphereScene = new Scene { &mSphere, "sphere", "turquoise" };
     mSphereScene->addChild(std::make_unique<Scene>(
-        &mCuboid,
+        &mCubeModel,
         "cube1",
         "obsidian",
         glm::vec3(3.0f, -5.0f, -5.0f)));
     mSphereScene->addChild(std::make_unique<Scene>(
-        &mCuboid,
+        &mSphere,
         "cube2",
         "redPlastic",
         glm::vec3(5.0f, 1.0f, 5.0f)));
     mSphereScene->addChild(std::make_unique<Scene>(
-        &mPlane,
+        &mCuboid,
         "plane",
         "whiteRubber",
         glm::vec3(-30.0f, -5.0f, -30.0f),
-        glm::vec3(2.0f, 2.0f, 2.0f)));
+        glm::vec3(60.0f, 2.0f, 60.0f)));
 }
 
 void spry::BlinnPhongRenderer::addPointLight(const PointLight& pointLight)
@@ -108,6 +109,7 @@ void spry::BlinnPhongRenderer::process(float delta)
     mDefaultScene.process(delta);
 }
 
+// NOTE::Try changing the plane to a cuboid and see whetheer it removes peter panning
 void spry::BlinnPhongRenderer::render() const
 {
     // First pass
@@ -117,7 +119,7 @@ void spry::BlinnPhongRenderer::render() const
        remove it So ideally, it should not be used to rendering the plane */
     mShadowMapTarget.bind();
     {
-        glCullFace(GL_FRONT);
+        // glCullFace(GL_FRONT);
         glViewport(0, 0, mShadowMapWidth, mShadowMapHeight);
         glClear(GL_DEPTH_BUFFER_BIT);
 
@@ -142,7 +144,7 @@ void spry::BlinnPhongRenderer::render() const
         auto model = glm::mat4(1.0f);
         mSphereScene->draw(model, mShadowPassShader);
 
-        glCullFace(GL_BACK);
+        // glCullFace(GL_BACK);
     }
     mShadowMapTarget.unbind();
 

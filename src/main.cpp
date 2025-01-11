@@ -37,10 +37,13 @@ public:
         spry::BlinnPhongRenderer::PointLight pointLights[POINT_LIGHT_COUNT];
 
         pointLights[0] = {
-            .position = glm::vec3(7.0f, 2.0f, 2.0f),
+            .position = glm::vec3(3.0f, 5.0f, 2.0f),
+            // .constant = 1.0,
+            // .linear = 0.7,
+            // .quadratic = 1.8,
             .constant = 1.0,
-            .linear = 0.7,
-            .quadratic = 1.8,
+            .linear = 0.07,
+            .quadratic = 0.017,
 
             .ambient = glm::vec3(0.1f, 0.03f, 0.05f),
             .diffuse = glm::vec3(0.7f, 0.4f, 0.4f),

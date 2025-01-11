@@ -7,6 +7,7 @@ in VS_OUT {
     vec3 normal;
     vec3 fragPos;
     vec4 fragPosLightSpace;
+    vec4 pointLightSpace;
 } fs_in;
 
 struct Material {
@@ -54,7 +55,8 @@ uniform Material material;
 uniform SpotLight spotLight;
 uniform DirLight dirLight;
 uniform PointLight pointLights[POINT_LIGHT_COUNT];
-uniform sampler2DShadow shadowMap; 
+uniform sampler2DShadow dirLightShadowMap; 
+uniform sampler2DShadow pointLightShadowMap; 
 // Options
 uniform int useBlinnPhongModel;
 uniform int useDirectionalLights;
@@ -159,7 +161,7 @@ float randFloat(vec4 seed)
 
 // https://www.opengl-tutorial.org/intermediate-tutorials/tutorial-16-shadow-mapping/
 // using sampler2DShadow
-float shadowCalculation(vec4 fragPosLightSpace, vec3 lightDir, vec3 norm)
+float shadowCalculation(sampler2DShadow shadowMap, vec4 fragPosLightSpace, vec3 lightDir, vec3 norm)
 {
     float bias = max(0.05 * (1.0 - dot(lightDir, norm)), 0.005);
     // Perform perspective divide
@@ -209,13 +211,17 @@ void main()
     vec3 viewDir = normalize(viewPosition - fs_in.fragPos);
 
     vec3 lightDir = normalize(-dirLight.direction);
-    float shadow = shadowCalculation(fs_in.fragPosLightSpace, lightDir, norm);
+    float shadow = shadowCalculation(dirLightShadowMap, fs_in.fragPosLightSpace, lightDir, norm);
 
     vec3 result = vec3(0.0);
 
     if (useDirectionalLights == 1) {
-        result += calcDirLight(dirLight, norm, viewDir, shadow);
+        // result += calcDirLight(dirLight, norm, viewDir, shadow);
     }
+
+
+    // shadow = shadowCalculation(pointLightShadowMap, fs_in.pointLightSpace, lightDir, norm);
+    result += calcPointLight(pointLights[0], norm, fs_in.fragPos, viewDir, shadow);
 
     // if (usePointLights == 1) {
     //     for (int i = 0; i < POINT_LIGHT_COUNT; i++) {

@@ -9,12 +9,14 @@ out VS_OUT {
     vec3 normal;
     vec3 fragPos;
     vec4 fragPosLightSpace;
+    vec4 pointLightSpace;
 } vs_out;
 
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 proj;
 uniform mat4 lightViewProj;
+uniform mat4 pointLightMat;
 
 void main()
 {
@@ -22,5 +24,6 @@ void main()
     vs_out.normal = transpose(inverse(mat3(model))) * normalIn;
     vs_out.texCoord = textureCoord;
     vs_out.fragPosLightSpace = lightViewProj * vec4(vs_out.fragPos, 1.0);
+    vs_out.pointLightSpace = pointLightMat * vec4(vs_out.fragPos, 1.0);
     gl_Position = proj * view * vec4(vs_out.fragPos, 1.0);
 }

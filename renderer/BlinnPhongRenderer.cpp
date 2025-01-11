@@ -1,5 +1,6 @@
 #include "BlinnPhongRenderer.hpp"
 
+#include "DebugTextureViewer.hpp"
 #include "ImGuiViews.hpp"
 #include "Materials.hpp"
 #include "Scene.hpp"
@@ -7,8 +8,12 @@
 #include "ShaderManager.hpp"
 
 #include "Window.hpp"
+#include "glm/ext/matrix_clip_space.hpp"
+#include "glm/ext/matrix_float4x4.hpp"
+#include "glm/ext/matrix_transform.hpp"
 #include "glm/ext/vector_float4.hpp"
 #include "glm/geometric.hpp"
+#include "glm/trigonometric.hpp"
 #include "imgui.h"
 #include <cstring>
 #include <format>
@@ -37,6 +42,13 @@ void spry::BlinnPhongRenderer::load(Camera* camera)
         .add(RES_PATH "shaders/Shadow.frag", GL_FRAGMENT_SHADER)
         .compile();
 
+    mPerpectiveShadowShader
+        .add(RES_PATH "shaders/Shape.vert", GL_VERTEX_SHADER)
+        .add(RES_PATH "shaders/PerspectiveProjection.frag", GL_FRAGMENT_SHADER)
+        .compile();
+    
+    mTextureViewer = new DebugTextureViewer(mPerpectiveShadowShader); 
+
     uint8_t colors[] = {
         255, 0, 255, 255, //
         255, 0, 0, 255, //
@@ -51,7 +63,7 @@ void spry::BlinnPhongRenderer::load(Camera* camera)
 
     std::array borderColors { 1.0f, 1.0f, 1.0f, 1.0f };
 
-    mShadowMap
+    mDirLightShadowMap
         .create()
         .setWrapMode(GL_CLAMP_TO_BORDER)
         .setFilterMode(GL_LINEAR)
@@ -59,14 +71,25 @@ void spry::BlinnPhongRenderer::load(Camera* camera)
         .setCompareModeAndFunc(GL_COMPARE_REF_TO_TEXTURE, GL_LEQUAL)
         .load(nullptr, mShadowMapWidth, mShadowMapHeight, GL_DEPTH_COMPONENT, GL_FLOAT);
 
-    mShadowMapTarget.load();
-    mShadowMapTarget.attachTextureDepth(mShadowMap);
+    mDirLightShadowMapTarget.load();
+    mDirLightShadowMapTarget.attachTextureDepth(mDirLightShadowMap);
+
+    mPointLightShadowMap
+        .create()
+        .setWrapMode(GL_CLAMP_TO_BORDER)
+        .setFilterMode(GL_LINEAR)
+        .setBorderColor(borderColors)
+        // .setCompareModeAndFunc(GL_COMPARE_REF_TO_TEXTURE, GL_LEQUAL)
+        .load(nullptr, mShadowMapWidth, mShadowMapHeight, GL_DEPTH_COMPONENT, GL_FLOAT);
+
+    mPointlightShadowMapTarget.load();
+    mPointlightShadowMapTarget.attachTextureDepth(mPointLightShadowMap);
 
     mDefaultScene.load(camera);
-    mTextureViewer.load(glm::vec4(10, 10, 100, 100), mCamera->mScreenWidth, mCamera->mScreenHeight);
+    mTextureViewer->load(glm::vec4(10, 10, 100, 100), mCamera->mScreenWidth, mCamera->mScreenHeight);
     mSphere.load(30, 30);
     mPlane.load(60, 60);
-    mCubeModel.load(RES_PATH"models/cube.obj");
+    mCubeModel.load(RES_PATH "models/cube.obj");
 
     mSphereScene = new Scene { &mSphere, "sphere", "turquoise" };
     mSphereScene->addChild(std::make_unique<Scene>(
@@ -117,7 +140,7 @@ void spry::BlinnPhongRenderer::render() const
 
     /* NOTE::A plane has only a single face. Using glCullFace(GL_FRONT) would completely
        remove it So ideally, it should not be used to rendering the plane */
-    mShadowMapTarget.bind();
+    mDirLightShadowMapTarget.bind();
     {
         // glCullFace(GL_FRONT);
         glViewport(0, 0, mShadowMapWidth, mShadowMapHeight);
@@ -146,14 +169,39 @@ void spry::BlinnPhongRenderer::render() const
 
         // glCullFace(GL_BACK);
     }
-    mShadowMapTarget.unbind();
+    mDirLightShadowMapTarget.unbind();
+
+    glm::mat4 pointLightMat;
+    mPointlightShadowMapTarget.bind();
+    {
+        glViewport(0, 0, mShadowMapWidth, mShadowMapHeight);
+        glClear(GL_DEPTH_BUFFER_BIT);
+
+        glm::vec3 newPos;
+        newPos.x = mPointLights[0].position.x + 10.0f * glm::sin(getGlobalTime());
+        newPos.y = mPointLights[0].position.y + 10.0f * glm::cos(getGlobalTime());
+        newPos.z = mPointLights[0].position.z + 10.0f * glm::sin(getGlobalTime());
+
+        auto lightProj = glm::perspective(glm::radians(45.0f), float(mShadowMapWidth) / float(mShadowMapHeight), 0.1f, 100.0f);
+        auto lightView = glm::lookAt(newPos, glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0f, 1.0f, 0.0f));
+        pointLightMat = lightProj * lightView;
+
+        mShadowPassShader.bind();
+        mShadowPassShader.setUniformMatrix("lightViewProj", pointLightMat);
+        auto model = glm::mat4(1.0f);
+        mSphereScene->draw(model, mShadowPassShader);
+    }
+    mPointlightShadowMapTarget.unbind();
 
     glViewport(0, 0, mCamera->mScreenWidth, mCamera->mScreenHeight);
-    glClearColor(0.4f, 0.5f, 0.5f, 1.0f);
+    glClearColor(0.4f, 0.5f, 0.37f, 1.0f);
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
     mDefaultScene.draw();
-    // mTextureViewer.draw(mShadowMap);
+    mPerpectiveShadowShader.bind();
+    mPerpectiveShadowShader.setUniformFloat("nearPlane", 0.1F);
+    mPerpectiveShadowShader.setUniformFloat("farPlane", 100.0F);
+    mTextureViewer->draw(mPointLightShadowMap);
 
     const auto& shapeShader = spry::ShaderManager::instance().get(spry::ShaderManager::SHAPE);
     const auto view = mCamera->getViewMatrix();
@@ -166,6 +214,7 @@ void spry::BlinnPhongRenderer::render() const
     mLightingPassShader.setUniformMatrix("view", view);
     mLightingPassShader.setUniformMatrix("proj", proj);
     mLightingPassShader.setUniformMatrix("lightViewProj", lightViewProj);
+    mLightingPassShader.setUniformMatrix("pointLightMat", pointLightMat);
     // Fragment Shader
     mLightingPassShader.setUniformVec("viewPosition", mCamera->mPosition);
     mLightingPassShader.setUniformInt("useBlinnPhongModel", mUseBlinnPhongModel);
@@ -187,7 +236,7 @@ void spry::BlinnPhongRenderer::render() const
     mLightingPassShader.setUniformVec("dirLight.diffuse", mDirLight.diffuse);
     mLightingPassShader.setUniformVec("dirLight.specular", mDirLight.specular);
     // PointLight
-    for (int i = 0; i < POINT_LIGHT_COUNT; i++) {
+    for (int i = 0; i < 1; i++) {
         glm::vec3 newPos;
         newPos.x = mPointLights[i].position.x + 10.0f * glm::sin(getGlobalTime());
         newPos.y = mPointLights[i].position.y + 10.0f * glm::cos(getGlobalTime());
@@ -220,9 +269,11 @@ void spry::BlinnPhongRenderer::render() const
         shader.setUniformFloat("material.shininess", scene->mMaterial.shininess);
     };
 
+
     mLightingPassShader.bind();
     mLightingPassShader.setUniformInt("shadowMap", 0);
-    mShadowMap.bind(0);
+    mDirLightShadowMap.bind(0);
+    // mPointLightShadowMap.bind(1);
     mSphereScene->draw(model, mLightingPassShader, materialDrawCallback);
 }
 

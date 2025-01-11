@@ -12,6 +12,7 @@ namespace spry {
 class DebugTextureViewer {
 public:
     DebugTextureViewer();
+    DebugTextureViewer(const Shader& shader);
     void load(glm::ivec4 dimensions, uint32_t screenWidth, uint32_t screenHeight);
     void update(glm::ivec4 dimensions, uint32_t screenWidth, uint32_t screenHeight);
     void draw(const Texture& texture) const;

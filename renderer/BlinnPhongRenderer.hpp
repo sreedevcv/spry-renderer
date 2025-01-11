@@ -73,12 +73,15 @@ private:
 
     Shader mLightingPassShader;
     Shader mShadowPassShader;
+    Shader mPerpectiveShadowShader;
     Texture mShapeTexture;
-    Texture mShadowMap;
+    Texture mDirLightShadowMap;
+    Texture mPointLightShadowMap;
     uint32_t mShadowMapWidth = 1024 * 4;
     uint32_t mShadowMapHeight = 1024 * 4;
-    TextureRenderTarget mShadowMapTarget;
-    DebugTextureViewer mTextureViewer;
+    TextureRenderTarget mDirLightShadowMapTarget;
+    TextureRenderTarget mPointlightShadowMapTarget;
+    DebugTextureViewer* mTextureViewer;
 
     DefaultAxes mDefaultScene;
     Camera* mCamera { nullptr };

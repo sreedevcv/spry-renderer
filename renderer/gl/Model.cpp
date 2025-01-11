@@ -49,10 +49,7 @@ void spry::Model::load(const char* path)
         mesh.load(&mTextures);
     }
 
-    spdlog::info("Completed creating vao's for meshes");
-    spdlog::info("Completed model loading");
-    spdlog::info("Contains {} meshes", mMeshes.size());
-    spdlog::info("Contains {} textures", mLoadedTextures.size());
+    spdlog::info("Completed loading model with {} mesh(s) and {} texture(s)", mMeshes.size(), mLoadedTextures.size());
 }
 
 void spry::Model::processNode(aiNode* node, const aiScene* scene)

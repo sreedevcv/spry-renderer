@@ -12,6 +12,11 @@ spry::DebugTextureViewer::DebugTextureViewer()
 {
 }
 
+spry::DebugTextureViewer::DebugTextureViewer(const Shader& shader)
+    : mShader(shader)
+{
+}
+
 void spry::DebugTextureViewer::load(glm::ivec4 dimensions, uint32_t screenWidth, uint32_t screenHeight)
 {
     model = glm::mat4(1.0f);

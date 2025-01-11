@@ -8,15 +8,15 @@
 namespace spry {
 
 // https://github.com/emeiri/ogldev/blob/master/Common/cubemap_texture.cpp
-class CubeMap {
+class EquirectangularSkyMap {
 public:
-    CubeMap();
-    ~CubeMap();
+    EquirectangularSkyMap();
+    ~EquirectangularSkyMap();
 
-    CubeMap(CubeMap&& cubeMap);
-    CubeMap(const CubeMap& cubeMap) = delete;
-    CubeMap& operator=(CubeMap&& cubeMap);
-    CubeMap& operator=(const CubeMap& cubeMap) = delete;
+    EquirectangularSkyMap(EquirectangularSkyMap&& cubeMap);
+    EquirectangularSkyMap(const EquirectangularSkyMap& cubeMap) = delete;
+    EquirectangularSkyMap& operator=(EquirectangularSkyMap&& cubeMap);
+    EquirectangularSkyMap& operator=(const EquirectangularSkyMap& cubeMap) = delete;
 
     void load(std::filesystem::path path);
     void bind(uint32_t textureUnit) const;

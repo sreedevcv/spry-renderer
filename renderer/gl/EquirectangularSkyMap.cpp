@@ -1,4 +1,4 @@
-#include "CubeMap.hpp"
+#include "EquirectangularSkyMap.hpp"
 
 #include "Shader.hpp"
 #include "ShaderManager.hpp"
@@ -23,16 +23,16 @@
 #define CUBE_MAP_INDEX_POS_Z 4
 #define CUBE_MAP_INDEX_NEG_Z 5
 
-spry::CubeMap::CubeMap()
+spry::EquirectangularSkyMap::EquirectangularSkyMap()
     : mShader { ShaderManager::instance().loadAndGet(ShaderManager::SKYBOX) }
 {
 }
 
-spry::CubeMap::~CubeMap()
+spry::EquirectangularSkyMap::~EquirectangularSkyMap()
 {
 }
 
-spry::CubeMap::CubeMap(CubeMap&& cubeMap)
+spry::EquirectangularSkyMap::EquirectangularSkyMap(EquirectangularSkyMap&& cubeMap)
     : mShader { ShaderManager::instance().loadAndGet(ShaderManager::SKYBOX) }
 {
     if (this != &cubeMap) {
@@ -41,7 +41,7 @@ spry::CubeMap::CubeMap(CubeMap&& cubeMap)
     }
 }
 
-spry::CubeMap& spry::CubeMap::operator=(CubeMap&& cubeMap)
+spry::EquirectangularSkyMap& spry::EquirectangularSkyMap::operator=(EquirectangularSkyMap&& cubeMap)
 // : mShader { ShaderManager::instance().loadAndGet(ShaderManager::FONT) }
 {
     if (this != &cubeMap) {
@@ -91,7 +91,7 @@ static glm::vec4 getPixels(const float* image, int width, int componentCount, in
     }
 }
 
-std::vector<std::vector<float>> spry::CubeMap::createCubeMapImages(uint32_t width, uint32_t height, int componentCount, const float* image) const
+std::vector<std::vector<float>> spry::EquirectangularSkyMap::createCubeMapImages(uint32_t width, uint32_t height, int componentCount, const float* image) const
 {
     // Map image to 6 faces
     const uint32_t faceSize = width / 4;
@@ -159,7 +159,7 @@ std::vector<std::vector<float>> spry::CubeMap::createCubeMapImages(uint32_t widt
     return faces;
 }
 
-void spry::CubeMap::load(std::filesystem::path path)
+void spry::EquirectangularSkyMap::load(std::filesystem::path path)
 {
     int width;
     int height;
@@ -185,7 +185,7 @@ void spry::CubeMap::load(std::filesystem::path path)
     loadTextures(faces, faceSize, faceSize);
 }
 
-void spry::CubeMap::loadTextures(const std::vector<std::vector<float>>& faceImages, uint32_t width, uint32_t height)
+void spry::EquirectangularSkyMap::loadTextures(const std::vector<std::vector<float>>& faceImages, uint32_t width, uint32_t height)
 {
     glCreateTextures(GL_TEXTURE_CUBE_MAP, 1, &mTexID);
     glTextureParameteri(mTexID, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
@@ -213,12 +213,12 @@ void spry::CubeMap::loadTextures(const std::vector<std::vector<float>>& faceImag
     }
 }
 
-void spry::CubeMap::bind(uint32_t textureUnit) const
+void spry::EquirectangularSkyMap::bind(uint32_t textureUnit) const
 {
     glBindTextures(GL_TEXTURE0 + textureUnit, 1, &mTexID);
 }
 
-void spry::CubeMap::draw() const
+void spry::EquirectangularSkyMap::draw() const
 {
     GLint OldCullFaceMode;
     GLint OldDepthFuncMode;
@@ -236,7 +236,7 @@ void spry::CubeMap::draw() const
     glDepthFunc(OldDepthFuncMode);
 }
 
-const spry::Shader& spry::CubeMap::getShader() const
+const spry::Shader& spry::EquirectangularSkyMap::getShader() const
 {
     return mShader;
 }

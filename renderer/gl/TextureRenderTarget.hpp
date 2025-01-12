@@ -1,9 +1,9 @@
 #pragma once
 
+#include "CubeMap.hpp"
 #include "FrameBuffer.hpp"
 #include "RenderBuffer.hpp"
 #include "Texture.hpp"
-
 
 namespace spry {
 
@@ -14,6 +14,7 @@ public:
     void unbind() const;
     void attachTextureColor(const Texture& texture) const;
     void attachTextureDepth(const Texture& texture) const;
+    void bindTextureColor(GLenum attachment, const CubeMap& texture) const;
 
 private:
     FrameBuffer mFrameBuffer;

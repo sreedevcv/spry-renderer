@@ -1,5 +1,6 @@
 #include "BlinnPhongRenderer.hpp"
 
+#include "CubeMap.hpp"
 #include "DebugTextureViewer.hpp"
 #include "ImGuiViews.hpp"
 #include "Materials.hpp"
@@ -15,6 +16,7 @@
 #include "glm/geometric.hpp"
 #include "glm/trigonometric.hpp"
 #include "imgui.h"
+#include <cfloat>
 #include <cstring>
 #include <format>
 #include <memory>
@@ -46,8 +48,13 @@ void spry::BlinnPhongRenderer::load(Camera* camera)
         .add(RES_PATH "shaders/Shape.vert", GL_VERTEX_SHADER)
         .add(RES_PATH "shaders/PerspectiveProjection.frag", GL_FRAGMENT_SHADER)
         .compile();
-    
-    mTextureViewer = new DebugTextureViewer(mPerpectiveShadowShader); 
+
+    mOmniDirShadowShader
+        .add(RES_PATH "shaders/OmniDirectionalShadow.vert", GL_VERTEX_SHADER)
+        .add(RES_PATH "shaders/OmniDirectionalShadow.frag", GL_FRAGMENT_SHADER)
+        .compile();
+
+    mTextureViewer = new DebugTextureViewer(mPerpectiveShadowShader);
 
     uint8_t colors[] = {
         255, 0, 255, 255, //
@@ -74,13 +81,18 @@ void spry::BlinnPhongRenderer::load(Camera* camera)
     mDirLightShadowMapTarget.load();
     mDirLightShadowMapTarget.attachTextureDepth(mDirLightShadowMap);
 
+    mCubeMap.create()
+        .setFilterMode(GL_LINEAR)
+        .setWrapMode(GL_CLAMP_TO_EDGE)
+        .load(mShadowMapWidth);
+
     mPointLightShadowMap
         .create()
         .setWrapMode(GL_CLAMP_TO_BORDER)
         .setFilterMode(GL_LINEAR)
         .setBorderColor(borderColors)
         // .setCompareModeAndFunc(GL_COMPARE_REF_TO_TEXTURE, GL_LEQUAL)
-        .load(nullptr, mShadowMapWidth, mShadowMapHeight, GL_DEPTH_COMPONENT, GL_FLOAT);
+        .load(nullptr, mShadowMapWidth, mShadowMapWidth, GL_DEPTH_COMPONENT, GL_FLOAT);
 
     mPointlightShadowMapTarget.load();
     mPointlightShadowMapTarget.attachTextureDepth(mPointLightShadowMap);
@@ -174,22 +186,26 @@ void spry::BlinnPhongRenderer::render() const
     glm::mat4 pointLightMat;
     mPointlightShadowMapTarget.bind();
     {
+        glm::vec3 newPos = mPointLights[0].position;
+
         glViewport(0, 0, mShadowMapWidth, mShadowMapHeight);
-        glClear(GL_DEPTH_BUFFER_BIT);
+        glClearColor(FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX);
 
-        glm::vec3 newPos;
-        newPos.x = mPointLights[0].position.x + 10.0f * glm::sin(getGlobalTime());
-        newPos.y = mPointLights[0].position.y + 10.0f * glm::cos(getGlobalTime());
-        newPos.z = mPointLights[0].position.z + 10.0f * glm::sin(getGlobalTime());
+        for (int i = 0; i < 6; i++) {
+            const auto& direction = CubeMap::directions[i];
+            mPointlightShadowMapTarget.bindTextureColor(direction.mCubemapFace, mCubeMap);
+            glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
-        auto lightProj = glm::perspective(glm::radians(45.0f), float(mShadowMapWidth) / float(mShadowMapHeight), 0.1f, 100.0f);
-        auto lightView = glm::lookAt(newPos, glm::vec3(0.0, 0.0, 0.0), glm::vec3(0.0f, 1.0f, 0.0f));
-        pointLightMat = lightProj * lightView;
+            auto model = glm::mat4(1.0f);
+            auto lightProj = glm::perspective(glm::radians(90.0f), float(mShadowMapWidth) / float(mShadowMapHeight), 0.1f, 100.0f);
+            auto lightView = glm::lookAt(newPos, direction.mTarget, direction.mUp);
+            pointLightMat = lightProj * lightView;
 
-        mShadowPassShader.bind();
-        mShadowPassShader.setUniformMatrix("lightViewProj", pointLightMat);
-        auto model = glm::mat4(1.0f);
-        mSphereScene->draw(model, mShadowPassShader);
+            mOmniDirShadowShader.bind();
+            mOmniDirShadowShader.setUniformMatrix("viewProj", pointLightMat);
+            mOmniDirShadowShader.setUniformVec("lightPosition", newPos);
+            mSphereScene->draw(model, mOmniDirShadowShader);
+        }
     }
     mPointlightShadowMapTarget.unbind();
 
@@ -237,10 +253,7 @@ void spry::BlinnPhongRenderer::render() const
     mLightingPassShader.setUniformVec("dirLight.specular", mDirLight.specular);
     // PointLight
     for (int i = 0; i < 1; i++) {
-        glm::vec3 newPos;
-        newPos.x = mPointLights[i].position.x + 10.0f * glm::sin(getGlobalTime());
-        newPos.y = mPointLights[i].position.y + 10.0f * glm::cos(getGlobalTime());
-        newPos.z = mPointLights[i].position.z + 10.0f * glm::sin(getGlobalTime());
+        glm::vec3 newPos = mPointLights[i].position;
 
         mLightingPassShader.bind();
         mLightingPassShader.setUniformVec(std::format("pointLights[{}].position", i).c_str(), newPos);
@@ -268,12 +281,11 @@ void spry::BlinnPhongRenderer::render() const
         shader.setUniformVec("material.specular", scene->mMaterial.specular);
         shader.setUniformFloat("material.shininess", scene->mMaterial.shininess);
     };
-
+    // mLightingPassShader.setUniformInt("shadowMap", 0);
 
     mLightingPassShader.bind();
-    mLightingPassShader.setUniformInt("shadowMap", 0);
     mDirLightShadowMap.bind(0);
-    // mPointLightShadowMap.bind(1);
+    mCubeMap.bind(1);
     mSphereScene->draw(model, mLightingPassShader, materialDrawCallback);
 }
 
@@ -283,6 +295,9 @@ void spry::BlinnPhongRenderer::debugView(float delta)
 
     ImGui::Text("FPS: %f", 1.0 / delta);
     ImGui::Text("Delta: %.2fms", delta * 1000);
+    ImGui::Separator();
+
+    dbg::viewPointLight(mPointLights[0]);
     ImGui::Separator();
 
     dbg::viewSceneTree(mSphereScene);

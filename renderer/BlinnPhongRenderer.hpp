@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Camera.hpp"
+#include "CubeMap.hpp"
 #include "Cuboid.hpp"
 #include "DebugTextureViewer.hpp"
 #include "DefaultAxes.hpp"
@@ -73,15 +74,18 @@ private:
 
     Shader mLightingPassShader;
     Shader mShadowPassShader;
-    Shader mPerpectiveShadowShader;
     Texture mShapeTexture;
     Texture mDirLightShadowMap;
-    Texture mPointLightShadowMap;
     uint32_t mShadowMapWidth = 1024 * 4;
     uint32_t mShadowMapHeight = 1024 * 4;
     TextureRenderTarget mDirLightShadowMapTarget;
-    TextureRenderTarget mPointlightShadowMapTarget;
     DebugTextureViewer* mTextureViewer;
+
+    Shader mPerpectiveShadowShader;
+    Shader mOmniDirShadowShader;
+    Texture mPointLightShadowMap;
+    CubeMap mCubeMap;
+    TextureRenderTarget mPointlightShadowMapTarget;
 
     DefaultAxes mDefaultScene;
     Camera* mCamera { nullptr };

@@ -16,10 +16,11 @@ public:
     void load();
     void bind() const;
     void unbind() const;
+    void bindToDrawBuffer() const;
 
 private:
     uint32_t mFBO { 0 };
-    
+
     void unload() const;
 };
 

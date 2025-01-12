@@ -1,5 +1,6 @@
 #include "TextureRenderTarget.hpp"
 
+#include "CubeMap.hpp"
 #include "FrameBuffer.hpp"
 #include "spdlog/spdlog.h"
 #include <glad/glad.h>
@@ -20,7 +21,7 @@ void spry::TextureRenderTarget::unbind() const
     mFrameBuffer.unbind();
 }
 
-// Attach a texture as the Framebuffer to ben rendered on
+// Attach a texture as the Framebuffer to be rendered on
 void spry::TextureRenderTarget::attachTextureColor(const Texture& texture) const
 {
     mFrameBuffer.bind();
@@ -65,4 +66,11 @@ void spry::TextureRenderTarget::attachTextureDepth(const Texture& texture) const
     }
 
     mFrameBuffer.unbind();
+}
+
+void spry::TextureRenderTarget::bindTextureColor(GLenum attachment, const CubeMap& texture) const
+{
+    mFrameBuffer.bindToDrawBuffer();
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, attachment, texture.getID(), 0);
+    glDrawBuffer(GL_COLOR_ATTACHMENT0);
 }

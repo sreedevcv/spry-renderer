@@ -50,3 +50,8 @@ void spry::FrameBuffer::unbind() const
 {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
+
+void spry::FrameBuffer::bindToDrawBuffer() const
+{
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, mFBO);
+}

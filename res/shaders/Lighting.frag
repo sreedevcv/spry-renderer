@@ -56,7 +56,7 @@ uniform SpotLight spotLight;
 uniform DirLight dirLight;
 uniform PointLight pointLights[POINT_LIGHT_COUNT];
 uniform sampler2DShadow dirLightShadowMap; 
-uniform sampler2DShadow pointLightShadowMap; 
+uniform samplerCube pointLightShadowMap; 
 // Options
 uniform int useBlinnPhongModel;
 uniform int useDirectionalLights;
@@ -112,7 +112,7 @@ vec3 calcPointLight(PointLight light, vec3 normal, vec3 fragPosition, vec3 viewD
     diffuse *= attenuation;
     specular *= attenuation;
 
-    return ambient + diffuse + specular;
+    return ambient + ((1.0 - shadow) * (diffuse + specular));
 }
 
 vec3 calcSpotLight(SpotLight light, vec3 normal, vec3 fragPosition, vec3 viewDir, float shadow)
@@ -205,6 +205,18 @@ float shadowCalculation(sampler2DShadow shadowMap, vec4 fragPosLightSpace, vec3 
     return  1.0 - shadow;
 }
 
+float calcShadowPointLight(samplerCube cubeMap, vec3 lightDir)
+{
+    float sampledValue = texture(cubeMap, lightDir).r;
+    float dist = length(lightDir);
+
+    if (dist < sampledValue + 0.05) {
+        return 0.0;
+    } else {
+        return 1.0;
+    }
+}
+
 void main()
 {
     vec3 norm = normalize(fs_in.normal);
@@ -219,6 +231,8 @@ void main()
         // result += calcDirLight(dirLight, norm, viewDir, shadow);
     }
 
+    lightDir = fs_in.fragPos - pointLights[0].position;
+    shadow = calcShadowPointLight(pointLightShadowMap, lightDir);
 
     // shadow = shadowCalculation(pointLightShadowMap, fs_in.pointLightSpace, lightDir, norm);
     result += calcPointLight(pointLights[0], norm, fs_in.fragPos, viewDir, shadow);

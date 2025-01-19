@@ -7,7 +7,6 @@ in VS_OUT {
     vec3 normal;
     vec3 fragPos;
     vec4 fragPosLightSpace;
-    vec4 pointLightSpace;
 } fs_in;
 
 struct Material {
@@ -210,7 +209,7 @@ float calcShadowPointLight(samplerCube cubeMap, vec3 lightDir)
     float sampledValue = texture(cubeMap, lightDir).r;
     float dist = length(lightDir);
 
-    if (dist < sampledValue + 0.05) {
+    if (dist < (sampledValue + 0.05)) {
         return 0.0;
     } else {
         return 1.0;

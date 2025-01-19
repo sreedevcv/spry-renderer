@@ -64,7 +64,7 @@ void spry::dbg::viewSceneTree(Scene* scene)
 
 void spry::dbg::viewPointLight(BlinnPhongRenderer::PointLight& pointLight)
 {
-    ImGui::DragFloat3(std::format("pos").c_str(), &pointLight.position.x, 0.5f, -100.0f, 100.0f);
+    ImGui::DragFloat3(std::format("light pos").c_str(), &pointLight.position.x, 0.5f, -100.0f, 100.0f);
     ImGui::DragFloat(std::format("constant").c_str(), &pointLight.constant, 0.01f, 0.0f, 1.0f);
     ImGui::DragFloat(std::format("linear").c_str(), &pointLight.linear, 0.01f, 0.0f, 1.0f);
     ImGui::DragFloat(std::format("quadratic").c_str(), &pointLight.quadratic, 0.01f, 0.0f, 1.0f);

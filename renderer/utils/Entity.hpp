@@ -26,6 +26,7 @@ struct Transform {
 struct Entity : public Transform {
 public:
     Entity(glm::vec3 position = glm::vec3(0.0f), glm::vec3 scale = glm::vec3(1.0f));
+    Entity(glm::vec3 position, glm::vec3 scale, glm::quat rotation);
 
     void update(float delta);
 

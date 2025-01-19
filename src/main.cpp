@@ -30,7 +30,7 @@ public:
         , camera(width, height)
     {
         setMouseCapture(true);
-        camera.setPosition(glm::vec3(0.0f, 0.0f, 3.0f));
+        camera.setPosition(glm::vec3(4.0f, 1.0f, 0.0f));
         spry::setCulling(true);
         glCullFace(GL_BACK);
 
@@ -42,8 +42,8 @@ public:
             // .linear = 0.7,
             // .quadratic = 1.8,
             .constant = 1.0,
-            .linear = 0.07,
-            .quadratic = 0.017,
+            .linear = 0.0,
+            .quadratic = 0.0,
 
             .ambient = glm::vec3(0.1f, 0.03f, 0.05f),
             .diffuse = glm::vec3(0.7f, 0.4f, 0.4f),

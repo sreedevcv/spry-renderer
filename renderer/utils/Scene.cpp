@@ -14,8 +14,9 @@ spry::Scene::Scene(
     const char* name,
     const char* materialName,
     glm::vec3 position,
-    glm::vec3 scale)
-    : Entity(position, scale)
+    glm::vec3 scale,
+    glm::quat rotation)
+    : Entity(position, scale, rotation)
     , mName(name)
     , mMaterialName(materialName)
 {

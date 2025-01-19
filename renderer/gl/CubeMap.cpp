@@ -1,5 +1,4 @@
 #include "CubeMap.hpp"
-#include "Window.hpp"
 
 #include <cstdint>
 #include <utility>
@@ -58,8 +57,17 @@ spry::CubeMap& spry::CubeMap::setFilterMode(GLenum mode)
 
 void spry::CubeMap::load(uint32_t width)
 {
-    for (uint32_t i = 0; i < 6; i++) {
-        glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_R32F, width, width, 0, GL_RED, GL_FLOAT, nullptr);
+    for (uint32_t i = 0; i < faceCount; i++) {
+        glTexImage2D(
+            GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
+            0,
+            GL_R32F,
+            width,
+            width,
+            0,
+            GL_RED,
+            GL_FLOAT,
+            nullptr);
     }
 }
 

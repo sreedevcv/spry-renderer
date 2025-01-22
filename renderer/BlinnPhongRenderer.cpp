@@ -18,6 +18,7 @@
 #include "glm/geometric.hpp"
 #include "glm/trigonometric.hpp"
 #include "imgui.h"
+#include <array>
 #include <cfloat>
 #include <cstdint>
 #include <cstring>
@@ -54,6 +55,7 @@ void spry::BlinnPhongRenderer::load(Camera* camera)
 
     mOmniDirShadowShader
         .add(RES_PATH "shaders/OmniDirectionalShadow.vert", GL_VERTEX_SHADER)
+        .add(RES_PATH "shaders/OmniDirectionalShadow.geom", GL_GEOMETRY_SHADER)
         .add(RES_PATH "shaders/OmniDirectionalShadow.frag", GL_FRAGMENT_SHADER)
         .compile();
 
@@ -86,9 +88,9 @@ void spry::BlinnPhongRenderer::load(Camera* camera)
 
     mCubeMap
         .create()
-        .setFilterMode(GL_LINEAR)
-        .setWrapMode(GL_CLAMP_TO_BORDER)
-        .load(mShadowMapWidth);
+        .setFilterMode(GL_NEAREST)
+        .setWrapMode(GL_CLAMP_TO_EDGE)
+        .load(nullptr, mShadowMapWidth, mShadowMapHeight, GL_DEPTH_COMPONENT, GL_FLOAT);
 
     mPointLightShadowMap
         .create()
@@ -99,7 +101,7 @@ void spry::BlinnPhongRenderer::load(Camera* camera)
         .load(nullptr, mShadowMapWidth, mShadowMapWidth, GL_DEPTH_COMPONENT, GL_FLOAT);
 
     mPointlightShadowMapTarget.load();
-    mPointlightShadowMapTarget.attachTextureDepth(mPointLightShadowMap);
+    mPointlightShadowMapTarget.attachTextureDepth(mCubeMap);
 
     mDefaultScene.load(camera);
     mTextureViewer->load(glm::vec4(10, 10, 100, 100), mCamera->mScreenWidth, mCamera->mScreenHeight);
@@ -207,35 +209,38 @@ void spry::BlinnPhongRenderer::render() const
     }
     mDirLightShadowMapTarget.unbind();
 
+    const auto farPlane = 100.0f;
     mPointlightShadowMapTarget.bind();
     {
         const auto newPos = mPointLights[0].position;
 
-        glViewport(0, 0, mShadowMapWidth, mShadowMapWidth);
+        glViewport(0, 0, mShadowMapWidth, mShadowMapHeight);
         glClearColor(FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX);
+        glClear(GL_DEPTH_BUFFER_BIT);
 
-        for (int i = 0; i < CubeMap::faceCount; i++) {
-            const auto& direction = CubeMap::directions[i];
-            mPointlightShadowMapTarget.bindTextureColor(direction.mCubemapFace, mCubeMap);
-            glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+        const auto lightProj = glm::perspectiveRH(
+            glm::radians(90.0f),
+            float(mShadowMapWidth) / float(mShadowMapHeight),
+            1.0f,
+            farPlane);
 
-            auto model = glm::mat4(1.0f);
-            const auto lightProj = glm::perspectiveRH(
-                glm::radians(90.0f),
-                1.0f,
-                0.001f,
-                100.0f);
-            const auto lightView = glm::lookAt(
-                newPos,
-                (newPos + direction.mTarget),
-                glm::normalize(direction.mUp));
-            const auto viewProj = lightProj * lightView;
+        const std::array<glm::mat4, CubeMap::faceCount> transforms {
+            lightProj * glm::lookAt(newPos, newPos + glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0)),
+            lightProj * glm::lookAt(newPos, newPos + glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0)),
+            lightProj * glm::lookAt(newPos, newPos + glm::vec3(0.0, 1.0, 0.0), glm::vec3(0.0, 0.0, 1.0)),
+            lightProj * glm::lookAt(newPos, newPos + glm::vec3(0.0, -1.0, 0.0), glm::vec3(0.0, 0.0, -1.0)),
+            lightProj * glm::lookAt(newPos, newPos + glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, -1.0, 0.0)),
+            lightProj * glm::lookAt(newPos, newPos + glm::vec3(0.0, 0.0, -1.0), glm::vec3(0.0, -1.0, 0.0)),
+        };
 
-            mOmniDirShadowShader.bind();
-            mOmniDirShadowShader.setUniformMatrix("viewProj", viewProj);
-            mOmniDirShadowShader.setUniformVec("lightPosition", newPos);
-            mSphereScene->draw(model, mOmniDirShadowShader);
-        }
+        auto model = glm::mat4(1.0f);
+
+        mOmniDirShadowShader.bind();
+        mOmniDirShadowShader.setUniformMatrix("model", model);
+        mOmniDirShadowShader.setUniformMatrix("shadowMatrices", transforms.data(), transforms.size());
+        mOmniDirShadowShader.setUniformVec("lightPosition", newPos);
+        mOmniDirShadowShader.setUniformFloat("farPlane", farPlane);
+        mSphereScene->draw(model, mOmniDirShadowShader);
     }
     mPointlightShadowMapTarget.unbind();
 
@@ -262,6 +267,7 @@ void spry::BlinnPhongRenderer::render() const
     mLightingPassShader.setUniformMatrix("lightViewProj", lightViewProj);
     // Fragment Shader
     mLightingPassShader.setUniformVec("viewPosition", mCamera->mPosition);
+    mLightingPassShader.setUniformFloat("farPlane", farPlane);
     mLightingPassShader.setUniformInt("useBlinnPhongModel", mUseBlinnPhongModel);
     mLightingPassShader.setUniformInt("useDirectionalLights", mUseDirectionalLights);
     mLightingPassShader.setUniformInt("usePointLights", mUsePointLights);

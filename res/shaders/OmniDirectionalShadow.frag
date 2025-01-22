@@ -1,16 +1,13 @@
 #version 460 core
 
-in vec3 fragPos;
-
-// This is a float because we are writing to a cubemap texture (our shadowmap)
-// whose internal format we have defined as FLOAT
-out float fragColor;
+in vec4 fragPos;
 
 uniform vec3 lightPosition;
+uniform float farPlane;
 
 void main()
 {
-    vec3 lightToVertex = lightPosition - fragPos;
-    float dist = length(lightToVertex);
-    fragColor = dist;
+    vec3 lightToVertex = lightPosition - fragPos.xyz;
+    float dist = length(lightToVertex) / farPlane;
+    gl_FragDepth = dist;
 }

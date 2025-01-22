@@ -76,8 +76,8 @@ private:
     Shader mShadowPassShader;
     Texture mShapeTexture;
     Texture mDirLightShadowMap;
-    uint32_t mShadowMapWidth = 1024 * 4;
-    uint32_t mShadowMapHeight = 1024 * 4;
+    const uint32_t mShadowMapWidth = 1024 * 4;
+    const uint32_t mShadowMapHeight = 1024 * 4;
     TextureRenderTarget mDirLightShadowMapTarget;
     DebugTextureViewer* mTextureViewer;
 

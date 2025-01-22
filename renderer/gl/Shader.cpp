@@ -44,7 +44,6 @@ struct SingleShader {
     }
 };
 
-
 spry::Shader::Shader()
 {
     mID = glCreateProgram();
@@ -62,7 +61,7 @@ spry::Shader& spry::Shader::operator=(Shader&& shader)
 {
     if (this != &shader) {
         unload();
-        
+
         mID = std::move(shader.mID);
         shader.mID = 0;
     }
@@ -125,6 +124,12 @@ void spry::Shader::setUniformMatrix(const char* name, const glm::mat4& value) co
 {
     int loc = glGetUniformLocation(mID, name);
     glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(value));
+}
+
+void spry::Shader::setUniformMatrix(const char* name, const glm::mat4* value, uint32_t count) const
+{
+    int loc = glGetUniformLocation(mID, name);
+    glUniformMatrix4fv(loc, count, GL_FALSE, (float*)value);
 }
 
 void spry::Shader::setUniformVec(const char* name, const glm::vec4&& value) const

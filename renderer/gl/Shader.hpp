@@ -24,6 +24,7 @@ public:
     void setUniformBlockBinding(const char* uniformBlockName, uint32_t bindingPoint) const;
     void setUniformFloat(const char* name, const float value) const;
     void setUniformMatrix(const char* name, const glm::mat4& value) const;
+    void setUniformMatrix(const char* name, const glm::mat4* value, uint32_t count) const;
     void setUniformVec(const char* name, const glm::vec4&& value) const;
     void setUniformVec(const char* name, const glm::vec3&& value) const;
     void setUniformVec(const char* name, const glm::vec2&& value) const;

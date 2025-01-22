@@ -55,19 +55,19 @@ spry::CubeMap& spry::CubeMap::setFilterMode(GLenum mode)
     return *this;
 }
 
-void spry::CubeMap::load(uint32_t width)
+void spry::CubeMap::load(void* data, int width, int height, GLenum dataFormat, GLenum type)
 {
     for (uint32_t i = 0; i < faceCount; i++) {
         glTexImage2D(
             GL_TEXTURE_CUBE_MAP_POSITIVE_X + i,
             0,
-            GL_R32F,
+            dataFormat,
             width,
-            width,
+            height,
             0,
-            GL_RED,
-            GL_FLOAT,
-            nullptr);
+            dataFormat,
+            type,
+            data);
     }
 }
 

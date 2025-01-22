@@ -55,7 +55,8 @@ uniform SpotLight spotLight;
 uniform DirLight dirLight;
 uniform PointLight pointLights[POINT_LIGHT_COUNT];
 uniform sampler2DShadow dirLightShadowMap; 
-uniform samplerCube pointLightShadowMap; 
+uniform samplerCube pointLightShadowMap;
+uniform float farPlane;
 // Options
 uniform int useBlinnPhongModel;
 uniform int useDirectionalLights;
@@ -206,10 +207,10 @@ float shadowCalculation(sampler2DShadow shadowMap, vec4 fragPosLightSpace, vec3 
 
 float calcShadowPointLight(samplerCube cubeMap, vec3 lightDir)
 {
-    float sampledValue = texture(cubeMap, lightDir).r;
-    float dist = length(lightDir);
-
-    if (dist < (sampledValue + 0.05)) {
+    float sampledValue = texture(cubeMap, lightDir).r;  // In range [0..1]
+    float depth = sampledValue * farPlane;
+    float currentDepth = length(lightDir);      
+    if (currentDepth < (depth + 0.05)) {
         return 0.0;
     } else {
         return 1.0;

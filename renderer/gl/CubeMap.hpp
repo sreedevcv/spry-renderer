@@ -20,7 +20,7 @@ public:
     CubeMap& create();
     CubeMap& setWrapMode(GLenum mode = GL_LINEAR);
     CubeMap& setFilterMode(GLenum mode = GL_CLAMP_TO_EDGE);
-    void load(uint32_t width);
+    void load(void* data, int width, int height, GLenum dataFormat, GLenum type);
     void bind(uint32_t texCount) const;
     uint32_t getID() const;
 

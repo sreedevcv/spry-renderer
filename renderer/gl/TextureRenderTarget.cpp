@@ -60,7 +60,7 @@ void spry::TextureRenderTarget::attachTextureDepth(const Texture& texture) const
     glReadBuffer(GL_NONE);
 
     if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-        spdlog::error("Framebuffer for TextureRenderTarget(Depth) is not complete!");
+        spdlog::error("Framebuffer for TextureRenderTarget(Depth) with texture is not complete!");
     } else {
         spdlog::info("Attached TextureRenderTarget(Depth) to texture[{}]", texture.getID());
     }
@@ -73,4 +73,25 @@ void spry::TextureRenderTarget::bindTextureColor(GLenum attachment, const CubeMa
     mFrameBuffer.bindToDrawBuffer();
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, attachment, texture.getID(), 0);
     glDrawBuffer(GL_COLOR_ATTACHMENT0);
+}
+
+void spry::TextureRenderTarget::attachTextureDepth(const CubeMap& cubemap) const
+{
+    mFrameBuffer.bind();
+    glFramebufferTexture(
+        GL_FRAMEBUFFER,
+        GL_DEPTH_ATTACHMENT,
+        cubemap.getID(),
+        0);
+
+    glDrawBuffer(GL_NONE);
+    glReadBuffer(GL_NONE);
+
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+        spdlog::error("Framebuffer for TextureRenderTarget(Depth) with Cubemap is not complete!");
+    } else {
+        spdlog::info("Attached TextureRenderTarget(Depth) to Cubemap[{}]", cubemap.getID());
+    }
+
+    mFrameBuffer.unbind();
 }

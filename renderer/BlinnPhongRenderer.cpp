@@ -26,6 +26,18 @@
 #include <memory>
 
 spry::BlinnPhongRenderer::BlinnPhongRenderer()
+    : mPointLight {
+        mShadowMapWidth,
+        mShadowMapHeight,
+        mFarPlane,
+        glm::vec3(3.0f, 5.0f, 2.0f),
+        1.0,
+        0.0,
+        0.0,
+        glm::vec3(0.1f, 0.03f, 0.05f),
+        glm::vec3(0.7f, 0.4f, 0.4f),
+        glm::vec3(0.9f, 0.7f, 0.65f),
+    }
 {
     setCulling(true);
     setDepthTest(true);
@@ -51,12 +63,6 @@ void spry::BlinnPhongRenderer::load(Camera* camera)
     mPerpectiveShadowShader
         .add(RES_PATH "shaders/Shape.vert", GL_VERTEX_SHADER)
         .add(RES_PATH "shaders/PerspectiveProjection.frag", GL_FRAGMENT_SHADER)
-        .compile();
-
-    mOmniDirShadowShader
-        .add(RES_PATH "shaders/OmniDirectionalShadow.vert", GL_VERTEX_SHADER)
-        .add(RES_PATH "shaders/OmniDirectionalShadow.geom", GL_GEOMETRY_SHADER)
-        .add(RES_PATH "shaders/OmniDirectionalShadow.frag", GL_FRAGMENT_SHADER)
         .compile();
 
     mTextureViewer = new DebugTextureViewer(mPerpectiveShadowShader);
@@ -86,22 +92,7 @@ void spry::BlinnPhongRenderer::load(Camera* camera)
     mDirLightShadowMapTarget.load();
     mDirLightShadowMapTarget.attachTextureDepth(mDirLightShadowMap);
 
-    mCubeMap
-        .create()
-        .setFilterMode(GL_NEAREST)
-        .setWrapMode(GL_CLAMP_TO_EDGE)
-        .load(nullptr, mShadowMapWidth, mShadowMapHeight, GL_DEPTH_COMPONENT, GL_FLOAT);
-
-    mPointLightShadowMap
-        .create()
-        .setWrapMode(GL_CLAMP_TO_BORDER)
-        .setFilterMode(GL_LINEAR)
-        .setBorderColor(borderColors)
-        // .setCompareModeAndFunc(GL_COMPARE_REF_TO_TEXTURE, GL_LEQUAL)
-        .load(nullptr, mShadowMapWidth, mShadowMapWidth, GL_DEPTH_COMPONENT, GL_FLOAT);
-
-    mPointlightShadowMapTarget.load();
-    mPointlightShadowMapTarget.attachTextureDepth(mCubeMap);
+    mPointLight.init();
 
     mDefaultScene.load(camera);
     mTextureViewer->load(glm::vec4(10, 10, 100, 100), mCamera->mScreenWidth, mCamera->mScreenHeight);
@@ -146,13 +137,6 @@ void spry::BlinnPhongRenderer::load(Camera* camera)
     //     "whiteRubber",
     //     glm::vec3(-30.0f, -5.0f, -30.0f),
     //     glm::vec3(60.0f, 2.0f, 60.0f)));
-}
-
-void spry::BlinnPhongRenderer::addPointLight(const PointLight& pointLight)
-{
-    if (mPointLights.size() < POINT_LIGHT_COUNT) {
-        mPointLights.push_back(pointLight);
-    }
 }
 
 void spry::BlinnPhongRenderer::setDirLight(const DirLight& dirLight)
@@ -209,50 +193,17 @@ void spry::BlinnPhongRenderer::render() const
     }
     mDirLightShadowMapTarget.unbind();
 
-    const auto farPlane = 100.0f;
-    mPointlightShadowMapTarget.bind();
-    {
-        const auto newPos = mPointLights[0].position;
-
-        glViewport(0, 0, mShadowMapWidth, mShadowMapHeight);
-        glClearColor(FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX);
-        glClear(GL_DEPTH_BUFFER_BIT);
-
-        const auto lightProj = glm::perspectiveRH(
-            glm::radians(90.0f),
-            float(mShadowMapWidth) / float(mShadowMapHeight),
-            1.0f,
-            farPlane);
-
-        const std::array<glm::mat4, CubeMap::faceCount> transforms {
-            lightProj * glm::lookAt(newPos, newPos + glm::vec3(1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0)),
-            lightProj * glm::lookAt(newPos, newPos + glm::vec3(-1.0, 0.0, 0.0), glm::vec3(0.0, -1.0, 0.0)),
-            lightProj * glm::lookAt(newPos, newPos + glm::vec3(0.0, 1.0, 0.0), glm::vec3(0.0, 0.0, 1.0)),
-            lightProj * glm::lookAt(newPos, newPos + glm::vec3(0.0, -1.0, 0.0), glm::vec3(0.0, 0.0, -1.0)),
-            lightProj * glm::lookAt(newPos, newPos + glm::vec3(0.0, 0.0, 1.0), glm::vec3(0.0, -1.0, 0.0)),
-            lightProj * glm::lookAt(newPos, newPos + glm::vec3(0.0, 0.0, -1.0), glm::vec3(0.0, -1.0, 0.0)),
-        };
-
-        auto model = glm::mat4(1.0f);
-
-        mOmniDirShadowShader.bind();
-        mOmniDirShadowShader.setUniformMatrix("model", model);
-        mOmniDirShadowShader.setUniformMatrix("shadowMatrices", transforms.data(), transforms.size());
-        mOmniDirShadowShader.setUniformVec("lightPosition", newPos);
-        mOmniDirShadowShader.setUniformFloat("farPlane", farPlane);
-        mSphereScene->draw(model, mOmniDirShadowShader);
-    }
-    mPointlightShadowMapTarget.unbind();
+    mPointLight.renderShadows(mSphereScene);
 
     glViewport(0, 0, mCamera->mScreenWidth, mCamera->mScreenHeight);
     glClearColor(0.4f, 0.5f, 0.37f, 1.0f);
     glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
     mDefaultScene.draw();
-    mPerpectiveShadowShader.bind();
-    mPerpectiveShadowShader.setUniformFloat("nearPlane", 0.1F);
-    mPerpectiveShadowShader.setUniformFloat("farPlane", 100.0F);
-    mTextureViewer->draw(mPointLightShadowMap);
+    // mPerpectiveShadowShader.bind();
+    // mPerpectiveShadowShader.setUniformFloat("nearPlane", 0.1F);
+    // mPerpectiveShadowShader.setUniformFloat("farPlane", 100.0F);
+    // mTextureViewer->draw(mPointLightShadowMap);
 
     const auto& shapeShader = spry::ShaderManager::instance().get(spry::ShaderManager::SHAPE);
     const auto view = mCamera->getViewMatrix();
@@ -267,7 +218,7 @@ void spry::BlinnPhongRenderer::render() const
     mLightingPassShader.setUniformMatrix("lightViewProj", lightViewProj);
     // Fragment Shader
     mLightingPassShader.setUniformVec("viewPosition", mCamera->mPosition);
-    mLightingPassShader.setUniformFloat("farPlane", farPlane);
+    mLightingPassShader.setUniformFloat("farPlane", mFarPlane);
     mLightingPassShader.setUniformInt("useBlinnPhongModel", mUseBlinnPhongModel);
     mLightingPassShader.setUniformInt("useDirectionalLights", mUseDirectionalLights);
     mLightingPassShader.setUniformInt("usePointLights", mUsePointLights);
@@ -290,17 +241,9 @@ void spry::BlinnPhongRenderer::render() const
     {
         const int i = 0;
 
-        mLightingPassShader.bind();
-        mLightingPassShader.setUniformVec(std::format("pointLights[{}].position", i).c_str(), mPointLights[i].position);
-        mLightingPassShader.setUniformFloat(std::format("pointLights[{}].constant", i).c_str(), mPointLights[i].constant);
-        mLightingPassShader.setUniformFloat(std::format("pointLights[{}].linear", i).c_str(), mPointLights[i].linear);
-        mLightingPassShader.setUniformFloat(std::format("pointLights[{}].quadratic", i).c_str(), mPointLights[i].quadratic);
-        mLightingPassShader.setUniformVec(std::format("pointLights[{}].ambient", i).c_str(), mPointLights[i].ambient);
-        mLightingPassShader.setUniformVec(std::format("pointLights[{}].diffuse", i).c_str(), mPointLights[i].diffuse);
-        mLightingPassShader.setUniformVec(std::format("pointLights[{}].specular", i).c_str(), mPointLights[i].specular);
-
+        mPointLight.bindNormal(mLightingPassShader, i);
         auto model = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 0.5f));
-        model = glm::translate(model, mPointLights[i].position);
+        model = glm::translate(model, mPointLight.mPosition);
 
         shapeShader.bind();
         shapeShader.setUniformMatrix("model", model);
@@ -320,7 +263,7 @@ void spry::BlinnPhongRenderer::render() const
 
     mLightingPassShader.bind();
     mDirLightShadowMap.bind(0);
-    mCubeMap.bind(1);
+    mPointLight.getCubeMap().bind(1);
     mSphereScene->draw(model, mLightingPassShader, materialDrawCallback);
 }
 
@@ -331,8 +274,8 @@ void spry::BlinnPhongRenderer::debugView(float delta)
     ImGui::Text("FPS: %f", 1.0 / delta);
     ImGui::Text("Delta: %.2fms", delta * 1000);
     ImGui::Separator();
-    ImGui::Text("Light to origin: %0.2f", glm::length(mPointLights[0].position));
-    dbg::viewPointLight(mPointLights[0]);
+    ImGui::Text("Light to origin: %0.2f", glm::length(mPointLight.mPosition));
+    dbg::viewPointLight(mPointLight);
     ImGui::Separator();
 
     dbg::viewSceneTree(mSphereScene);

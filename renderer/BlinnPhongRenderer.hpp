@@ -8,6 +8,7 @@
 #include "Materials.hpp"
 #include "Model.hpp"
 #include "Plane.hpp"
+#include "PointLight.hpp"
 #include "Scene.hpp"
 #include "Shader.hpp"
 #include "Sphere.hpp"
@@ -31,18 +32,6 @@ public:
         glm::vec3 specular = glm::vec3(0.9f, 0.9f, 0.9f);
     };
 
-    struct PointLight {
-        glm::vec3 position;
-
-        float constant;
-        float linear;
-        float quadratic;
-
-        glm::vec3 ambient;
-        glm::vec3 diffuse;
-        glm::vec3 specular;
-    };
-
     struct SpotLight {
         glm::vec3 position;
         glm::vec3 direction;
@@ -58,7 +47,7 @@ public:
     BlinnPhongRenderer();
 
     void load(Camera* camera);
-    void addPointLight(const PointLight& pointLight);
+    // void addPointLight(const PointLight& pointLight);
     void setDirLight(const DirLight& dirLight);
     void setSpotLight(const SpotLight& spotLight);
 
@@ -69,8 +58,9 @@ public:
 private:
     // -46, -88, -17
     DirLight mDirLight;
-    std::vector<PointLight> mPointLights;
+    // std::vector<PointLight> mPointLights;
     SpotLight mSpotLight;
+    const float mFarPlane { 150.0f };
 
     Shader mLightingPassShader;
     Shader mShadowPassShader;
@@ -82,10 +72,6 @@ private:
     DebugTextureViewer* mTextureViewer;
 
     Shader mPerpectiveShadowShader;
-    Shader mOmniDirShadowShader;
-    Texture mPointLightShadowMap;
-    CubeMap mCubeMap;
-    TextureRenderTarget mPointlightShadowMapTarget;
 
     DefaultAxes mDefaultScene;
     Camera* mCamera { nullptr };
@@ -115,6 +101,8 @@ private:
 
     float ofar = 100.0f;
     float onear = 0.001f;
+
+    PointLight mPointLight;
 };
 
 }

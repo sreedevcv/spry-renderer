@@ -62,13 +62,13 @@ void spry::dbg::viewSceneTree(Scene* scene)
     // return;
 }
 
-void spry::dbg::viewPointLight(BlinnPhongRenderer::PointLight& pointLight)
+void spry::dbg::viewPointLight(PointLight& pointLight)
 {
-    ImGui::DragFloat3(std::format("light pos").c_str(), &pointLight.position.x, 0.5f, -100.0f, 100.0f);
-    ImGui::DragFloat(std::format("constant").c_str(), &pointLight.constant, 0.01f, 0.0f, 1.0f);
-    ImGui::DragFloat(std::format("linear").c_str(), &pointLight.linear, 0.01f, 0.0f, 1.0f);
-    ImGui::DragFloat(std::format("quadratic").c_str(), &pointLight.quadratic, 0.01f, 0.0f, 1.0f);
-    ImGui::ColorEdit3(std::format("ambient").c_str(), &pointLight.ambient.r);
-    ImGui::ColorEdit3(std::format("diffuse").c_str(), &pointLight.diffuse.r);
-    ImGui::ColorEdit3(std::format("specular").c_str(), &pointLight.specular.r);
+    ImGui::DragFloat3(std::format("light pos").c_str(), &pointLight.mPosition.x, 0.5f, -100.0f, 100.0f);
+    ImGui::DragFloat(std::format("constant").c_str(), &pointLight.mConstant, 0.01f, 0.0f, 1.0f);
+    ImGui::DragFloat(std::format("linear").c_str(), &pointLight.mLinear, 0.01f, 0.0f, 1.0f);
+    ImGui::DragFloat(std::format("quadratic").c_str(), &pointLight.mQuadratic, 0.01f, 0.0f, 1.0f);
+    ImGui::ColorEdit3(std::format("ambient").c_str(), &pointLight.mAmbient.r);
+    ImGui::ColorEdit3(std::format("diffuse").c_str(), &pointLight.mDiffuse.r);
+    ImGui::ColorEdit3(std::format("specular").c_str(), &pointLight.mSpecular.r);
 }

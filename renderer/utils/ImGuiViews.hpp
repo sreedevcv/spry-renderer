@@ -11,6 +11,6 @@ namespace dbg {
     void viewTransform(Transform& transform, const char* name);
     void viewMaterial(Material& material, const char* name);
     void viewSceneTree(Scene* scene);
-    void viewPointLight(BlinnPhongRenderer::PointLight& pointLight);
+    void viewPointLight(PointLight& pointLight);
 }
 }

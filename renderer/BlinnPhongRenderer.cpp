@@ -1,6 +1,5 @@
 #include "BlinnPhongRenderer.hpp"
 
-#include "CubeMap.hpp"
 #include "DebugTextureViewer.hpp"
 #include "ImGuiViews.hpp"
 #include "Materials.hpp"
@@ -9,7 +8,6 @@
 #include "ShaderManager.hpp"
 
 #include "Window.hpp"
-#include "glm/ext/matrix_clip_space.hpp"
 #include "glm/ext/matrix_float4x4.hpp"
 #include "glm/ext/matrix_transform.hpp"
 #include "glm/ext/quaternion_float.hpp"
@@ -26,18 +24,6 @@
 #include <memory>
 
 spry::BlinnPhongRenderer::BlinnPhongRenderer()
-    : mPointLight {
-        mShadowMapWidth,
-        mShadowMapHeight,
-        mFarPlane,
-        glm::vec3(3.0f, 5.0f, 2.0f),
-        1.0,
-        0.0,
-        0.0,
-        glm::vec3(0.1f, 0.03f, 0.05f),
-        glm::vec3(0.7f, 0.4f, 0.4f),
-        glm::vec3(0.9f, 0.7f, 0.65f),
-    }
 {
     setCulling(true);
     setDepthTest(true);
@@ -74,7 +60,53 @@ void spry::BlinnPhongRenderer::load(Camera* camera)
         .setFilterMode(GL_NEAREST)
         .load(colors, 2, 2, GL_RGBA);
 
-    mPointLight.init();
+    mPointLights.push_back({});
+    mPointLights.push_back({});
+    mPointLights.push_back({});
+    mPointLights.push_back({});
+    mPointLights[0].init(mShadowMapWidth,
+        mShadowMapHeight,
+        mFarPlane,
+        glm::vec3(3.0f, 5.0f, 2.0f),
+        1.0,
+        0.0,
+        0.0,
+        glm::vec3(0.1f, 0.03f, 0.05f),
+        glm::vec3(0.7f, 0.4f, 0.4f),
+        glm::vec3(0.9f, 0.7f, 0.65f));
+    mPointLights[1].init(
+        mShadowMapWidth,
+        mShadowMapHeight,
+        mFarPlane,
+        glm::vec3(5.0f, -4.0f, 10.0f),
+        1.0,
+        0.14,
+        0.07,
+        glm::vec3(0.05f, 0.1f, 0.03f),
+        glm::vec3(0.58f, 0.55f, 0.75f),
+        glm::vec3(0.76f, 0.67f, 0.87f));
+    mPointLights[2].init(
+        mShadowMapWidth,
+        mShadowMapHeight,
+        mFarPlane,
+        glm::vec3(15.0f, 12.0f, -12.0f),
+        1.0,
+        0.07,
+        0.017,
+        glm::vec3(0.03f, 0.1f, 0.05f),
+        glm::vec3(0.6f, 0.7f, 0.65f),
+        glm::vec3(0.78f, 0.9f, 0.84f));
+    mPointLights[3].init(
+        mShadowMapWidth,
+        mShadowMapHeight,
+        mFarPlane,
+        glm::vec3(0.0f, 0.0f, 30.0f),
+        1.0,
+        0.045,
+        0.0075,
+        glm::vec3(0.15f, 0.15f, 0.11f),
+        glm::vec3(0.56f, 0.56f, 0.77f),
+        glm::vec3(0.67f, 0.88f, 0.77f));
     mDirLight.init(
         glm::vec3(-42.0f, -20.0f, -20.0f),
         glm::vec3(0.3f, 0.3f, 0.3f),
@@ -144,7 +176,10 @@ void spry::BlinnPhongRenderer::render() const
     // First pass
 
     const auto lightViewProj = mDirLight.renderShadows(mSphereScene);
-    mPointLight.renderShadows(mSphereScene);
+
+    for (const auto& pointLight : mPointLights) {
+        pointLight.renderShadows(mSphereScene);
+    }
 
     glViewport(0, 0, mCamera->mScreenWidth, mCamera->mScreenHeight);
     glClearColor(0.4f, 0.5f, 0.37f, 1.0f);
@@ -191,10 +226,11 @@ void spry::BlinnPhongRenderer::render() const
     mLightingPassShader.setUniformVec("dirLight.specular", mDirLight.mSpecular);
     // PointLight
     for (int i = 0; i < POINT_LIGHT_COUNT; i++) {
+        const auto& pointLight = mPointLights[i];
 
-        mPointLight.bindUniforms(mLightingPassShader, i);
+        pointLight.bindUniforms(mLightingPassShader, i);
         auto model = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 0.5f));
-        model = glm::translate(model, mPointLight.mPosition);
+        model = glm::translate(model, pointLight.mPosition);
 
         shapeShader.bind();
         shapeShader.setUniformMatrix("model", model);
@@ -213,9 +249,11 @@ void spry::BlinnPhongRenderer::render() const
 
     mLightingPassShader.bind();
     mDirLight.getDepthMap().bind(0);
-    mPointLight.getCubeMap().bind(1);
     mLightingPassShader.setUniformInt("dirLightShadowMap", 0);
-    mLightingPassShader.setUniformInt("pointLightShadowMap", 1);
+    for (int i = 0; i < POINT_LIGHT_COUNT; i++) {
+        mPointLights[i].getCubeMap().bind(1 + i);
+        mLightingPassShader.setUniformInt(std::format("shadowCubeMaps[{}]", i).c_str(), i + 1);
+    }
     mSphereScene->draw(model, mLightingPassShader, materialDrawCallback);
 }
 
@@ -226,8 +264,13 @@ void spry::BlinnPhongRenderer::debugView(float delta)
     ImGui::Text("FPS: %f", 1.0 / delta);
     ImGui::Text("Delta: %.2fms", delta * 1000);
     ImGui::Separator();
-    ImGui::Text("Light to origin: %0.2f", glm::length(mPointLight.mPosition));
-    dbg::viewPointLight(mPointLight);
+    if (ImGui::CollapsingHeader("Point Lights Option")) {
+        for (int i = 0; i < POINT_LIGHT_COUNT; i++) {
+            if (ImGui::CollapsingHeader(std::format("point light {}", i).c_str())) {
+                dbg::viewPointLight(mPointLights[i], i);
+            }
+        }
+    }
     ImGui::Separator();
 
     dbg::viewSceneTree(mSphereScene);
@@ -242,7 +285,7 @@ void spry::BlinnPhongRenderer::debugView(float delta)
     ImGui::Text("Camera dir:  %.2f  %.2f  %.2f", camNorm.x, camNorm.y, camNorm.z);
     ImGui::Separator();
 
-    if (ImGui::CollapsingHeader("Lights Option")) {
+    if (ImGui::CollapsingHeader("Dir Lights Option")) {
         if (ImGui::Button("align light dir")) {
             mDirLight.mDirection = mCamera->mFront;
         }

@@ -1,45 +1,41 @@
 #include "PointLight.hpp"
+#include "ShaderManager.hpp"
 #include "glm/ext/matrix_clip_space.hpp"
 #include "glm/ext/matrix_transform.hpp"
 #include <cfloat>
 
-spry::PointLight::PointLight(
+spry::PointLight::PointLight()
+    : mOmniDirShadowShader(ShaderManager::instance().loadAndGet(ShaderManager::POINT_LIGHT_SHADOW_MAP))
+{
+}
+
+void spry::PointLight::init(
     uint32_t shadowMapWidth,
     uint32_t shadowMapHeight,
     float farPlane,
-    glm::vec3 mPosition,
+    glm::vec3 position,
     float constant,
     float linear,
     float quadratic,
     glm::vec3 ambient,
     glm::vec3 diffuse,
     glm::vec3 specular)
-    : mShadowMapWidth { shadowMapWidth }
-    , mShadowMapHeight { shadowMapHeight }
-    , mFarPlane { farPlane }
-    , mPosition { mPosition }
-    , mConstant { constant }
-    , mLinear { linear }
-    , mQuadratic { quadratic }
-    , mAmbient { ambient }
-    , mDiffuse { diffuse }
-    , mSpecular { specular }
-    , mLightProj {
-        glm::perspective(glm::radians(90.0f),
-            float(mShadowMapWidth) / float(mShadowMapHeight),
-            1.0f,
-            mFarPlane)
-    }
 {
-}
-
-void spry::PointLight::init()
-{
-    mOmniDirShadowShader
-        .add(RES_PATH "shaders/OmniDirectionalShadow.vert", GL_VERTEX_SHADER)
-        .add(RES_PATH "shaders/OmniDirectionalShadow.geom", GL_GEOMETRY_SHADER)
-        .add(RES_PATH "shaders/OmniDirectionalShadow.frag", GL_FRAGMENT_SHADER)
-        .compile();
+    mShadowMapWidth = shadowMapWidth;
+    mShadowMapHeight = shadowMapHeight;
+    mFarPlane = farPlane;
+    mPosition = position;
+    mConstant = constant;
+    mLinear = linear;
+    mQuadratic = quadratic;
+    mAmbient = ambient;
+    mDiffuse = diffuse;
+    mSpecular = specular;
+    mLightProj = glm::perspective(
+        glm::radians(90.0f),
+        float(mShadowMapWidth) / float(mShadowMapHeight),
+        1.0f,
+        mFarPlane);
 
     mCubeMap
         .create()

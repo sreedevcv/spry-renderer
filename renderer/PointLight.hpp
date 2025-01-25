@@ -21,7 +21,9 @@ public:
     glm::vec3 mDiffuse;
     glm::vec3 mSpecular;
 
-    PointLight(
+    PointLight();
+
+    void init(
         uint32_t shadowMapWidth,
         uint32_t shadowMapHeight,
         float farPlane,
@@ -33,19 +35,17 @@ public:
         glm::vec3 diffuse,
         glm::vec3 specular);
 
-    void init();
-
     void renderShadows(const Scene* scene) const;
     void bindUniforms(const Shader& shader, uint32_t idx) const;
     const CubeMap& getCubeMap() const;
-    
-private:
-    const uint32_t mShadowMapWidth { 1024 };
-    const uint32_t mShadowMapHeight { 1024 };
-    const float mFarPlane { 100.0f };
-    const glm::mat4 mLightProj;
 
-    Shader mOmniDirShadowShader;
+private:
+    uint32_t mShadowMapWidth { 1024 };
+    uint32_t mShadowMapHeight { 1024 };
+    float mFarPlane { 100.0f };
+    glm::mat4 mLightProj;
+
+    const Shader& mOmniDirShadowShader;
     CubeMap mCubeMap;
     TextureRenderTarget mPointlightShadowMapTarget;
 };

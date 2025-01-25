@@ -14,6 +14,7 @@
 #include "Sphere.hpp"
 #include "Texture.hpp"
 #include "glm/ext/vector_float3.hpp"
+#include <vector>
 
 
 #define POINT_LIGHT_COUNT 4
@@ -83,7 +84,7 @@ private:
     // float otop = 10.0f;
     // float obottom = -10.0f;
 
-    PointLight mPointLight;
+    std::vector<PointLight> mPointLights;
     DirLight mDirLight;
 };
 

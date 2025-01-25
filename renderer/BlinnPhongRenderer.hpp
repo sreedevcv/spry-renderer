@@ -1,10 +1,10 @@
 #pragma once
 
 #include "Camera.hpp"
-#include "CubeMap.hpp"
 #include "Cuboid.hpp"
 #include "DebugTextureViewer.hpp"
 #include "DefaultAxes.hpp"
+#include "DirLight.hpp"
 #include "Materials.hpp"
 #include "Model.hpp"
 #include "Plane.hpp"
@@ -13,10 +13,8 @@
 #include "Shader.hpp"
 #include "Sphere.hpp"
 #include "Texture.hpp"
-#include "TextureRenderTarget.hpp"
 #include "glm/ext/vector_float3.hpp"
 
-#include <vector>
 
 #define POINT_LIGHT_COUNT 4
 
@@ -24,14 +22,6 @@ namespace spry {
 
 class BlinnPhongRenderer {
 public:
-    struct DirLight {
-        glm::vec3 direction = glm::vec3(-42.0f, -20.0f, -20.0f);
-
-        glm::vec3 ambient = glm::vec3(0.3f, 0.3f, 0.3f);
-        glm::vec3 diffuse = glm::vec3(0.8f, 0.8f, 0.8f);
-        glm::vec3 specular = glm::vec3(0.9f, 0.9f, 0.9f);
-    };
-
     struct SpotLight {
         glm::vec3 position;
         glm::vec3 direction;
@@ -47,8 +37,6 @@ public:
     BlinnPhongRenderer();
 
     void load(Camera* camera);
-    // void addPointLight(const PointLight& pointLight);
-    void setDirLight(const DirLight& dirLight);
     void setSpotLight(const SpotLight& spotLight);
 
     void render() const;
@@ -57,18 +45,18 @@ public:
 
 private:
     // -46, -88, -17
-    DirLight mDirLight;
+    // DirLight mDirLight;
     // std::vector<PointLight> mPointLights;
     SpotLight mSpotLight;
     const float mFarPlane { 150.0f };
 
     Shader mLightingPassShader;
-    Shader mShadowPassShader;
+    
     Texture mShapeTexture;
-    Texture mDirLightShadowMap;
+    
     const uint32_t mShadowMapWidth = 1024 * 4;
     const uint32_t mShadowMapHeight = 1024 * 4;
-    TextureRenderTarget mDirLightShadowMapTarget;
+    
     DebugTextureViewer* mTextureViewer;
 
     Shader mPerpectiveShadowShader;
@@ -94,15 +82,9 @@ private:
     // float oright = 10.0f;
     // float otop = 10.0f;
     // float obottom = -10.0f;
-    float oleft = -50.0f;
-    float oright = 50.0f;
-    float otop = 50.0f;
-    float obottom = -50.0f;
-
-    float ofar = 100.0f;
-    float onear = 0.001f;
 
     PointLight mPointLight;
+    DirLight mDirLight;
 };
 
 }

@@ -120,10 +120,6 @@ public:
 
         root.addChild(std::unique_ptr<spry::Scene> { sen });
         root.addChild(std::unique_ptr<spry::Scene> { cen });
-
-        mDirLight.direction.x = 0.0f;
-        mDirLight.direction.y = 0.0f;
-        mDirLight.direction.z = -20.0f;
     }
 
 private:
@@ -138,7 +134,6 @@ private:
     spry::DefaultAxes scene;
     float updateTime;
     float prevTime;
-    spry::BlinnPhongRenderer::DirLight mDirLight;
     spry::Material mCurrMaterial = *spry::materials.at({ "gold" });
     spry::Scene root;
 

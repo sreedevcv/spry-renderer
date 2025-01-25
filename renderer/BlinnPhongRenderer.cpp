@@ -18,7 +18,7 @@
 #include "glm/geometric.hpp"
 #include "glm/trigonometric.hpp"
 #include "imgui.h"
-#include <array>
+
 #include <cfloat>
 #include <cstdint>
 #include <cstring>
@@ -55,11 +55,6 @@ void spry::BlinnPhongRenderer::load(Camera* camera)
         .add(RES_PATH "shaders/Lighting.frag", GL_FRAGMENT_SHADER)
         .compile();
 
-    mShadowPassShader
-        .add(RES_PATH "shaders/Shadow.vert", GL_VERTEX_SHADER)
-        .add(RES_PATH "shaders/Shadow.frag", GL_FRAGMENT_SHADER)
-        .compile();
-
     mPerpectiveShadowShader
         .add(RES_PATH "shaders/Shape.vert", GL_VERTEX_SHADER)
         .add(RES_PATH "shaders/PerspectiveProjection.frag", GL_FRAGMENT_SHADER)
@@ -79,20 +74,14 @@ void spry::BlinnPhongRenderer::load(Camera* camera)
         .setFilterMode(GL_NEAREST)
         .load(colors, 2, 2, GL_RGBA);
 
-    std::array borderColors { 1.0f, 1.0f, 1.0f, 1.0f };
-
-    mDirLightShadowMap
-        .create()
-        .setWrapMode(GL_CLAMP_TO_BORDER)
-        .setFilterMode(GL_LINEAR)
-        .setBorderColor(borderColors)
-        .setCompareModeAndFunc(GL_COMPARE_REF_TO_TEXTURE, GL_LEQUAL)
-        .load(nullptr, mShadowMapWidth, mShadowMapHeight, GL_DEPTH_COMPONENT, GL_FLOAT);
-
-    mDirLightShadowMapTarget.load();
-    mDirLightShadowMapTarget.attachTextureDepth(mDirLightShadowMap);
-
     mPointLight.init();
+    mDirLight.init(
+        glm::vec3(-42.0f, -20.0f, -20.0f),
+        glm::vec3(0.3f, 0.3f, 0.3f),
+        glm::vec3(0.8f, 0.8f, 0.8f),
+        glm::vec3(0.9f, 0.9f, 0.9f),
+        mShadowMapWidth,
+        mShadowMapHeight);
 
     mDefaultScene.load(camera);
     mTextureViewer->load(glm::vec4(10, 10, 100, 100), mCamera->mScreenWidth, mCamera->mScreenHeight);
@@ -139,11 +128,6 @@ void spry::BlinnPhongRenderer::load(Camera* camera)
     //     glm::vec3(60.0f, 2.0f, 60.0f)));
 }
 
-void spry::BlinnPhongRenderer::setDirLight(const DirLight& dirLight)
-{
-    mDirLight = dirLight;
-}
-
 void spry::BlinnPhongRenderer::setSpotLight(const SpotLight& spotLight)
 {
     mSpotLight = spotLight;
@@ -158,41 +142,8 @@ void spry::BlinnPhongRenderer::process(float delta)
 void spry::BlinnPhongRenderer::render() const
 {
     // First pass
-    glm::mat4 lightViewProj;
 
-    /* NOTE::A plane has only a single face. Using glCullFace(GL_FRONT) would completely
-       remove it So ideally, it should not be used to rendering the plane */
-    mDirLightShadowMapTarget.bind();
-    {
-        // glCullFace(GL_FRONT);
-        glViewport(0, 0, mShadowMapWidth, mShadowMapHeight);
-        glClear(GL_DEPTH_BUFFER_BIT);
-
-        auto lightProj = glm::ortho(
-            oleft,
-            oright,
-            obottom,
-            otop,
-            onear,
-            ofar);
-        // NOTE::Should eye for ortho projection be -direction or +direction??
-        auto lighView = glm::lookAt(
-            -mDirLight.direction,
-            glm::vec3(0.0f, 0.0f, 0.0f),
-            glm::vec3(0.0f, 1.0f, 0.0f));
-
-        lightViewProj = lightProj * lighView;
-
-        mShadowPassShader.bind();
-        mShadowPassShader.setUniformMatrix("lightViewProj", lightViewProj);
-
-        auto model = glm::mat4(1.0f);
-        mSphereScene->draw(model, mShadowPassShader);
-
-        // glCullFace(GL_BACK);
-    }
-    mDirLightShadowMapTarget.unbind();
-
+    const auto lightViewProj = mDirLight.renderShadows(mSphereScene);
     mPointLight.renderShadows(mSphereScene);
 
     glViewport(0, 0, mCamera->mScreenWidth, mCamera->mScreenHeight);
@@ -234,10 +185,10 @@ void spry::BlinnPhongRenderer::render() const
     mLightingPassShader.setUniformFloat("spotLight.linear", mSpotLight.linear);
     mLightingPassShader.setUniformFloat("spotLight.quadratic", mSpotLight.quadratic);
     // DirLight
-    mLightingPassShader.setUniformVec("dirLight.direction", mDirLight.direction);
-    mLightingPassShader.setUniformVec("dirLight.ambient", mDirLight.ambient);
-    mLightingPassShader.setUniformVec("dirLight.diffuse", mDirLight.diffuse);
-    mLightingPassShader.setUniformVec("dirLight.specular", mDirLight.specular);
+    mLightingPassShader.setUniformVec("dirLight.direction", mDirLight.mDirection);
+    mLightingPassShader.setUniformVec("dirLight.ambient", mDirLight.mAmbient);
+    mLightingPassShader.setUniformVec("dirLight.diffuse", mDirLight.mDiffuse);
+    mLightingPassShader.setUniformVec("dirLight.specular", mDirLight.mSpecular);
     // PointLight
     for (int i = 0; i < POINT_LIGHT_COUNT; i++) {
 
@@ -261,10 +212,10 @@ void spry::BlinnPhongRenderer::render() const
     };
 
     mLightingPassShader.bind();
-    mDirLightShadowMap.bind(0);
+    mDirLight.getDepthMap().bind(0);
     mPointLight.getCubeMap().bind(1);
     mLightingPassShader.setUniformInt("dirLightShadowMap", 0);
-    mLightingPassShader.setUniformInt("pointLightShadowMap",1);
+    mLightingPassShader.setUniformInt("pointLightShadowMap", 1);
     mSphereScene->draw(model, mLightingPassShader, materialDrawCallback);
 }
 
@@ -286,23 +237,14 @@ void spry::BlinnPhongRenderer::debugView(float delta)
     ImGui::SliderInt("Shdw sampling", &mShadowSampling, 0, 10);
 
     const auto camNorm = glm::normalize(mCamera->mFront);
-    const auto dirNorm = glm::normalize(mDirLight.direction);
+    const auto dirNorm = glm::normalize(mDirLight.mDirection);
     ImGui::Text("Camera pos:  %.2f  %.2f  %.2f", mCamera->mPosition.x, mCamera->mPosition.y, mCamera->mPosition.z);
     ImGui::Text("Camera dir:  %.2f  %.2f  %.2f", camNorm.x, camNorm.y, camNorm.z);
     ImGui::Separator();
 
-    if (ImGui::CollapsingHeader("Ortho Projection Details")) {
-        ImGui::SliderFloat("oleft", &oleft, -300.0f, 300.0f);
-        ImGui::SliderFloat("oright", &oright, -300.0f, 300.0f);
-        ImGui::SliderFloat("otop", &otop, -300.0f, 300.0f);
-        ImGui::SliderFloat("obottom", &obottom, -300.0f, 300.0f);
-        ImGui::SliderFloat("onear", &onear, -300.0f, 300.0f);
-        ImGui::SliderFloat("ofar", &ofar, -300.0f, 300.0f);
-    }
-
     if (ImGui::CollapsingHeader("Lights Option")) {
         if (ImGui::Button("align light dir")) {
-            mDirLight.direction = mCamera->mFront;
+            mDirLight.mDirection = mCamera->mFront;
         }
         if (ImGui::Button(std::format("Use useBlinnPhongModel[{}]", mUseBlinnPhongModel == 1).c_str())) {
             mUseBlinnPhongModel = (mUseBlinnPhongModel == 0) ? 1 : 0;
@@ -324,14 +266,14 @@ void spry::BlinnPhongRenderer::debugView(float delta)
     ImGui::SliderFloat("outerCutOffAngle", &mSpotLight.outerCutOffAngle, 0.0f, glm::pi<float>() / 2);
     ImGui::Separator();
 
-    ImGui::SliderFloat("DirLight Direction.x", &mDirLight.direction.x, -100.0f, 100.0f);
-    ImGui::SliderFloat("DirLight Direction.y", &mDirLight.direction.y, -100.0f, 100.0f);
-    ImGui::SliderFloat("DirLight Direction.z", &mDirLight.direction.z, -100.0f, 100.0f);
+    ImGui::SliderFloat("DirLight Direction.x", &mDirLight.mDirection.x, -100.0f, 100.0f);
+    ImGui::SliderFloat("DirLight Direction.y", &mDirLight.mDirection.y, -100.0f, 100.0f);
+    ImGui::SliderFloat("DirLight Direction.z", &mDirLight.mDirection.z, -100.0f, 100.0f);
     ImGui::Separator();
 
-    ImGui::ColorEdit3("DirLight Ambient Color", &mDirLight.ambient.r);
-    ImGui::ColorEdit3("DirLight Diffuse Color", &mDirLight.diffuse.r);
-    ImGui::ColorEdit3("DirLight Specular Color", &mDirLight.specular.r);
+    ImGui::ColorEdit3("DirLight Ambient Color", &mDirLight.mAmbient.r);
+    ImGui::ColorEdit3("DirLight Diffuse Color", &mDirLight.mDiffuse.r);
+    ImGui::ColorEdit3("DirLight Specular Color", &mDirLight.mSpecular.r);
     ImGui::Separator();
 
     // // List showing all materials

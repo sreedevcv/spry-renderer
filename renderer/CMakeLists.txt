@@ -103,6 +103,7 @@ add_library(
     utils/ImGuiViews.cpp
     BlinnPhongRenderer.cpp
     PointLight.cpp
+    DirLight.cpp
 )
 
 target_include_directories(renderer PRIVATE ${FREETYPE_INCLUDE_DIRS})

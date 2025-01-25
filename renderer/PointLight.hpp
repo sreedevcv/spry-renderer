@@ -36,7 +36,7 @@ public:
     void init();
 
     void renderShadows(const Scene* scene) const;
-    void bindNormal(const Shader& shader, uint32_t idx) const;
+    void bindUniforms(const Shader& shader, uint32_t idx) const;
     const CubeMap& getCubeMap() const;
     
 private:

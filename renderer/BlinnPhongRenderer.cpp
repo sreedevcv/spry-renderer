@@ -219,8 +219,9 @@ void spry::BlinnPhongRenderer::render() const
     // Fragment Shader
     mLightingPassShader.setUniformVec("viewPosition", mCamera->mPosition);
     mLightingPassShader.setUniformFloat("farPlane", mFarPlane);
-    mLightingPassShader.setUniformInt("useBlinnPhongModel", mUseBlinnPhongModel);
+    // Options
     mLightingPassShader.setUniformInt("useDirectionalLights", mUseDirectionalLights);
+    mLightingPassShader.setUniformInt("useBlinnPhongModel", mUseBlinnPhongModel);
     mLightingPassShader.setUniformInt("usePointLights", mUsePointLights);
     mLightingPassShader.setUniformInt("useSpotLights", mUseSpotLights);
     mLightingPassShader.setUniformInt("shadowSampling", mShadowSampling);
@@ -238,10 +239,9 @@ void spry::BlinnPhongRenderer::render() const
     mLightingPassShader.setUniformVec("dirLight.diffuse", mDirLight.diffuse);
     mLightingPassShader.setUniformVec("dirLight.specular", mDirLight.specular);
     // PointLight
-    {
-        const int i = 0;
+    for (int i = 0; i < POINT_LIGHT_COUNT; i++) {
 
-        mPointLight.bindNormal(mLightingPassShader, i);
+        mPointLight.bindUniforms(mLightingPassShader, i);
         auto model = glm::scale(glm::mat4(1.0f), glm::vec3(0.5f, 0.5f, 0.5f));
         model = glm::translate(model, mPointLight.mPosition);
 
@@ -259,11 +259,12 @@ void spry::BlinnPhongRenderer::render() const
         shader.setUniformVec("material.specular", scene->mMaterial.specular);
         shader.setUniformFloat("material.shininess", scene->mMaterial.shininess);
     };
-    // mLightingPassShader.setUniformInt("shadowMap", 0);
 
     mLightingPassShader.bind();
     mDirLightShadowMap.bind(0);
     mPointLight.getCubeMap().bind(1);
+    mLightingPassShader.setUniformInt("dirLightShadowMap", 0);
+    mLightingPassShader.setUniformInt("pointLightShadowMap",1);
     mSphereScene->draw(model, mLightingPassShader, materialDrawCallback);
 }
 

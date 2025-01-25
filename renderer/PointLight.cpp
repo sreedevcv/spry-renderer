@@ -81,7 +81,7 @@ void spry::PointLight::renderShadows(const Scene* scene) const
     mPointlightShadowMapTarget.unbind();
 }
 
-void spry::PointLight::bindNormal(const Shader& shader, uint32_t idx) const
+void spry::PointLight::bindUniforms(const Shader& shader, uint32_t idx) const
 {
     shader.bind();
     shader.setUniformVec(std::format("pointLights[{}].position", idx).c_str(), mPosition);

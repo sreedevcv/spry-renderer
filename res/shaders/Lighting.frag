@@ -209,7 +209,7 @@ float calcShadowPointLight(samplerCube cubeMap, vec3 lightDir)
 {
     float sampledValue = texture(cubeMap, lightDir).r;  // In range [0..1]
     float depth = sampledValue * farPlane;
-    float currentDepth = length(lightDir);      
+    float currentDepth = length(lightDir);
     if (currentDepth < (depth + 0.05)) {
         return 0.0;
     } else {
@@ -221,21 +221,20 @@ void main()
 {
     vec3 norm = normalize(fs_in.normal);
     vec3 viewDir = normalize(viewPosition - fs_in.fragPos);
-
-    vec3 lightDir = normalize(-dirLight.direction);
-    float shadow = shadowCalculation(dirLightShadowMap, fs_in.fragPosLightSpace, lightDir, norm);
-
     vec3 result = vec3(0.0);
+    float shadow = 0.0;
 
     if (useDirectionalLights == 1) {
-        // result += calcDirLight(dirLight, norm, viewDir, shadow);
+        vec3 lightDir = normalize(-dirLight.direction);
+        shadow = shadowCalculation(dirLightShadowMap, fs_in.fragPosLightSpace, lightDir, norm);
     }
+    result += calcDirLight(dirLight, norm, viewDir, shadow);
 
-    lightDir = fs_in.fragPos - pointLights[0].position;
-    shadow = calcShadowPointLight(pointLightShadowMap, lightDir);
+    vec3 lightDir = fs_in.fragPos - pointLights[0].position;
+    float pointLightShadow = calcShadowPointLight(pointLightShadowMap, lightDir);
+    result += calcPointLight(pointLights[0], norm, fs_in.fragPos, viewDir, pointLightShadow);
 
-    // shadow = shadowCalculation(pointLightShadowMap, fs_in.pointLightSpace, lightDir, norm);
-    result += calcPointLight(pointLights[0], norm, fs_in.fragPos, viewDir, shadow);
+    // result = normalize(result);
 
     // if (usePointLights == 1) {
     //     for (int i = 0; i < POINT_LIGHT_COUNT; i++) {

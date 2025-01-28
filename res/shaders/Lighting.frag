@@ -140,15 +140,15 @@ float calcShadowDirLight(sampler2DShadow shadowMap, vec4 fragPosLightSpace, vec3
 
     // Poisson disk sampling
     /*
-                                float shadow = 0.0;
-                                for (int i = 0; i < shadowSampling; i++) {
-                                    int index = int(16.0 * randFloat(vec4(fs_in.fragPos.xyz * 1000.0, i))) % 16;    // based on camera position
-                                    // int index = int(16.0 * randFloat(vec4(gl_FragCoord.xyy, i))) % 16;           // based on fragment position
-                                    vec2 offset = projCoords.xy + poissonDisk[index] / 700.0;
-                                    float sampleValue = texture(shadowMap, vec3(offset.xy, projCoords.z));
-                                    shadow += (1.0 / float(shadowSampling)) * (1.0 - sampleValue);
-                                }
-                            */
+        float shadow = 0.0;
+        for (int i = 0; i < shadowSampling; i++) {
+        int index = int(16.0 * randFloat(vec4(fs_in.fragPos.xyz * 1000.0, i))) % 16;    // based on camera position
+        // int index = int(16.0 * randFloat(vec4(gl_FragCoord.xyy, i))) % 16;           // based on fragment position
+        vec2 offset = projCoords.xy + poissonDisk[index] / 700.0;
+        float sampleValue = texture(shadowMap, vec3(offset.xy, projCoords.z));
+        shadow += (1.0 / float(shadowSampling)) * (1.0 - sampleValue);
+                }
+    */
 
     return 1.0 - shadow;
 }
@@ -235,15 +235,11 @@ void main()
         result += calcDirLight(dirLight, norm, viewDir);
     }
 
-    for (int i = 0; i < POINT_LIGHT_COUNT; i++) {
-        result += calcPointLight(i, norm, fs_in.fragPos, viewDir);
+    if (usePointLights == 1) {
+        for (int i = 0; i < POINT_LIGHT_COUNT; i++) {
+            result += calcPointLight(i, norm, fs_in.fragPos, viewDir);
+        }
     }
-
-    // if (usePointLights == 1) {
-    //     for (int i = 0; i < POINT_LIGHT_COUNT; i++) {
-    //         result += calcPointLight(pointLights[i], norm, fs_in.fragPos, viewDir);
-    //     }
-    // }
 
     // if (useSpotLights == 1) {
     //     result += calcSpotLight(spotLight, norm, fs_in.fragPos, viewDir, shadow);

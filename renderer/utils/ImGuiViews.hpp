@@ -1,8 +1,8 @@
 #pragma once
 
-#include "BlinnPhongRenderer.hpp"
 #include "Entity.hpp"
 #include "Materials.hpp"
+#include "PointLight.hpp"
 #include "Scene.hpp"
 
 namespace spry {

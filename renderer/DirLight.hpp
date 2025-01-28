@@ -17,6 +17,8 @@ public:
     glm::vec3 mDiffuse = glm::vec3(0.8f, 0.8f, 0.8f);
     glm::vec3 mSpecular = glm::vec3(0.9f, 0.9f, 0.9f);
 
+    DirLight();
+
     void init(glm::vec3 direction,
         glm::vec3 ambient,
         glm::vec3 diffuse,
@@ -28,7 +30,7 @@ public:
     const Texture& getDepthMap() const;
 
 private:
-    Shader mShadowPassShader;
+    const Shader& mShadowPassShader;
     Texture mShadowMap;
     TextureRenderTarget mRenderTarget;
 

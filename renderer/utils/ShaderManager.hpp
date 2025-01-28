@@ -14,6 +14,7 @@ public:
         MODEL,
         SHAPE,
         SKYBOX,
+        DIR_LIGHT_SHADOW_MAP,
         POINT_LIGHT_SHADOW_MAP,
         SHADER_MAX,
     };
@@ -25,13 +26,14 @@ public:
 
 private:
     std::unordered_map<BaseShader, Shader> mShaders;
-    const char* mPaths[7][3] = {
+    const char* mPaths[8][3] = {
         { "shaders/Textured.vert", "shaders/Textured.frag", "" },
         { "shaders/Line.vert", "shaders/Line.frag", "" },
         { "shaders/Font.vert", "shaders/Font.frag", "" },
         { "shaders/Model.vert", "shaders/Model.frag", "" },
         { "shaders/Shape.vert", "shaders/Shape.frag", "" },
         { "shaders/Skybox.vert", "shaders/Skybox.frag", "" },
+        { "shaders/DirShadow.vert", "shaders/DirShadow.frag", ""},
         { "shaders/OmniDirectionalShadow.vert", "shaders/OmniDirectionalShadow.frag", "shaders/OmniDirectionalShadow.geom" },
     };
 };

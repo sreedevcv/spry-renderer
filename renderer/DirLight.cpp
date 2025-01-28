@@ -1,5 +1,11 @@
 #include "DirLight.hpp"
+#include "ShaderManager.hpp"
 #include "glm/ext/matrix_float4x4.hpp"
+
+spry::DirLight::DirLight()
+    : mShadowPassShader(ShaderManager::instance().loadAndGet(ShaderManager::DIR_LIGHT_SHADOW_MAP))
+{
+}
 
 void spry::DirLight::init(glm::vec3 direction,
     glm::vec3 ambient,
@@ -14,11 +20,6 @@ void spry::DirLight::init(glm::vec3 direction,
     mSpecular = specular;
     mShadowMapWidth = shadowMapWidth;
     mShadowMapHeight = shadowMapHeight;
-
-    mShadowPassShader
-        .add(RES_PATH "shaders/Shadow.vert", GL_VERTEX_SHADER)
-        .add(RES_PATH "shaders/Shadow.frag", GL_FRAGMENT_SHADER)
-        .compile();
 
     std::array borderColors { 1.0f, 1.0f, 1.0f, 1.0f };
 

@@ -5,6 +5,7 @@
 #include "DebugTextureViewer.hpp"
 #include "DefaultAxes.hpp"
 #include "DirLight.hpp"
+#include "FullScreenQuad.hpp"
 #include "Materials.hpp"
 #include "Model.hpp"
 #include "Plane.hpp"
@@ -13,6 +14,7 @@
 #include "Shader.hpp"
 #include "Sphere.hpp"
 #include "Texture.hpp"
+#include "TextureRenderTarget.hpp"
 #include "glm/ext/vector_float3.hpp"
 #include <vector>
 
@@ -45,25 +47,17 @@ public:
     void debugView(float delta);
 
 private:
-    // -46, -88, -17
-    // DirLight mDirLight;
-    // std::vector<PointLight> mPointLights;
-    SpotLight mSpotLight;
-    const float mFarPlane { 150.0f };
-
     Shader mLightingPassShader;
-    
+    Texture mScreenTexture;
     Texture mShapeTexture;
     
+    const float mFarPlane { 150.0f };
     const uint32_t mShadowMapWidth = 1024 * 4;
     const uint32_t mShadowMapHeight = 1024 * 4;
-    
-    DebugTextureViewer* mTextureViewer;
-
-    Shader mPerpectiveShadowShader;
-
+    TextureRenderTarget mScreenTarget;
     DefaultAxes mDefaultScene;
     Camera* mCamera { nullptr };
+    FullScreenQuad mScreenQuad;
 
     Sphere mSphere;
     Cuboid mCuboid;
@@ -79,12 +73,9 @@ private:
     int mUseSpotLights = 0;
     int mUsePointLights = 0;
     int mShadowSampling = 1;
-    // float oleft = -10.0f;
-    // float oright = 10.0f;
-    // float otop = 10.0f;
-    // float obottom = -10.0f;
 
     std::vector<PointLight> mPointLights;
+    SpotLight mSpotLight;
     DirLight mDirLight;
 };
 

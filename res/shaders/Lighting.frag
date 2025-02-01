@@ -241,9 +241,5 @@ void main()
         }
     }
 
-    // if (useSpotLights == 1) {
-    //     result += calcSpotLight(spotLight, norm, fs_in.fragPos, viewDir, shadow);
-    // }
-
     fragColor = vec4(result, 1.0);
 }

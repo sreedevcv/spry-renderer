@@ -101,6 +101,7 @@ add_library(
     utils/DebugTextureViewer.cpp
     utils/Entity.cpp
     utils/ImGuiViews.cpp
+    utils/FullScreenQuad.cpp
     BlinnPhongRenderer.cpp
     PointLight.cpp
     DirLight.cpp

@@ -9,7 +9,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 add_definitions(-DRES_PATH="${CMAKE_CURRENT_SOURCE_DIR}/res/")
 
 
-add_subdirectory(src)
+add_subdirectory(examples)
 add_subdirectory(renderer)
 
 # include_directories("${CMAKE_SOURCE_DIR}/include")

@@ -1,5 +1,6 @@
 #include "Plane.hpp"
 
+#include <cstdint>
 #include <vector>
 
 void spry::Plane::load(uint32_t width, uint32_t height)
@@ -32,9 +33,9 @@ spry::Plane::Buffer spry::Plane::getBuffers(uint32_t width, uint32_t height) con
     std::vector<uint32_t> indices((width * height) * 2 * 3);
     int index = 0;
 
-    for (int j = 0; j < height; j++) {
-        for (int i = 0; i < width; i++) {
-            int idx = j * (width + 1) + i;
+    for (uint32_t j = 0; j < height; j++) {
+        for (uint32_t i = 0; i < width; i++) {
+            uint32_t idx = j * (width + 1) + i;
             // First triangle
             indices[index++] = idx;
             indices[index++] = (width + 1) + idx;

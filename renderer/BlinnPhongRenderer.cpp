@@ -29,7 +29,7 @@ spry::BlinnPhongRenderer::BlinnPhongRenderer()
     setWireFrameMode(false);
 }
 
-void spry::BlinnPhongRenderer::load(Camera* camera)
+void spry::BlinnPhongRenderer::load(Camera* camera, Scene *sceneTree)
 {
     spry::ShaderManager::instance().loadAndGet(spry::ShaderManager::SHAPE);
     mCamera = camera;
@@ -115,48 +115,8 @@ void spry::BlinnPhongRenderer::load(Camera* camera)
         mShadowMapHeight);
 
     mDefaultScene.load(camera);
-    mSphere.load(30, 30);
-    mPlane.load(60, 60);
     mScreenQuad.laod();
-    mCubeModel.load(RES_PATH "models/cube.obj");
-
-    mSphereScene = new Scene { &mSphere, "sphere", "turquoise" };
-    // mSphereScene->addChild(std::make_unique<Scene>(
-    //     &mCubeModel,
-    //     "cube1",
-    //     "obsidian",
-    //     glm::vec3(3.0f, -5.0f, -5.0f)));
-    // mSphereScene->addChild(std::make_unique<Scene>(
-    //     &mCuboid,
-    //     "cube2",
-    //     "redPlastic",
-    //     glm::vec3(5.0f, 1.0f, 5.0f)));
-    // mSphereScene->addChild(std::make_unique<Scene>(
-    //     &mPlane,
-    //     "plane",
-    //     "whiteRubber",
-    //     glm::vec3(-30.0f, -5.0f, -30.0f),
-    //     glm::vec3(60.0f, 2.0f, 60.0f)));
-    const float len = 20.0f;
-    mSphereScene->addChild(std::make_unique<Scene>(
-        &mCubeModel,
-        "basewall",
-        "obsidian",
-        glm::vec3(-len / 2.0f, -5.0f, -len / 2.0f),
-        glm::vec3(len, 1.0f, len)));
-    mSphereScene->addChild(std::make_unique<Scene>(
-        &mCuboid,
-        "sidewall",
-        "redPlastic",
-        glm::vec3(-len * 1.5f, -5.0f, -len / 2.0f),
-        glm::vec3(len * 2.0f, 1.0f, len * 2.0f),
-        glm::quat(glm::vec3(0.0f, 0.0f, glm::radians(90.0f)))));
-    // mSphereScene->addChild(std::make_unique<Scene>(
-    //     &mPlane,
-    //     "plane",
-    //     "whiteRubber",
-    //     glm::vec3(-30.0f, -5.0f, -30.0f),
-    //     glm::vec3(60.0f, 2.0f, 60.0f)));
+    mRootScene = sceneTree;
 }
 
 void spry::BlinnPhongRenderer::setSpotLight(const SpotLight& spotLight)
@@ -172,10 +132,10 @@ void spry::BlinnPhongRenderer::process(float delta)
 void spry::BlinnPhongRenderer::render() const
 {
     // Shadow passes
-    const auto lightViewProj = mDirLight.renderShadows(mSphereScene);
+    const auto lightViewProj = mDirLight.renderShadows(mRootScene);
 
     for (const auto& pointLight : mPointLights) {
-        pointLight.renderShadows(mSphereScene);
+        pointLight.renderShadows(mRootScene);
     }
 
     // Render Pass
@@ -250,7 +210,7 @@ void spry::BlinnPhongRenderer::render() const
             mPointLights[i].getCubeMap().bind(1 + i);
             mLightingPassShader.setUniformInt(std::format("shadowCubeMaps[{}]", i).c_str(), i + 1);
         }
-        mSphereScene->draw(model, mLightingPassShader, materialDrawCallback);
+        mRootScene->draw(model, mLightingPassShader, materialDrawCallback);
     }
     mScreenTarget.unbind();
 
@@ -277,14 +237,13 @@ void spry::BlinnPhongRenderer::debugView(float delta)
     }
     ImGui::Separator();
 
-    dbg::viewSceneTree(mSphereScene);
+    dbg::viewSceneTree(mRootScene);
 
     ImGui::Separator();
 
     ImGui::SliderInt("Shdw sampling", &mShadowSampling, 0, 10);
 
     const auto camNorm = glm::normalize(mCamera->mFront);
-    const auto dirNorm = glm::normalize(mDirLight.mDirection);
     ImGui::Text("Camera pos:  %.2f  %.2f  %.2f", mCamera->mPosition.x, mCamera->mPosition.y, mCamera->mPosition.z);
     ImGui::Text("Camera dir:  %.2f  %.2f  %.2f", camNorm.x, camNorm.y, camNorm.z);
     ImGui::Separator();

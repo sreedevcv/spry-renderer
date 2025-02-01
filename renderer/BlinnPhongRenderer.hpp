@@ -39,7 +39,7 @@ public:
 
     BlinnPhongRenderer();
 
-    void load(Camera* camera);
+    void load(Camera* camera, Scene *sceneTree);
     void setSpotLight(const SpotLight& spotLight);
 
     void render() const;
@@ -63,7 +63,7 @@ private:
     Cuboid mCuboid;
     Plane mPlane;
     Model mCubeModel;
-    Scene* mSphereScene {};
+    Scene* mRootScene {};
 
     Material mCurrMaterial = *materials.at({ "gold" });
 

@@ -42,7 +42,7 @@ spry::Mesh::Mesh(Mesh&& mesh)
     mVertices = std::move(mesh.mVertices);
     mIndices = std::move(mesh.mIndices);
     mTextures = std::move(mesh.mTextures);
-    mVao = std::move(mVao);
+    mVao = std::move(mesh.mVao);
 }
 
 spry::Mesh& spry::Mesh::operator=(Mesh&& mesh)
@@ -52,7 +52,7 @@ spry::Mesh& spry::Mesh::operator=(Mesh&& mesh)
         mVertices = std::move(mesh.mVertices);
         mIndices = std::move(mesh.mIndices);
         mTextures = std::move(mesh.mTextures);
-        mVao = std::move(mVao);
+        mVao = std::move(mesh.mVao);
     }
     return *this;
 }

@@ -93,7 +93,7 @@ public:
         scene.load(&camera);
         // renderer.load(&camera, root);
 
-        spry::setWireFrameMode(true);
+        spry::setWireFrameMode(false);
 
         texture
             .create()
@@ -104,7 +104,6 @@ public:
         quad.laod();
         target.load();
         target.attachTextureColor(texture);
-
     }
 
 private:
@@ -202,6 +201,8 @@ private:
     void onImguiDebugDraw(float delta) override
     {
         ImGui::Text("Update Time: %.2f", updateTime);
+        ImGui::Text("FPS: %f", 1.0 / delta);
+        ImGui::Text("Delta: %.2fms", delta * 1000);
         ImGui::Separator();
         // renderer.debugView(delta);
     }

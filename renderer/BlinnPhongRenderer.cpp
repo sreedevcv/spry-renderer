@@ -228,8 +228,7 @@ void spry::BlinnPhongRenderer::debugView(float delta)
 {
     ImGui::PushItemWidth(180.0f);
 
-    ImGui::Text("FPS: %f", 1.0 / delta);
-    ImGui::Text("Delta: %.2fms", delta * 1000);
+    
     ImGui::Separator();
     if (ImGui::CollapsingHeader("Point Lights Option")) {
         for (int i = 0; i < POINT_LIGHT_COUNT; i++) {

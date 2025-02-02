@@ -2,6 +2,7 @@
 
 #include "ImGuiViews.hpp"
 #include "Materials.hpp"
+#include "PointLight.hpp"
 #include "Scene.hpp"
 #include "Shader.hpp"
 #include "ShaderManager.hpp"
@@ -9,17 +10,14 @@
 #include "Window.hpp"
 #include "glm/ext/matrix_float4x4.hpp"
 #include "glm/ext/matrix_transform.hpp"
-#include "glm/ext/quaternion_float.hpp"
 #include "glm/ext/vector_float3.hpp"
 #include "glm/geometric.hpp"
-#include "glm/trigonometric.hpp"
 #include "imgui.h"
 
 #include <cfloat>
 #include <cstdint>
 #include <cstring>
 #include <format>
-#include <memory>
 
 spry::BlinnPhongRenderer::BlinnPhongRenderer()
 {
@@ -29,7 +27,7 @@ spry::BlinnPhongRenderer::BlinnPhongRenderer()
     setWireFrameMode(false);
 }
 
-void spry::BlinnPhongRenderer::load(Camera* camera, Scene *sceneTree)
+void spry::BlinnPhongRenderer::load(Camera* camera, Scene* sceneTree)
 {
     spry::ShaderManager::instance().loadAndGet(spry::ShaderManager::SHAPE);
     mCamera = camera;
@@ -132,10 +130,15 @@ void spry::BlinnPhongRenderer::process(float delta)
 void spry::BlinnPhongRenderer::render() const
 {
     // Shadow passes
-    const auto lightViewProj = mDirLight.renderShadows(mRootScene);
+    glm::mat4 lightViewProj {};
+    if (mUseDirectionalLights) {
+        lightViewProj = mDirLight.renderShadows(mRootScene);
+    }
 
-    for (const auto& pointLight : mPointLights) {
-        pointLight.renderShadows(mRootScene);
+    if (mUsePointLights) {
+        for (const auto& pointLight : mPointLights) {
+            pointLight.renderShadows(mRootScene);
+        }
     }
 
     // Render Pass

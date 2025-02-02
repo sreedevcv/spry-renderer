@@ -18,7 +18,7 @@ public:
     float mPitch = 0.0f;
 
     // Options
-    float mSpeed = 10.0f;
+    float mSpeed = 100.0f;
     float mMouseSensitivity = 0.1f;
     float mZoom = 45.0f;
     float mNearPoint = 0.1f;

@@ -2,7 +2,6 @@
 
 #include "Camera.hpp"
 #include "Cuboid.hpp"
-#include "DebugTextureViewer.hpp"
 #include "DefaultAxes.hpp"
 #include "DirLight.hpp"
 #include "FullScreenQuad.hpp"

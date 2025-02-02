@@ -1,3 +1,5 @@
+#include <cstddef>
+#include <cstdint>
 #include <cstdlib>
 #include <print>
 
@@ -6,81 +8,152 @@
 #include "Cuboid.hpp"
 #include "DefaultAxes.hpp"
 #include "Entity.hpp"
+#include "FullScreenQuad.hpp"
 #include "GLFW/glfw3.h"
 #include "Plane.hpp"
-#include "Scene.hpp"
+#include "Shader.hpp"
 #include "Sphere.hpp"
+#include "Texture.hpp"
+#include "TextureRenderTarget.hpp"
 #include "Toggle.hpp"
+#include "VAO.hpp"
 #include "Window.hpp"
 
 #include "glm/ext/vector_float3.hpp"
 #include "imgui.h"
+#include "spdlog/spdlog.h"
 
 class TestWindow : public spry::Window {
 public:
     TestWindow(int width, int height)
         : spry::Window(width, height, "Test", true)
-        , mWidth { width }
-        , mHeight { height }
         , camera(width, height)
     {
         setMouseCapture(true);
-        camera.setPosition(glm::vec3(4.0f, 1.0f, 0.0f));
-        spry::setCulling(true);
+        camera.setPosition(glm::vec3(40.0f, 60.0f, 0.0f));
+        spry::setCulling(false);
+        spry::setDepthTest(true);
         glCullFace(GL_BACK);
+        glViewport(0, 0, width, height);
 
-        spry::BlinnPhongRenderer::SpotLight spotLight = {
-            .innerCutOffAngle = 0.01f,
-            .outerCutOffAngle = 0.1f,
-            .constant = 1.0f,
-            .linear = 0.09f,
-            .quadratic = 0.032f,
-        };
+        GLint maxTessLevel;
+        glGetIntegerv(GL_MAX_TESS_GEN_LEVEL, &maxTessLevel);
+        spdlog::info("Max available tess level: {} ", maxTessLevel);
+        glPatchParameteri(GL_PATCH_VERTICES, 4);
+        heightMap
+            .create()
+            .setWrapMode(GL_REPEAT)
+            .setFilterMode(GL_LINEAR)
+            .load(RES_PATH "iceland_heightmap.png");
+
+        constexpr uint32_t resolution = 20;
+        std::vector<float> vertices;
+        int32_t imgHeight = heightMap.mHeight;
+        int32_t imgWidth = heightMap.mWidth;
+
+        for (uint32_t i = 0; i < resolution; i++) {
+            for (uint32_t j = 0; j < resolution; j++) {
+                vertices.push_back(-imgWidth / 2.0f + imgWidth * i / float(resolution));
+                vertices.push_back(0.0f);
+                vertices.push_back(-imgHeight / 2.0f + imgHeight * j / float(resolution));
+                vertices.push_back(i / float(resolution));
+                vertices.push_back(j / float(resolution));
+
+                vertices.push_back(-imgWidth / 2.0f + imgWidth * (i + 1) / float(resolution));
+                vertices.push_back(0.0f);
+                vertices.push_back(-imgHeight / 2.0f + imgHeight * j / float(resolution));
+                vertices.push_back((i + 1) / float(resolution));
+                vertices.push_back(j / float(resolution));
+
+                vertices.push_back(-imgWidth / 2.0f + imgWidth * i / float(resolution));
+                vertices.push_back(0.0f);
+                vertices.push_back(-imgHeight / 2.0f + imgHeight * (j + 1) / float(resolution));
+                vertices.push_back(i / float(resolution));
+                vertices.push_back((j + 1) / float(resolution));
+
+                vertices.push_back(-imgWidth / 2.0f + imgWidth * (i + 1) / float(resolution));
+                vertices.push_back(0.0f);
+                vertices.push_back(-imgHeight / 2.0f + imgHeight * (j + 1) / float(resolution));
+                vertices.push_back((i + 1) / float(resolution));
+                vertices.push_back((j + 1) / float(resolution));
+            }
+        }
+
+        std::array<uint32_t, 2> format { 3, 2 };
+        mVAO.load(vertices, format, resolution * resolution * 4, GL_STATIC_DRAW);
+        tesselationShader
+            .add(RES_PATH "shaders/HeightMap.vert", GL_VERTEX_SHADER)
+            .add(RES_PATH "shaders/HeightMap.frag", GL_FRAGMENT_SHADER)
+            .add(RES_PATH "shaders/HeightMap.tessctl.glsl", GL_TESS_CONTROL_SHADER)
+            .add(RES_PATH "shaders/HeightMap.tesseval.glsl", GL_TESS_EVALUATION_SHADER)
+            .compile();
 
         sphere.load(30, 30);
         plane.load(30, 30);
         scene.load(&camera);
+        // renderer.load(&camera, root);
 
-        root = new spry::Scene { &sphere, "sphere", "turquoise" };
-        const float len = 20.0f;
-        root->addChild(std::make_unique<spry::Scene>(
-            &cube,
-            "basewall",
-            "obsidian",
-            glm::vec3(-len / 2.0f, -5.0f, -len / 2.0f),
-            glm::vec3(len, 1.0f, len)));
-        root->addChild(std::make_unique<spry::Scene>(
-            &cube,
-            "sidewall",
-            "redPlastic",
-            glm::vec3(-len * 1.5f, -5.0f, -len / 2.0f),
-            glm::vec3(len * 2.0f, 1.0f, len * 2.0f),
-            glm::quat(glm::vec3(0.0f, 0.0f, glm::radians(90.0f)))));
+        spry::setWireFrameMode(true);
 
-        renderer.setSpotLight(spotLight);
-        renderer.load(&camera, root);
+        texture
+            .create()
+            .setFilterMode(GL_LINEAR)
+            .setWrapMode(GL_CLAMP_TO_BORDER)
+            .load(nullptr, width, height, GL_RGBA);
+
+        quad.laod();
+        target.load();
+        target.attachTextureColor(texture);
+
     }
 
 private:
-    int mWidth;
-    int mHeight;
     spry::Camera camera;
-    spry::BlinnPhongRenderer renderer;
+    // spry::BlinnPhongRenderer renderer;
     spry::Sphere sphere;
     spry::Cuboid cube;
     spry::Plane plane;
     spry::DefaultAxes scene;
     float updateTime;
     float prevTime;
-    spry::Scene* root;
+    // spry::Scene* root;
+    spry::VAO mVAO;
+    spry::Shader tesselationShader;
+    spry::Texture heightMap;
+    spry::TextureRenderTarget target;
+    spry::Texture texture;
+    spry::FullScreenQuad quad;
 
     void onUpdate(float deltaTime) override
     {
         float time = glfwGetTime();
         processInput(deltaTime);
 
-        renderer.process(deltaTime);
-        renderer.render();
+        // renderer.process(deltaTime);
+        // renderer.render();
+
+        const auto model = glm::mat4 { 1.0f };
+        // target.bind();
+        {
+            glClearColor(0.2f, 0.2f, 0.24f, 1.0f);
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+            scene.draw();
+
+            tesselationShader.bind();
+            tesselationShader.setUniformMatrix("proj", camera.getProjectionMatrix());
+            tesselationShader.setUniformMatrix("view", camera.getViewMatrix());
+            tesselationShader.setUniformMatrix("model", model);
+            tesselationShader.setUniformInt("heightMap", 0);
+
+            heightMap.bind(0);
+            mVAO.draw(GL_PATCHES);
+        }
+        // target.unbind();
+
+        // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        // texture.bind(0);
+        // quad.draw();
 
         // closeWindow();
 
@@ -130,7 +203,7 @@ private:
     {
         ImGui::Text("Update Time: %.2f", updateTime);
         ImGui::Separator();
-        renderer.debugView(delta);
+        // renderer.debugView(delta);
     }
 };
 

@@ -11,6 +11,8 @@ spry::Texture::Texture(Texture&& texture)
 {
     if (this != &texture) {
         mTexture = std::move(texture.mTexture);
+        mWidth = std::move(texture.mWidth);
+        mHeight = std::move(texture.mHeight);
         texture.mTexture = 0;
     }
 }
@@ -20,6 +22,8 @@ spry::Texture& spry::Texture::operator=(Texture&& texture)
     if (this != &texture) {
         unload();
         mTexture = std::move(texture.mTexture);
+        mWidth = std::move(texture.mWidth);
+        mHeight = std::move(texture.mHeight);
         texture.mTexture = 0;
     }
     return *this;

@@ -105,6 +105,8 @@ add_library(
     BlinnPhongRenderer.cpp
     PointLight.cpp
     DirLight.cpp
+    HeightMapGenerator.cpp
+    TerrainMeshGenerator.cpp
 )
 
 target_include_directories(renderer PRIVATE ${FREETYPE_INCLUDE_DIRS})

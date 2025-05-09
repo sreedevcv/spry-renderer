@@ -1,13 +1,10 @@
 #include <cstdlib>
 #include <print>
-#include <utility>
 
 #include "Camera.hpp"
 #include "Cuboid.hpp"
 #include "DefaultAxes.hpp"
-#include "Entity.hpp"
 #include "FullScreenQuad.hpp"
-#include "GLFW/glfw3.h"
 #include "HeightMapGenerator.hpp"
 #include "Plane.hpp"
 #include "Sphere.hpp"
@@ -17,7 +14,6 @@
 #include "Toggle.hpp"
 #include "Window.hpp"
 
-#include "glm/ext/vector_float3.hpp"
 #include "imgui.h"
 
 class TestWindow : public spry::Window {
@@ -40,7 +36,10 @@ public:
         spry::setWireFrameMode(false);
 
         map.load(mapWidth, mapHeight, mapRes);
-        mesh.load(map.getHeightMap().mWidth, map.getHeightMap().mHeight);
+        mesh.load(map.mWidth, map.mHeight);
+        mHeightMap = spry::HeightMapGenerator::createTextureFromHeightMap(map.mBuffer,
+            map.mWidth,
+            map.mHeight);
 
         targetTexture
             .create()
@@ -66,26 +65,27 @@ private:
     spry::FullScreenQuad quad;
     spry::TerrainMeshGenerator mesh;
     spry::HeightMapGenerator map;
+    spry::Texture mHeightMap;
 
     void onUpdate(float deltaTime) override
     {
         float time = glfwGetTime();
         processInput(deltaTime);
 
-        // target.bind();
+        target.bind();
         {
             glClearColor(0.2f, 0.2f, 0.24f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
             scene.draw();
 
-            mesh.draw(map.getHeightMap(), camera);
+            mesh.draw(mHeightMap, camera);
         }
-        // target.unbind();
+        target.unbind();
 
-        // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        // map.getHeightMap().bind(0);
-        // quad.draw();
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        targetTexture.bind(0);
+        quad.draw();
 
         // closeWindow();
 
@@ -144,12 +144,12 @@ private:
 
         if (ImGui::Button("Generate Height Map")) {
             map.load(mapWidth, mapHeight, mapRes);
+            mHeightMap = spry::HeightMapGenerator::createTextureFromHeightMap(map.getHeightMap(), map.mWidth, map.mHeight);
         }
 
-        const auto& texture = map.getHeightMap();
         const auto targetWidth = ImGui::GetColumnWidth() - 20.0f;
-        const auto targetHeight = texture.mHeight / float(texture.mWidth) * targetWidth;
-        ImGui::Image(texture.getID(), ImVec2 { targetWidth, targetHeight });
+        const auto targetHeight = mHeightMap.mHeight / float(mHeightMap.mWidth) * targetWidth;
+        ImGui::Image(mHeightMap.getID(), ImVec2 { targetWidth, targetHeight });
     }
 };
 

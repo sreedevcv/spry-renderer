@@ -2,7 +2,9 @@
 #include "ShaderManager.hpp"
 #include "glm/ext/matrix_clip_space.hpp"
 #include "glm/ext/matrix_transform.hpp"
-#include <cfloat>
+#include <format>
+#include <limits>
+
 
 spry::PointLight::PointLight()
     : mOmniDirShadowShader(ShaderManager::instance().loadAndGet(ShaderManager::POINT_LIGHT_SHADOW_MAP))
@@ -51,9 +53,10 @@ void spry::PointLight::renderShadows(const Scene* scene) const
 {
     mPointlightShadowMapTarget.bind();
     {
-
+        constexpr float floatMax = std::numeric_limits<float>().max();
+        
         glViewport(0, 0, mShadowMapWidth, mShadowMapHeight);
-        glClearColor(FLT_MAX, FLT_MAX, FLT_MAX, FLT_MAX);
+        glClearColor(floatMax, floatMax, floatMax, floatMax); 
         glClear(GL_DEPTH_BUFFER_BIT);
 
         const std::array<glm::mat4, CubeMap::faceCount> transforms {

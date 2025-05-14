@@ -8,6 +8,7 @@ add_compile_options(-Wall)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 add_definitions(-DRES_PATH="${CMAKE_CURRENT_SOURCE_DIR}/res/")
 
+# May need to install `wayland-protocols-devel` and `mesa-libGL-devel` on fedora
 
 add_subdirectory(examples)
 add_subdirectory(renderer)

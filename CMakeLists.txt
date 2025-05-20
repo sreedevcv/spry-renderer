@@ -11,11 +11,17 @@ add_definitions(-DRES_PATH="${CMAKE_CURRENT_SOURCE_DIR}/res/")
 # May need to install `wayland-protocols-devel` and `mesa-libGL-devel` on fedora
 
 add_subdirectory(examples)
+add_subdirectory(shader-editor)
 add_subdirectory(renderer)
 
 # include_directories("${CMAKE_SOURCE_DIR}/include")
 
 target_link_libraries(
     main
+    renderer
+)
+
+target_link_libraries(
+    editor
     renderer
 )

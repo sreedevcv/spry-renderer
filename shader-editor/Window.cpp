@@ -1,17 +1,72 @@
 #include "Window.hpp"
 
 #include "imgui.h"
+#include "spdlog/spdlog.h"
+#include <cstdio>
 
 Window::Window()
     : spry::Window(600, 400, "Shader Editor")
 {
+    ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 }
 
 void Window::ui(float delta)
 {
-    ImGui::Text("Hello World");
-    ImGui::Text("FPS: %f", 1.0 / delta);
-    ImGui::Text("Delta: %.2fms", delta * 1000);
+    // ImGui::Text("Hello World");
+    // ImGui::Text("FPS: %f", 1.0 / delta);
+    // ImGui::Text("Delta: %.2fms", delta * 1000);
+
+
+    // ImGui::ShowDemoWindow();
+
+    if (ImGui::BeginMenuBar()) {
+        if (ImGui::BeginMenu("File")) {
+            if (ImGui::MenuItem("Close", "Ctrl+W")) {
+                spdlog::info("Close button pressed");
+            }
+            ImGui::EndMenu();
+        }
+        ImGui::EndMenuBar();
+    }
+
+    // Left
+    static int selected = 0;
+    {
+        ImGui::BeginChild("left pane", ImVec2(150, 0), ImGuiChildFlags_Borders | ImGuiChildFlags_ResizeX);
+        for (int i = 0; i < 100; i++) {
+            // FIXME: Good candidate to use ImGuiSelectableFlags_SelectOnNav
+            char label[128];
+            sprintf(label, "MyObject %d", i);
+            if (ImGui::Selectable(label, selected == i))
+                selected = i;
+        }
+        ImGui::EndChild();
+    }
+    ImGui::SameLine();
+
+    // Right
+    {
+        ImGui::BeginGroup();
+        ImGui::BeginChild("item view", ImVec2(0, -ImGui::GetFrameHeightWithSpacing())); // Leave room for 1 line below us
+        ImGui::Text("MyObject: %d", selected);
+        ImGui::Separator();
+        if (ImGui::BeginTabBar("##Tabs", ImGuiTabBarFlags_None)) {
+            if (ImGui::BeginTabItem("Description")) {
+                ImGui::TextWrapped("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. ");
+                ImGui::EndTabItem();
+            }
+            if (ImGui::BeginTabItem("Details")) {
+                ImGui::Text("ID: 0123456789");
+                ImGui::EndTabItem();
+            }
+            ImGui::EndTabBar();
+        }
+        ImGui::EndChild();
+        if (ImGui::Button("Revert")) { }
+        ImGui::SameLine();
+        if (ImGui::Button("Save")) { }
+        ImGui::EndGroup();
+    }
 }
 
 Window::~Window()
@@ -42,10 +97,13 @@ void Window::onImguiDebugDraw(float delta)
     ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f));
     ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
-    ImGui::Begin("temp", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoResize);
 
-    ui(delta);
+    bool p_open = false;
 
+    if (ImGui::Begin("Example: Simple layout", &p_open, ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoResize)) {
+        ui(delta);
+    }
     ImGui::End();
+
     ImGui::PopStyleVar(1);
 }

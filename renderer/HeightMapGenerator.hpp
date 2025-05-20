@@ -20,9 +20,9 @@ public:
     uint32_t mWidth;
     uint32_t mHeight;
     std::vector<uint8_t> mBuffer;
+    FastNoiseLite mFastNoiseLite;
 
 private:
-    FastNoiseLite mFastNoiseLite;
 };
 
 }

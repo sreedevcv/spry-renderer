@@ -2,6 +2,7 @@
 
 #include "imgui.h"
 #include "spdlog/spdlog.h"
+#include <cfloat>
 #include <cstdio>
 
 Window::Window()
@@ -15,7 +16,6 @@ void Window::ui(float delta)
     // ImGui::Text("Hello World");
     // ImGui::Text("FPS: %f", 1.0 / delta);
     // ImGui::Text("Delta: %.2fms", delta * 1000);
-
 
     // ImGui::ShowDemoWindow();
 
@@ -32,14 +32,20 @@ void Window::ui(float delta)
     // Left
     static int selected = 0;
     {
-        ImGui::BeginChild("left pane", ImVec2(150, 0), ImGuiChildFlags_Borders | ImGuiChildFlags_ResizeX);
-        for (int i = 0; i < 100; i++) {
-            // FIXME: Good candidate to use ImGuiSelectableFlags_SelectOnNav
-            char label[128];
-            sprintf(label, "MyObject %d", i);
-            if (ImGui::Selectable(label, selected == i))
-                selected = i;
-        }
+        ImGui::BeginChild(
+            "left pane",
+            ImVec2(150, 0),
+            ImGuiChildFlags_Borders | ImGuiChildFlags_ResizeX);
+
+        static char buffer[1000];
+
+        ImVec2 size = ImGui::GetContentRegionAvail();
+
+        ImGui::InputTextMultiline(
+            "##ed",
+            buffer,
+            sizeof(buffer),
+            size);
         ImGui::EndChild();
     }
     ImGui::SameLine();
@@ -100,7 +106,12 @@ void Window::onImguiDebugDraw(float delta)
 
     bool p_open = false;
 
-    if (ImGui::Begin("Example: Simple layout", &p_open, ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoResize)) {
+    if (ImGui::Begin(
+            "Example: Simple layout",
+            &p_open,
+            ImGuiWindowFlags_MenuBar
+                | ImGuiWindowFlags_NoDecoration
+                | ImGuiWindowFlags_NoResize)) {
         ui(delta);
     }
     ImGui::End();

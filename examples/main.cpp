@@ -47,7 +47,7 @@ public:
             .setWrapMode(GL_CLAMP_TO_BORDER)
             .load(nullptr, width, height, GL_RGBA);
 
-        quad.laod();
+        quad.load();
         target.load();
         target.attachTextureColor(targetTexture);
     }

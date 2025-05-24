@@ -17,7 +17,7 @@ public:
     FullScreenQuad(const FullScreenQuad& fullScreenQuad) = delete;
     FullScreenQuad& operator=(const FullScreenQuad& fullScreenQuad) = delete;
 
-    void laod();
+    void load();
     void draw() const;
 
 private:

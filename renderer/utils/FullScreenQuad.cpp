@@ -18,7 +18,7 @@ spry::FullScreenQuad& spry::FullScreenQuad::operator=(FullScreenQuad&& fullScree
     return *this;
 }
 
-void spry::FullScreenQuad::laod()
+void spry::FullScreenQuad::load()
 {
     mShader
         .add(RES_PATH "shaders/ScreenSpace.vert", GL_VERTEX_SHADER)

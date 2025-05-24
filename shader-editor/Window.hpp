@@ -1,9 +1,11 @@
+#include "FullScreenQuad.hpp"
 #include "Texture.hpp"
 #include "gl/Window.hpp"
 
 #include "TextEditor.hpp"
 #include "gl/VAO.hpp"
 #include "gl/TextureRenderTarget.hpp"
+#include "imgui.h"
 #include <cstdint>
 
 class Window : public spry::Window {
@@ -29,4 +31,6 @@ private:
     spry::Texture mTestTexture;
     int32_t mTextureWidth {600};
     int32_t mTextureHeight {600};
+    ImVec2 availableSize;
+    spry::FullScreenQuad mQuad;
 };

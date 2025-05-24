@@ -113,7 +113,7 @@ void spry::BlinnPhongRenderer::load(Camera* camera, Scene* sceneTree)
         mShadowMapHeight);
 
     mDefaultScene.load(camera);
-    mScreenQuad.laod();
+    mScreenQuad.load();
     mRootScene = sceneTree;
 }
 

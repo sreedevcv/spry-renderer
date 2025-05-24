@@ -16,19 +16,15 @@ Window::Window()
     ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 
     std::array<uint32_t, 1> format { 4 };
-    float xPos { 0.0f };
-    float yPos { 0.0f };
-    float w { static_cast<float>(mTextureWidth) };
-    float h { static_cast<float>(mTextureHeight) };
 
     std::array<float, 24> vertices = {
-        xPos, yPos + h, 0.0f, 0.0f, //
-        xPos, yPos, 0.0f, 1.0f, //
-        xPos + w, yPos, 1.0f, 1.0f, //
+        0.0f, 1.0f, 0.0f, 0.0f, // top-left
+        0.0f, 0.0f, 0.0f, 1.0f, // bottom-left
+        1.0f, 0.0f, 1.0f, 1.0f, // bottom-right
 
-        xPos, yPos + h, 0.0f, 0.0f, //
-        xPos + w, yPos, 1.0f, 1.0f, //
-        xPos + w, yPos + h, 1.0f, 0.0f, //
+        0.0f, 1.0f, 0.0f, 0.0f, // top-left
+        1.0f, 0.0f, 1.0f, 1.0f, // bottom-right
+        1.0f, 1.0f, 1.0f, 0.0f // top-right
     };
 
     mVao.load(
@@ -52,23 +48,24 @@ Window::Window()
     mRenderTarget.load();
     mRenderTarget.attachTextureColor(mTexture);
 
+    mQuad.load();
+
     //
 
     compileShader(R"(
 #version 460 core
 
-in vec2 texCoords;
+in vec2 uv;
+
 out vec4 fragColor;
 
-uniform sampler2D text;
+uniform sampler2D finalTexture;
 
 void main()
 {
-    
-    // float alpha = texture(text, texCoords).r;
-    // vec4 sampled = vec4(1.0, 1.0, 1.0, alpha);
-    
-    fragColor = texture(text, texCoords).rgba;
+    vec4 color = texture(finalTexture, uv);
+//     color.r = 0.0f;
+    fragColor = color;
 }
         
 )");
@@ -113,27 +110,13 @@ void Window::ui(float delta)
     {
         ImGui::BeginGroup();
         ImGui::BeginChild("item view", ImVec2(0, -ImGui::GetFrameHeightWithSpacing())); // Leave room for 1 line below us
-        // ImGui::Text("MyObject: %d", selected);
-        // ImGui::Separator();
-        // if (ImGui::BeginTabBar("##Tabs", ImGuiTabBarFlags_None)) {
-        //     if (ImGui::BeginTabItem("Description")) {
-        //         ImGui::TextWrapped("Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. ");
-        //         ImGui::EndTabItem();
-        //     }
-        //     if (ImGui::BeginTabItem("Details")) {
-        //         ImGui::Text("ID: 0123456789");
-        //         ImGui::EndTabItem();
-        //     }
-        //     ImGui::EndTabBar();
-        // }
 
-        ImVec2 size = ImGui::GetContentRegionAvail();
-        float length = std::min(size.x, size.y);
-        mTextureWidth = size.x;
-        mTextureHeight = size.y;
+        availableSize = ImGui::GetContentRegionAvail();
+        float length = std::min(availableSize.x, availableSize.y);
 
         if (mShaderId != 0) {
-            ImGui::Image(mTexture.getID(), ImVec2(size));
+            ImGui::Image(mTestTexture.getID(), ImVec2(availableSize), ImVec2(0, 1), ImVec2(1, 0));
+            // ImGui::Image(mTexture.getID(), ImVec2(availableSize), ImVec2(1, 1), ImVec2(0, 0));
         }
 
         ImGui::EndChild();
@@ -141,7 +124,7 @@ void Window::ui(float delta)
         ImGui::SameLine();
         if (ImGui::Button("Save")) { }
         ImGui::SameLine();
-        ImGui::LabelText("Size", "%s", std::format("{} {}", size.x, size.y).c_str());
+        ImGui::LabelText("Size", "%s", std::format("{} {}", availableSize.x, availableSize.y).c_str());
         ImGui::EndGroup();
     }
 }
@@ -166,31 +149,45 @@ void Window::onUpdate(float deltaTime)
 {
     if (mShaderId != 0) {
         mRenderTarget.bind();
-
+        glViewport(0, 0, mTextureWidth, mTextureHeight);
         glClearColor(0.5f, 0.4f, 0.4f, 1.0f);
         glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
         glUseProgram(mShaderId);
 
-        auto orthoProj = glm::ortho(
-            0.0f,
-            static_cast<float>(mTextureWidth),
-            0.0f,
-            static_cast<float>(mTextureHeight));
-        
-        std::println("{} {}", mTextureWidth, mTextureHeight);
+        // float xPos { 0.0f };
+        // float yPos { 0.0f };
+        // float w { availableSize.x  };
+        // float h { availableSize.y  };
 
-        int loc = glGetUniformLocation(mShaderId, "proj");
-        glUniformMatrix4fv(
-            loc,
-            1,
-            GL_FALSE,
-            glm::value_ptr(orthoProj));
+        // glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(xPos, yPos, 0.0f));
+        // model = glm::scale(model, glm::vec3(w, h, 1.0f));
 
-        // bind a test texture
+        // auto orthoProj = glm::ortho(
+        //     0.0f,
+        //     static_cast<float>(mTextureWidth),
+        //     0.0f,
+        //     static_cast<float>(mTextureHeight));
+
+        // auto mvp = orthoProj * model;
+
+        // std::println("{} {}", mTextureWidth, mTextureHeight);
+        // std::println("{} {}", w, h);
+
+        // int loc = glGetUniformLocation(mShaderId, "proj");
+        // glUniformMatrix4fv(
+        //     loc,
+        //     1,
+        //     GL_FALSE,
+        //     glm::value_ptr(mvp));
+
+        // // bind a test texture
+        // mTestTexture.bind(0);
+
+        // mVao.draw(GL_TRIANGLES);
+
         mTestTexture.bind(0);
-
-        mVao.draw(GL_TRIANGLES);
+        mQuad.draw();
 
         mRenderTarget.unbind();
 

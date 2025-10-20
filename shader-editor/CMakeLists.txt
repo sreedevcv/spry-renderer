@@ -4,4 +4,5 @@ add_executable(
     Window.cpp
     TextEditor.cpp
     ShaderCompiler.cpp
+    RenderQuad.cpp
 )

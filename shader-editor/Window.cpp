@@ -1,37 +1,17 @@
 #include "Window.hpp"
 
-#include "glm/gtc/type_ptr.hpp"
+#include "Texture.hpp"
 #include "imgui.h"
 #include "spdlog/spdlog.h"
 #include "ShaderCompiler.hpp"
 
-#include "glm/ext/matrix_clip_space.hpp"
-#include <algorithm>
 #include <format>
-#include <print>
+#include <string>
 
 Window::Window()
     : spry::Window(800, 600, "Shader Editor")
 {
     ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-
-    std::array<uint32_t, 1> format { 4 };
-
-    std::array<float, 24> vertices = {
-        0.0f, 1.0f, 0.0f, 0.0f, // top-left
-        0.0f, 0.0f, 0.0f, 1.0f, // bottom-left
-        1.0f, 0.0f, 1.0f, 1.0f, // bottom-right
-
-        0.0f, 1.0f, 0.0f, 0.0f, // top-left
-        1.0f, 0.0f, 1.0f, 1.0f, // bottom-right
-        1.0f, 1.0f, 1.0f, 0.0f // top-right
-    };
-
-    mVao.load(
-        vertices,
-        std::span<uint32_t> { format },
-        24,
-        GL_STATIC_DRAW);
 
     mTestTexture
         .create()
@@ -50,10 +30,7 @@ Window::Window()
 
     mQuad.load();
 
-    //
-
-    compileShader(R"(
-#version 460 core
+    std::string fragCode { R"(#version 460 core
 
 in vec2 uv;
 
@@ -64,11 +41,14 @@ uniform sampler2D finalTexture;
 void main()
 {
     vec4 color = texture(finalTexture, uv);
-//     color.r = 0.0f;
+    // color.r = 0.0f;
+    // fragColor = vec4(0.1, 0.5, 0.8, 1.0);
     fragColor = color;
 }
         
-)");
+)" };
+
+    m_editor.SetText(fragCode);
 }
 
 void Window::ui(float delta)
@@ -90,7 +70,6 @@ void Window::ui(float delta)
     }
 
     // Left
-    static int selected = 0;
     {
         ImGui::BeginChild(
             "left pane",
@@ -112,11 +91,9 @@ void Window::ui(float delta)
         ImGui::BeginChild("item view", ImVec2(0, -ImGui::GetFrameHeightWithSpacing())); // Leave room for 1 line below us
 
         availableSize = ImGui::GetContentRegionAvail();
-        float length = std::min(availableSize.x, availableSize.y);
 
         if (mShaderId != 0) {
-            ImGui::Image(mTestTexture.getID(), ImVec2(availableSize), ImVec2(0, 1), ImVec2(1, 0));
-            // ImGui::Image(mTexture.getID(), ImVec2(availableSize), ImVec2(1, 1), ImVec2(0, 0));
+            ImGui::Image(mTexture.getID(), ImVec2(availableSize), ImVec2(0, 1), ImVec2(1, 0));
         }
 
         ImGui::EndChild();
@@ -133,11 +110,16 @@ Window::~Window()
 {
 }
 
-void Window::compileShader(const char* source)
+void Window::compileShader()
 {
-    const auto result = compile(source);
+    const auto& code = m_editor.GetText();
+    const auto result = compile(code.c_str());
 
     if (result) {
+        if (mShaderId != 0) {
+            glDeleteProgram(mShaderId);
+        }
+
         mShaderId = result.value();
     } else {
         spdlog::error("{}", result.error());
@@ -145,52 +127,35 @@ void Window::compileShader(const char* source)
     }
 }
 
+void Window::handleKeyboardInputs()
+{
+    ImGuiIO& io = ImGui::GetIO();
+    auto shift = io.KeyShift;
+    auto ctrl = io.ConfigMacOSXBehaviors ? io.KeySuper : io.KeyCtrl;
+    auto alt = io.ConfigMacOSXBehaviors ? io.KeyCtrl : io.KeyAlt;
+
+    if (ctrl && !shift && !alt && ImGui::IsKeyPressed((ImGuiKey_R))) {
+        spdlog::info("Compiling...");
+        compileShader();
+    }
+}
+
 void Window::onUpdate(float deltaTime)
 {
+    handleKeyboardInputs();
+
     if (mShaderId != 0) {
         mRenderTarget.bind();
         glViewport(0, 0, mTextureWidth, mTextureHeight);
-        glClearColor(0.5f, 0.4f, 0.4f, 1.0f);
+        glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
         glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
         glUseProgram(mShaderId);
-
-        // float xPos { 0.0f };
-        // float yPos { 0.0f };
-        // float w { availableSize.x  };
-        // float h { availableSize.y  };
-
-        // glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(xPos, yPos, 0.0f));
-        // model = glm::scale(model, glm::vec3(w, h, 1.0f));
-
-        // auto orthoProj = glm::ortho(
-        //     0.0f,
-        //     static_cast<float>(mTextureWidth),
-        //     0.0f,
-        //     static_cast<float>(mTextureHeight));
-
-        // auto mvp = orthoProj * model;
-
-        // std::println("{} {}", mTextureWidth, mTextureHeight);
-        // std::println("{} {}", w, h);
-
-        // int loc = glGetUniformLocation(mShaderId, "proj");
-        // glUniformMatrix4fv(
-        //     loc,
-        //     1,
-        //     GL_FALSE,
-        //     glm::value_ptr(mvp));
-
-        // // bind a test texture
-        // mTestTexture.bind(0);
-
-        // mVao.draw(GL_TRIANGLES);
 
         mTestTexture.bind(0);
         mQuad.draw();
 
         mRenderTarget.unbind();
-
         glUseProgram(0);
     }
 

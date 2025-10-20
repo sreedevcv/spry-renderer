@@ -26,27 +26,19 @@ static std::expected<int32_t, std::string> compileSingleshader(const char* shade
 
 std::expected<int32_t, std::string> compile(const char* source)
 {
-    const char* vertexShaderSource = R"(
+const char* vertexShaderSource = R"(
 #version 460 core
+
+layout(location = 0) out vec2 Inuv;
 
 out vec2 uv;
 
 void main()
 {
-    const vec2 pos[3] = vec2[](
-        vec2(-1.0, -1.0),
-        vec2( 3.0, -1.0),
-        vec2(-1.0,  3.0)
-    );
-
-    const vec2 tex[3] = vec2[](
-        vec2(0.0, 0.0),
-        vec2(2.0, 0.0),
-        vec2(0.0, 2.0)
-    );
-
-    gl_Position = vec4(pos[gl_VertexID], 0.0, 1.0);
-    uv = tex[gl_VertexID];
+     float u = float(((gl_VertexID + 2u) / 3u) % 2u);       
+     float v = float(((gl_VertexID + 1u) / 3u) % 2u);       
+     gl_Position = vec4(-1.0 + u * 2.0, -1.0 + v * 2.0, 0.0, 1.0);
+     uv = vec2(u, v);
 }
 
 )";
@@ -54,13 +46,13 @@ void main()
     const auto vertexShader = compileSingleshader(vertexShaderSource, GL_VERTEX_SHADER);
 
     if (!vertexShader) {
-        return std::unexpected { std::move(vertexShader.error()) };
+        return std::unexpected { vertexShader.error() };
     }
 
     const auto fragmentShader = compileSingleshader(source, GL_FRAGMENT_SHADER);
 
     if (!fragmentShader) {
-        return std::unexpected { std::move(fragmentShader.error()) };
+        return std::unexpected { fragmentShader.error() };
     }
 
     int32_t id = glCreateProgram();
@@ -69,6 +61,9 @@ void main()
     glAttachShader(id, fragmentShader.value());
     glLinkProgram(id);
 
+    glDeleteShader(vertexShader.value());
+    glDeleteShader(fragmentShader.value());
+    
     int success;
     char log[2048];
     glGetProgramiv(id, GL_LINK_STATUS, &success);
@@ -78,9 +73,6 @@ void main()
         spdlog::error("Failed to link program");
         return std::unexpected {log};
     }
-
-    glDeleteShader(vertexShader.value());
-    glDeleteShader(fragmentShader.value());
 
     spdlog::info("Compiled shader: {}", id);
 

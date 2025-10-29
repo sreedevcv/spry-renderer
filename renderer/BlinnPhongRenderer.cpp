@@ -14,9 +14,7 @@
 #include "glm/geometric.hpp"
 #include "imgui.h"
 
-#include <cfloat>
 #include <cstdint>
-#include <cstring>
 #include <format>
 
 spry::BlinnPhongRenderer::BlinnPhongRenderer()
@@ -228,7 +226,7 @@ void spry::BlinnPhongRenderer::debugView(float delta)
 {
     ImGui::PushItemWidth(180.0f);
 
-    
+
     ImGui::Separator();
     if (ImGui::CollapsingHeader("Point Lights Option")) {
         for (int i = 0; i < POINT_LIGHT_COUNT; i++) {
